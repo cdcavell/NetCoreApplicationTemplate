@@ -55,7 +55,9 @@ Development has not yet started. This README will evolve as each area of the pro
 │
 ├── .gitattributes
 ├── .gitignore
-└── README.md
+├── README.md
+├── LICENSE.txt
+└── ASSETS-LICENSES.md
 ```
 
 ## Application Architecture
@@ -95,19 +97,56 @@ Planned areas:
 
 ## Logging
 
-This section will document logging patterns used by the template.
+This template uses Serilog for structured application logging.
 
-Planned areas:
+Serilog is configured as the primary logging provider so that application events, startup events, errors, and HTTP request activity are written using a consistent structured format.
 
-- Serilog configuration.
-- Console logging.
-- File logging.
-- Request logging.
-- Correlation IDs.
-- Enrichers.
-- Environment-specific log settings.
-- Recommended output templates.
-- Sensitive data logging rules.
+#### Bootstrap Logging
+The application logs a bootstrap message when the web application begins provider configuration:
+```csharp
+Log.Information("Bootstrapping Template.Web application");
+```
+
+#### Startup Logging
+The application logs a startup message when the web application begins initialization:
+```csharp
+Log.Information("Starting Template.Web application");
+```
+
+#### Pipline Logging 
+The application logs a startup message when the web application begins configuring the middleware pipeline:
+```csharp
+Log.Information("Configuring pipline for Template.Web application");
+```
+
+#### Runtime Logging
+The application logs a startup message when the web application begins running:
+```csharp
+Log.Information("Running Template.Web application");
+```
+
+#### Ongoing Application Logging
+While the application is running, structured logs are written for normal application activity, warnings, errors, and HTTP request processing. These logs help provide visibility into the current behavior of the application without requiring a debugger to be attached.
+
+Runtime logging may include:
+
+- Application lifecycle events
+- Controller or endpoint activity
+- HTTP request completion details
+- Warnings from expected but noteworthy conditions
+- Exceptions and unexpected failures
+- Framework or infrastructure messages based on configured log levels
+
+The default logging configuration is intended to capture useful operational information while avoiding sensitive data such as passwords, authentication tokens, cookies, request bodies, and response bodies.
+
+Additional logging can be added throughout the application by injecting ILogger<T> into services, controllers, middleware, or other application components.
+
+#### Bootstrap Exception Logging
+The application logs any exceptions that occur during the bootstrapping process or while configuring the middleware pipeline:
+```csharp
+Log.Fatal(ex, "Template.Web application terminated unexpectedly");
+```
+
 
 ## Error Handling
 

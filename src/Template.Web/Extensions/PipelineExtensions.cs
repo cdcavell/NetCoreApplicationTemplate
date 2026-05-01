@@ -10,7 +10,7 @@ namespace Template.Web.Extensions
             app.UseForwardedHeaders();
 
             // 2. Structured request logging should see corrected scheme, host, and client IP.
-            app.UseSerilogRequestLogging();
+            //app.UseSerilogRequestLogging();
 
             // 3. Centralized exception handling.
             if (!app.Environment.IsDevelopment())

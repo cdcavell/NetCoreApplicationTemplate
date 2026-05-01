@@ -5,8 +5,8 @@ namespace Template.Web.Extensions;
 /// <summary>
 /// Extension methods for configuring Serilog for the web application.
 /// </summary>
-public static class SerilogExtensions
-{
+    public static class SerilogExtensions
+    {
     /// <summary>
     /// Configures Serilog for the provided <see cref="WebApplicationBuilder"/>.
     /// Reads configuration from <see cref="WebApplicationBuilder.Configuration"/>, reads services,
@@ -14,14 +14,15 @@ public static class SerilogExtensions
     /// </summary>
     /// <param name="builder">The web application builder to configure.</param>
     /// <returns>The same <see cref="WebApplicationBuilder"/> instance for chaining.</returns>
-    public static WebApplicationBuilder AddTemplateSerilog(this WebApplicationBuilder builder)
-    {
-        builder.Services.AddSerilog((services, loggerConfiguration) =>
+        public static WebApplicationBuilder AddTemplateSerilog(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddSerilog((services, loggerConfiguration) =>
             _ = loggerConfiguration
-                .ReadFrom.Configuration(builder.Configuration)
-                .ReadFrom.Services(services)
+                    .ReadFrom.Configuration(builder.Configuration)
+                    .ReadFrom.Services(services)
                 .Enrich.FromLogContext());
 
-        return builder;
+            return builder;
+        }
     }
 }

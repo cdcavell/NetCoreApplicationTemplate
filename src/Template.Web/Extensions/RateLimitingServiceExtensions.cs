@@ -6,47 +6,48 @@ namespace Template.Web.Extensions;
 /// <summary>
 /// Provides extension methods to register rate limiting services for the application.
 /// </summary>
-public static class RateLimitingServiceExtensions
-{
+    public static class RateLimitingServiceExtensions
+    {
     /// <summary>
     /// Adds the application's predefined rate limiting policies to the service collection.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the rate limiting services to.</param>
     /// <returns>The same <see cref="IServiceCollection"/> instance so calls can be chained.</returns>
-    public static IServiceCollection AddTemplateRateLimiting(this IServiceCollection services)
-    {
-        services.AddRateLimiter(options =>
+        public static IServiceCollection AddTemplateRateLimiting(this IServiceCollection services)
         {
-            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-            options.OnRejected = async (context, cancellationToken) =>
+            services.AddRateLimiter(options =>
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.ContentType = "application/json";
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                await context.HttpContext.Response.WriteAsJsonAsync(new
+                options.OnRejected = async (context, cancellationToken) =>
                 {
-                    error = "Too many requests.",
-                    statusCode = StatusCodes.Status429TooManyRequests
-                }, cancellationToken);
-            };
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
 
-            options.AddFixedWindowLimiter("fixed", limiterOptions =>
-            {
-                limiterOptions.PermitLimit = 60;
-                limiterOptions.Window = TimeSpan.FromMinutes(1);
-                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                limiterOptions.QueueLimit = 0;
+                    await context.HttpContext.Response.WriteAsJsonAsync(new
+                    {
+                        error = "Too many requests.",
+                        statusCode = StatusCodes.Status429TooManyRequests
+                    }, cancellationToken);
+                };
+
+                options.AddFixedWindowLimiter("fixed", limiterOptions =>
+                {
+                    limiterOptions.PermitLimit = 60;
+                    limiterOptions.Window = TimeSpan.FromMinutes(1);
+                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    limiterOptions.QueueLimit = 0;
+                });
+
+                options.AddConcurrencyLimiter("concurrency", limiterOptions =>
+                {
+                    limiterOptions.PermitLimit = 10;
+                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    limiterOptions.QueueLimit = 0;
+                });
             });
 
-            options.AddConcurrencyLimiter("concurrency", limiterOptions =>
-            {
-                limiterOptions.PermitLimit = 10;
-                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                limiterOptions.QueueLimit = 0;
-            });
-        });
-
-        return services;
+            return services;
+        }
     }
 }

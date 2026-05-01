@@ -36,18 +36,18 @@ namespace Template.Web.Extensions
             app.UseRouting();
 
             // 8. CORS, when needed, should be after routing and before auth.
-            app.UseCors();
+            //app.UseCors();
 
             // 9. Rate limiting after routing when endpoint-specific policies are used.
-            app.UseRateLimiter();
+            //app.UseRateLimiter();
 
             // 10. Authentication and authorization.
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             // 11. Endpoint mapping.
-            app.MapControllers();
-            app.MapRazorPages();
+            //app.MapControllers();
+            //app.MapRazorPages();
 
             return app;
         }

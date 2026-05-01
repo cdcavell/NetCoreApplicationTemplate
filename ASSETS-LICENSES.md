@@ -1,7 +1,14 @@
 
+## [Serilog](https://serilog.net/) 
+_is a diagnostic logging library for .NET applications. It provides a simple and flexible API for logging structured data, making it easier to analyze and query logs._
 - [Serilog.AspNetCore](https://github.com/serilog/serilog-aspnetcore)
+- [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration)
+- [Serilog.Sinks.Console](https://github.com/serilog/serilog-sinks-console)
+- [Serilog.Sinks.File](https://github.com/serilog/serilog-sinks-file)
+- [Serilog.Enrichers.Environment](https://github.com/serilog/serilog-enrichers-environment)
+- [Serilog.Enrichers.Thread](https://serilog.net/)
  
-The above asset(s) are under [Apache, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
+The above asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

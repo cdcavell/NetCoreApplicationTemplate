@@ -1,14 +1,49 @@
+using Serilog;
 using Template.Web.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Debug(
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] [Bootstrap] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] [Bootstrap] {Message:lj}{NewLine}{Exception}")
+    .CreateBootstrapLogger();
 
-builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
-builder.Services.AddTemplateRateLimiting();
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+    builder.AddTemplateSerilog();
+    Log.Information("Bootstrapping Template.Web application");
 
-app.UseTemplatePipeline();
+    builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
+    builder.Services.AddTemplateRateLimiting();
 
-app.MapGet("/", () => "Hello World!");
+    Log.Information("Starting Template.Web application");
+    var app = builder.Build();
 
-app.Run();
+    Log.Information("Configuring pipline for Template.Web application");
+    app.UseTemplatePipeline();
+
+    app.MapGet("/", () => "Hello World!");
+
+    Log.Information("Running Template.Web application");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Template.Web application terminated unexpectedly");
+    Environment.ExitCode = 1;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+
+
+
+
+
+
+

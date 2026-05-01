@@ -1,10 +1,19 @@
-﻿using Serilog;
+using Serilog;
 using Serilog.Events;
 
-namespace Template.Web.Extensions
-{
+namespace Template.Web.Extensions;
+
+/// <summary>
+/// Provides extension methods for configuring request logging on a <see cref="WebApplication"/>.
+/// </summary>
     public static class RequestLoggingExtensions
     {
+    /// <summary>
+    /// Configures Serilog request logging with the application's preferred message template,
+    /// log level selection logic, and diagnostic context enrichment.
+    /// </summary>
+    /// <param name="app">The web application to configure.</param>
+    /// <returns>The same <see cref="WebApplication"/> instance for chaining.</returns>
         public static WebApplication UseTemplateRequestLogging(this WebApplication app)
         {
             app.UseSerilogRequestLogging(options =>
@@ -15,17 +24,15 @@ namespace Template.Web.Extensions
                 options.GetLevel = (httpContext, elapsed, exception) =>
                 {
                     if (exception is not null)
+                {
                         return LogEventLevel.Error;
+                }
 
                     int statusCode = httpContext.Response.StatusCode;
 
-                    if (statusCode >= StatusCodes.Status500InternalServerError)
-                        return LogEventLevel.Error;
-
-                    if (statusCode >= StatusCodes.Status400BadRequest)
-                        return LogEventLevel.Warning;
-
-                    return LogEventLevel.Information;
+                return statusCode >= StatusCodes.Status500InternalServerError
+                    ? LogEventLevel.Error
+                    : statusCode >= StatusCodes.Status400BadRequest ? LogEventLevel.Warning : LogEventLevel.Information;
                 };
 
                 options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>

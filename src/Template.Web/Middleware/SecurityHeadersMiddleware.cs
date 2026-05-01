@@ -1,21 +1,26 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Template.Web.Options;
 
-namespace Template.Web.Middleware
-{
-    public sealed class SecurityHeadersMiddleware
-    {
-        private readonly RequestDelegate _next;
-        private readonly SecurityHeadersOptions _options;
+namespace Template.Web.Middleware;
 
-        public SecurityHeadersMiddleware(
-            RequestDelegate next,
-            IOptions<SecurityHeadersOptions> options)
+/// <summary>
+/// Middleware that applies a set of security-related HTTP headers to responses.
+/// </summary>
+/// <remarks>
+/// The middleware can be configured via <see cref="SecurityHeadersOptions"/> to enable/disable
+/// individual headers and to exclude certain request path prefixes.
+/// </remarks>
+public sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<SecurityHeadersOptions> options)
         {
-            _next = next;
-            _options = options.Value;
-        }
+    private readonly RequestDelegate _next = next ?? throw new ArgumentNullException(nameof(next));
+    private readonly SecurityHeadersOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
+    /// <summary>
+    /// Invokes the middleware for the given <paramref name="context"/>, applying configured
+    /// security headers to the response when appropriate.
+    /// </summary>
+    /// <param name="context">The current HTTP context.</param>
+    /// <returns>A <see cref="Task"/> that completes when the middleware and the next delegate finish processing.</returns>
         public async Task InvokeAsync(HttpContext context)
         {
             if (!_options.Enabled || IsExcludedPath(context.Request.Path))

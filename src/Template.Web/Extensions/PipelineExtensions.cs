@@ -1,10 +1,19 @@
-﻿using Serilog;
-using Serilog.Events;
+namespace Template.Web.Extensions;
 
-namespace Template.Web.Extensions
-{
+/// <summary>
+/// Provides extension methods to configure the application's middleware pipeline
+/// with a predefined ordering suitable for this template.
+/// </summary>
     public static class PipelineExtensions
     {
+    /// <summary>
+    /// Configures the middleware pipeline for the specified <see cref="WebApplication"/>.
+    /// The ordering includes forwarded headers, request logging, exception handling,
+    /// security headers, HTTPS redirection, static files, routing, rate limiting, and
+    /// (optionally) authentication/authorization and endpoint mapping.
+    /// </summary>
+    /// <param name="app">The <see cref="WebApplication"/> to configure.</param>
+    /// <returns>The same <see cref="WebApplication"/> instance for chaining.</returns>
         public static WebApplication UseTemplatePipeline(this WebApplication app)
         {
             // 1. Proxy/load balancer correction must happen early.

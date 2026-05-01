@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    var builder = WebApplication.CreateBuilder(args);
+    WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
     builder.AddTemplateSerilog();
     Log.Information("Bootstrapping Template.Web application");
@@ -20,7 +20,7 @@ try
     builder.Services.AddTemplateRateLimiting();
 
     Log.Information("Starting Template.Web application");
-    var app = builder.Build();
+    WebApplication app = builder.Build();
 
     Log.Information("Configuring pipline for Template.Web application");
     app.UseTemplatePipeline();

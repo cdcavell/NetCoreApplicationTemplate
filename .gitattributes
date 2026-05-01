@@ -4,7 +4,7 @@
 #
 # Goals:
 # - Normalize text line endings consistently.
-# - Keep repository text files stored with LF endings.
+# - Keep repository text files stored with LF endings unless (Windows/Visual Studio-oriented files).
 # - Preserve CRLF only where Windows command scripts require it.
 # - Protect binary files from text normalization and noisy diffs.
 ###############################################################################
@@ -35,71 +35,71 @@
 
 
 ###############################################################################
-# .NET / C# project files
+# .NET / C# project files (Windows/Visual Studio-oriented files)
 ###############################################################################
 
-*.cs        text eol=lf diff=csharp
-*.cshtml    text eol=lf
-*.razor     text eol=lf
-*.csproj    text eol=lf
-*.vbproj    text eol=lf
-*.fsproj    text eol=lf
-*.sln       text eol=lf
-*.slnx      text eol=lf
-*.props     text eol=lf
-*.targets   text eol=lf
-*.nuspec    text eol=lf
-*.resx      text eol=lf
-*.config    text eol=lf
-
-
-###############################################################################
-# Web assets
-###############################################################################
-
-*.html      text eol=lf
-*.htm       text eol=lf
-*.css       text eol=lf
-*.scss      text eol=lf
-*.sass      text eol=lf
-*.js        text eol=lf
-*.jsx       text eol=lf
-*.ts        text eol=lf
-*.tsx       text eol=lf
-*.mjs       text eol=lf
-*.cjs       text eol=lf
+*.cs        text eol=crlf diff=csharp
+*.cshtml    text eol=crlf
+*.razor     text eol=crlf
+*.csproj    text eol=crlf
+*.vbproj    text eol=crlf
+*.fsproj    text eol=crlf
+*.sln       text eol=crlf
+*.slnx      text eol=crlf
+*.props     text eol=crlf
+*.targets   text eol=crlf
+*.nuspec    text eol=crlf
+*.resx      text eol=crlf
+*.config    text eol=crlf
 
 
 ###############################################################################
-# Configuration files
+# Web assets (Windows/Visual Studio-oriented files)
 ###############################################################################
 
-*.json      text eol=lf
-*.jsonc     text eol=lf
-*.xml       text eol=lf
-*.yml       text eol=lf
-*.yaml      text eol=lf
-*.toml      text eol=lf
-*.ini       text eol=lf
-*.env       text eol=lf
-*.example   text eol=lf
-*.editorconfig text eol=lf
-
-
-###############################################################################
-# SQL / database scripts
-###############################################################################
-
-*.sql       text eol=lf
+*.html      text eol=crlf
+*.htm       text eol=crlf
+*.css       text eol=crlf
+*.scss      text eol=crlf
+*.sass      text eol=crlf
+*.js        text eol=crlf
+*.jsx       text eol=crlf
+*.ts        text eol=crlf
+*.tsx       text eol=crlf
+*.mjs       text eol=crlf
+*.cjs       text eol=crlf
 
 
 ###############################################################################
-# Documentation
+# Configuration files (Windows/Visual Studio-oriented files)
 ###############################################################################
 
-*.md        text eol=lf diff=markdown
-*.txt       text eol=lf
-*.rst       text eol=lf
+*.json      text eol=crlf
+*.jsonc     text eol=crlf
+*.xml       text eol=crlf
+*.yml       text eol=crlf
+*.yaml      text eol=crlf
+*.toml      text eol=crlf
+*.ini       text eol=crlf
+*.env       text eol=crlf
+*.example   text eol=crlf
+*.editorconfig text eol=crlf
+
+
+###############################################################################
+# SQL / database scripts (Windows/Visual Studio-oriented files)
+###############################################################################
+
+*.sql       text eol=crlf
+
+
+###############################################################################
+# Documentation (Windows/Visual Studio-oriented files)
+###############################################################################
+
+*.md        text eol=crlf diff=markdown
+*.txt       text eol=crlf
+*.rst       text eol=crlf
 
 
 ###############################################################################
@@ -112,11 +112,11 @@ Dockerfile      text eol=lf
 
 
 ###############################################################################
-# GitHub / CI files
+# GitHub / CI files (Windows/Visual Studio-oriented files)
 ###############################################################################
 
-.github/**/*.yml   text eol=lf
-.github/**/*.yaml  text eol=lf
+.github/**/*.yml   text eol=crlf
+.github/**/*.yaml  text eol=crlf
 
 
 ###############################################################################

@@ -1,10 +1,18 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
-namespace Template.Web.Extensions
-{
+namespace Template.Web.Extensions;
+
+/// <summary>
+/// Provides extension methods to register rate limiting services for the application.
+/// </summary>
     public static class RateLimitingServiceExtensions
     {
+    /// <summary>
+    /// Adds the application's predefined rate limiting policies to the service collection.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the rate limiting services to.</param>
+    /// <returns>The same <see cref="IServiceCollection"/> instance so calls can be chained.</returns>
         public static IServiceCollection AddTemplateRateLimiting(this IServiceCollection services)
         {
             services.AddRateLimiter(options =>

@@ -1,15 +1,33 @@
-﻿namespace Template.Web.Options
-{
+namespace Template.Web.Options;
+
+/// <summary>
+/// Options to control which security-related HTTP headers are applied by the application.
+/// </summary>
     public sealed class SecurityHeadersOptions
     {
+    /// <summary>
+    /// Gets or sets a value indicating whether security headers are enabled.
+    /// </summary>
         public bool Enabled { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the Content-Security-Policy header is applied.
+    /// </summary>
         public bool EnableContentSecurityPolicy { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the Permissions-Policy header is applied.
+    /// </summary>
         public bool EnablePermissionsPolicy { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether cross-origin related headers are applied.
+    /// </summary>
         public bool EnableCrossOriginHeaders { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets the Content-Security-Policy header value applied to responses.
+    /// </summary>
         public string ContentSecurityPolicy { get; set; } =
             "default-src 'self'; " +
             "base-uri 'self'; " +
@@ -20,13 +38,19 @@
             "script-src 'self'; " +
             "style-src 'self' 'unsafe-inline';";
 
+    /// <summary>
+    /// Gets or sets the Permissions-Policy header value applied to responses.
+    /// Set this to an empty string to omit the header.
+    /// </summary>
         public string PermissionsPolicy { get; set; } =
             "camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)";
 
-        public List<string> ExcludedPathPrefixes { get; set; } = new()
-        {
+    /// <summary>
+    /// Gets or sets path prefixes that are excluded from applying the security headers.
+    /// </summary>
+    public List<string> ExcludedPathPrefixes { get; set; } =
+    [
             "/health",
             "/metrics"
-        };
-    }
+    ];
 }

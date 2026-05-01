@@ -219,6 +219,16 @@ dotnet_analyzer_diagnostic.category-Design.severity = suggestion
 dotnet_analyzer_diagnostic.category-Documentation.severity = none
 
 ########################################
+# IDE0058: Expression value is never used
+# Keep as suggestion to avoid noisy warnings
+# for intentional side-effect calls, such
+# as ASP.NET Core service registration and
+# endpoint mapping.
+########################################
+csharp_style_unused_value_expression_statement_preference = discard_variable:suggestion
+dotnet_diagnostic.IDE0058.severity = suggestion
+
+########################################
 # Generated code
 ########################################
 

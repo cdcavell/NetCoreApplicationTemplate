@@ -320,7 +320,7 @@ Initial planned milestones:
 - [ ]  Add baseline ASP.NET Core web application.
 - [ ]  Add centralized service registration.
 - [ ]  Add production middleware pipeline.
-- [ ]  Add Serilog logging.
+- [x]  Add Serilog logging.
 - [ ]  Add security headers.
 - [ ]  Add forwarded headers support.
 - [ ]  Add rate limiting policies.

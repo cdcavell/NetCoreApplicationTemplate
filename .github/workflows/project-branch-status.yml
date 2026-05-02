@@ -1,0 +1,223 @@
+name: Project Branch Status Automation
+
+on:
+  create:
+
+permissions:
+  contents: read
+  issues: read
+
+env:
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
+  IN_PROGRESS_STATUS: ${{ vars.PROJECT_IN_PROGRESS_STATUS }}
+
+jobs:
+  move-issue-to-in-progress:
+    name: Move issue to in progress
+    runs-on: ubuntu-latest
+
+    if: github.event.ref_type == 'branch'
+
+    steps:
+      - name: Move matching issue to in progress
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          BRANCH_NAME: ${{ github.event.ref }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Branch created: $BRANCH_NAME"
+
+          ISSUE_NUMBER=$(echo "$BRANCH_NAME" | sed -nE 's#(^|.*/)?issue-([0-9]+)([-_/].*)?$#\2#p')
+
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "Branch name does not match issue pattern. Expected examples: issue-4, feature/issue-4, work/issue-4."
+            exit 0
+          fi
+
+          echo "Detected issue number: #$ISSUE_NUMBER"
+
+          REPO_OWNER="${REPOSITORY%/*}"
+          REPO_NAME="${REPOSITORY#*/}"
+
+          echo "Fetching issue and project item information..."
+
+          gh api graphql \
+            -f repoOwner="$REPO_OWNER" \
+            -f repoName="$REPO_NAME" \
+            -F issueNumber="$ISSUE_NUMBER" \
+            -f query='
+              query($repoOwner: String!, $repoName: String!, $issueNumber: Int!) {
+                repository(owner: $repoOwner, name: $repoName) {
+                  issue(number: $issueNumber) {
+                    id
+                    number
+                    title
+                    projectItems(first: 20) {
+                      nodes {
+                        id
+                        project {
+                          id
+                          number
+                          title
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ' > issue.json
+
+          ISSUE_ID=$(jq -r '.data.repository.issue.id // empty' issue.json)
+          ISSUE_TITLE=$(jq -r '.data.repository.issue.title // empty' issue.json)
+
+          if [ -z "$ISSUE_ID" ] || [ "$ISSUE_ID" = "null" ]; then
+            echo "Issue #$ISSUE_NUMBER was not found."
+            exit 1
+          fi
+
+          echo "Found issue #$ISSUE_NUMBER - $ISSUE_TITLE"
+
+          echo "Fetching project status field information..."
+
+          gh api graphql \
+            -f owner="$PROJECT_OWNER" \
+            -F number="$PROJECT_NUMBER" \
+            -f query='
+              query($owner: String!, $number: Int!) {
+                repositoryOwner(login: $owner) {
+                  ... on User {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 50) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  ... on Organization {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 50) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ' > project.json
+
+          PROJECT_ID=$(jq -r '.data.repositoryOwner.projectV2.id // empty' project.json)
+
+          STATUS_FIELD_ID=$(jq -r '
+            .data.repositoryOwner.projectV2.fields.nodes[]
+            | select(.name == "Status")
+            | .id
+          ' project.json)
+
+          IN_PROGRESS_OPTION_ID=$(jq -r --arg status "$IN_PROGRESS_STATUS" '
+            .data.repositoryOwner.projectV2.fields.nodes[]
+            | select(.name == "Status")
+            | .options[]
+            | select(.name == $status)
+            | .id
+          ' project.json)
+
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "Could not find project. Check PROJECT_OWNER and PROJECT_NUMBER."
+            exit 1
+          fi
+
+          if [ -z "$STATUS_FIELD_ID" ] || [ "$STATUS_FIELD_ID" = "null" ]; then
+            echo "Could not find Status field in project."
+            exit 1
+          fi
+
+          if [ -z "$IN_PROGRESS_OPTION_ID" ] || [ "$IN_PROGRESS_OPTION_ID" = "null" ]; then
+            echo "Could not find Status option named '$IN_PROGRESS_STATUS'."
+            exit 1
+          fi
+
+          ITEM_ID=$(jq -r --arg projectId "$PROJECT_ID" '
+            .data.repository.issue.projectItems.nodes[]
+            | select(.project.id == $projectId)
+            | .id
+          ' issue.json | head -n 1)
+
+          if [ -z "$ITEM_ID" ] || [ "$ITEM_ID" = "null" ]; then
+            echo "Issue is not currently in the project. Adding it now..."
+
+            gh api graphql \
+              -f projectId="$PROJECT_ID" \
+              -f contentId="$ISSUE_ID" \
+              -f query='
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: {
+                    projectId: $projectId
+                    contentId: $contentId
+                  }) {
+                    item {
+                      id
+                    }
+                  }
+                }
+              ' > added-item.json
+
+            ITEM_ID=$(jq -r '.data.addProjectV2ItemById.item.id // empty' added-item.json)
+          fi
+
+          if [ -z "$ITEM_ID" ] || [ "$ITEM_ID" = "null" ]; then
+            echo "Could not determine project item ID."
+            exit 1
+          fi
+
+          echo "Moving issue #$ISSUE_NUMBER to '$IN_PROGRESS_STATUS'..."
+
+          gh api graphql \
+            -f projectId="$PROJECT_ID" \
+            -f itemId="$ITEM_ID" \
+            -f fieldId="$STATUS_FIELD_ID" \
+            -f optionId="$IN_PROGRESS_OPTION_ID" \
+            -f query='
+              mutation(
+                $projectId: ID!,
+                $itemId: ID!,
+                $fieldId: ID!,
+                $optionId: String!
+              ) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: {
+                    singleSelectOptionId: $optionId
+                  }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            '
+
+          echo "Issue #$ISSUE_NUMBER moved to '$IN_PROGRESS_STATUS'."

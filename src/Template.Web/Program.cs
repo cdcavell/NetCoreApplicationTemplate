@@ -22,7 +22,7 @@ try
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();
 
-    Log.Information("Configuring pipline for Template.Web application");
+    Log.Information("Configuring pipeline for Template.Web application");
     app.UseTemplatePipeline();
 
     app.MapGet("/", () => "Hello World!");

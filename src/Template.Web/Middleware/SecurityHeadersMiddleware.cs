@@ -45,12 +45,14 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<Sec
                 AddHeaderIfMissing(headers, "Cross-Origin-Resource-Policy", "same-origin");
             }
 
-            if (_options.EnablePermissionsPolicy)
+            if (_options.EnablePermissionsPolicy &&
+                !string.IsNullOrWhiteSpace(_options.PermissionsPolicy))
             {
                 AddHeaderIfMissing(headers, "Permissions-Policy", _options.PermissionsPolicy);
             }
 
-            if (_options.EnableContentSecurityPolicy)
+            if (_options.EnableContentSecurityPolicy &&
+                !string.IsNullOrWhiteSpace(_options.ContentSecurityPolicy))
             {
                 AddHeaderIfMissing(headers, "Content-Security-Policy", _options.ContentSecurityPolicy);
             }

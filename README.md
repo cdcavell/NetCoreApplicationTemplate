@@ -471,7 +471,7 @@ Initial planned milestones:
 - [ ]  Add centralized service registration.
 - [ ]  Add production middleware pipeline.
 - [x]  Add Serilog logging.
-- [ ]  Add security headers.
+- [x]  Add security headers.
 - [ ]  Add forwarded headers support.
 - [ ]  Add rate limiting policies.
 - [ ]  Add centralized error handling.

@@ -320,11 +320,12 @@ Recommended branch naming:
 
 ```
 main
-feature/<description>
-fix/<description>
-docs/<description>
-refactor/<description>
+feature/issue-<issue-number>
+fix/issue-<issue-number>
+docs/issue-<issue-number>
+refactor/issue-<issue-number>
 ```
+_example: feature/issue-42 will cause Issue #42 status to change to `In Progress` when branch is created._
 
 Recommended commit style:
 

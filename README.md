@@ -329,12 +329,26 @@ refactor/<description>
 Recommended commit style:
 
 ```
-Add initial repository attributes
-Add template README scaffold
-Implement security header middleware
-Configure Serilog request logging
-Add EF Core SQLite provider
+Add initial repository attributes #<issue-number>
+Add template README scaffold #<issue-number>
+Implement security header middleware #<issue-number>
+Configure Serilog request logging #<issue-number>
+Add EF Core SQLite provider #<issue-number>
 ```
+
+#### Required Secret
+
+This workflow requires a classic GitHub personal access token stored as:
+
+`PROJECT_TOKEN`
+
+Required classic PAT scopes:
+
+- `project`
+- `repo` if the repository is private
+- `public_repo` may be sufficient if the repository is public
+
+_A fine-grained PAT may not work for user-owned GitHub Projects._
 
 ## Documentation
 
@@ -371,7 +385,7 @@ Initial planned milestones:
 - [ ]  Add SAML2 support.
 - [ ]  Add external provider support.
 - [ ]  Add template packaging.
-- [ ]  Add GitHub workflows.
+- [x]  Add GitHub workflows.
 - [ ]  Add documentation.
 
 ## License

@@ -3,47 +3,47 @@ namespace Template.Web.Options;
 /// <summary>
 /// Options to control which security-related HTTP headers are applied by the application.
 /// </summary>
-    public sealed class SecurityHeadersOptions
-    {
+public sealed class SecurityHeadersOptions
+{
     /// <summary>
     /// Gets or sets a value indicating whether security headers are enabled.
     /// </summary>
-        public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether the Content-Security-Policy header is applied.
     /// </summary>
-        public bool EnableContentSecurityPolicy { get; set; } = true;
+    public bool EnableContentSecurityPolicy { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether the Permissions-Policy header is applied.
     /// </summary>
-        public bool EnablePermissionsPolicy { get; set; } = true;
+    public bool EnablePermissionsPolicy { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether cross-origin related headers are applied.
     /// </summary>
-        public bool EnableCrossOriginHeaders { get; set; } = true;
+    public bool EnableCrossOriginHeaders { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the Content-Security-Policy header value applied to responses.
     /// </summary>
-        public string ContentSecurityPolicy { get; set; } =
-            "default-src 'self'; " +
-            "base-uri 'self'; " +
-            "object-src 'none'; " +
-            "frame-ancestors 'none'; " +
-            "form-action 'self'; " +
-            "img-src 'self' data:; " +
-            "script-src 'self'; " +
-            "style-src 'self' 'unsafe-inline';";
+    public string ContentSecurityPolicy { get; set; } =
+        "default-src 'self'; " +
+        "base-uri 'self'; " +
+        "object-src 'none'; " +
+        "frame-ancestors 'none'; " +
+        "form-action 'self'; " +
+        "img-src 'self' data:; " +
+        "script-src 'self'; " +
+        "style-src 'self' 'unsafe-inline';";
 
     /// <summary>
     /// Gets or sets the Permissions-Policy header value applied to responses.
     /// Set this to an empty string to omit the header.
     /// </summary>
-        public string PermissionsPolicy { get; set; } =
-            "camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)";
+    public string PermissionsPolicy { get; set; } =
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)";
 
     /// <summary>
     /// Gets or sets path prefixes that are excluded from applying the security headers.

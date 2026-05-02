@@ -3,7 +3,7 @@ namespace Template.Web.Options;
 /// <summary>
 /// Options to control which security-related HTTP headers are applied by the application.
 /// </summary>
-public sealed class SecurityHeadersOptions
+public sealed class TemplateSecurityHeadersOptions
 {
     /// <summary>
     /// Gets or sets a value indicating whether security headers are enabled.

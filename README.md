@@ -200,7 +200,7 @@ The middleware intentionally does not add `X-XSS-Protection` because that header
 
 Security headers can be configured from `appsettings.json`:
 ```json
-{
+"Template": {
   "SecurityHeaders": {
     "Enabled": true,
     "EnableContentSecurityPolicy": true,
@@ -275,18 +275,41 @@ The exact CSP and Permissions-Policy values may differ if overridden by configur
 
 ## Forwarded Headers and Proxy Support
 
-This section will document reverse proxy and load balancer support.
+The template includes optional forwarded headers support for deployments behind reverse proxies,
+load balancers, ingress controllers, and hosted infrastructure.
 
-Planned areas:
+Forwarded headers allow the application to correctly resolve the original client IP address,
+request scheme, and host when traffic is forwarded through another server before reaching Kestrel.
 
-- X-Forwarded-For.
-- X-Forwarded-Proto.
-- X-Forwarded-Host.
-- Known proxies.
-- Known networks.
-- Internal network considerations.
-- HTTPS scheme correction behind proxy infrastructure.
-- Logging original client IP addresses.
+Configuration is controlled through `appsettings.json`:
+
+```json
+"Template": {
+  "ForwardedHeaders": {
+    "Enabled": true,
+    "Headers": [
+      "XForwardedFor",
+      "XForwardedProto"
+    ],
+    "ForwardLimit": 1,
+    "RequireHeaderSymmetry": false,
+    "ClearKnownNetworksAndProxies": false,
+    "KnownProxies": [],
+    "KnownNetworks": [],
+    "AllowedHosts": []
+  }
+}
+```
+By default, the template processes:
+
+- `X-Forwarded-For`
+- `X-Forwarded-Proto`
+
+Production deployments should explicitly configure trusted proxy IP addresses or trusted proxy
+networks using `KnownProxies` or `KnownNetworks`.
+
+`XForwardedHost` is intentionally not enabled by default. If enabled, configure `AllowedHosts`
+to reduce the risk of host header spoofing.
 
 ## Rate Limiting
 
@@ -467,12 +490,12 @@ Initial planned milestones:
 
 - [x]  Add repository metadata files.
 - [x]  Create initial solution structure.
-- [ ]  Add baseline ASP.NET Core web application.
-- [ ]  Add centralized service registration.
-- [ ]  Add production middleware pipeline.
+- [x]  Add baseline ASP.NET Core web application.
+- [x]  Add centralized service registration.
+- [x]  Add production middleware pipeline.
 - [x]  Add Serilog logging.
 - [x]  Add security headers.
-- [ ]  Add forwarded headers support.
+- [x]  Add forwarded headers support.
 - [ ]  Add rate limiting policies.
 - [ ]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
@@ -483,7 +506,7 @@ Initial planned milestones:
 - [ ]  Add external provider support.
 - [ ]  Add template packaging.
 - [x]  Add GitHub workflows.
-- [ ]  Add documentation.
+- [x]  Add documentation.
 
 ## License
 

@@ -90,8 +90,8 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: csharp
-          build-mode: manual
+          languages: 'actions,csharp'
+          build-mode: none
 
       - name: Restore dependencies
         run: dotnet restore

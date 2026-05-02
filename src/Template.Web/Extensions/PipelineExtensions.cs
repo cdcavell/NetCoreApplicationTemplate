@@ -17,7 +17,7 @@ public static class PipelineExtensions
     public static WebApplication UseTemplatePipeline(this WebApplication app)
     {
         // 1. Proxy/load balancer correction must happen early.
-        app.UseForwardedHeaders();
+        app.UseTemplateForwardedHeaders();
 
         // 2. Structured request logging should see corrected scheme, host, and client IP.
         app.UseTemplateRequestLogging();
@@ -42,7 +42,7 @@ public static class PipelineExtensions
         app.UseRouting();
 
         // 8. CORS, when needed, should be after routing and before auth.
-        //app.UseCors();
+        app.UseCors();
 
         // 9. Rate limiting after routing when endpoint-specific policies are used.
         app.UseRateLimiter();
@@ -52,8 +52,8 @@ public static class PipelineExtensions
         //app.UseAuthorization();
 
         // 11. Endpoint mapping.
-        //app.MapControllers();
-        //app.MapRazorPages();
+        app.MapControllers();
+        app.MapRazorPages();
 
         return app;
     }

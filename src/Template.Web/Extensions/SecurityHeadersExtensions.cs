@@ -9,7 +9,7 @@ namespace Template.Web.Extensions;
 public static class SecurityHeadersExtensions
 {
     /// <summary>
-    /// Registers the <see cref="SecurityHeadersOptions"/> configuration section with the DI container.
+    /// Registers the <see cref="TemplateSecurityHeadersOptions"/> configuration section with the DI container.
     /// </summary>
     /// <param name="services">The service collection to add the configuration to.</param>
     /// <param name="configuration">The application configuration containing the "SecurityHeaders" section.</param>
@@ -18,8 +18,8 @@ public static class SecurityHeadersExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<SecurityHeadersOptions>(
-            configuration.GetSection("SecurityHeaders"));
+        services.Configure<TemplateSecurityHeadersOptions>(
+            configuration.GetSection("Template:SecurityHeaders"));
 
         return services;
     }

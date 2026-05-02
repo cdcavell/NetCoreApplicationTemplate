@@ -15,7 +15,9 @@ try
 
     builder.AddTemplateSerilog();
     Log.Information("Bootstrapping Template.Web application");
-
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddRazorPages();
+    builder.Services.AddTemplateForwardedHeaders(builder.Configuration);
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
     builder.Services.AddTemplateRateLimiting();
 

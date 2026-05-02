@@ -7,13 +7,13 @@ namespace Template.Web.Middleware;
 /// Middleware that applies a set of security-related HTTP headers to responses.
 /// </summary>
 /// <remarks>
-/// The middleware can be configured via <see cref="SecurityHeadersOptions"/> to enable/disable
+/// The middleware can be configured via <see cref="TemplateSecurityHeadersOptions"/> to enable/disable
 /// individual headers and to exclude certain request path prefixes.
 /// </remarks>
-public sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<SecurityHeadersOptions> options)
+public sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<TemplateSecurityHeadersOptions> options)
 {
     private readonly RequestDelegate _next = next ?? throw new ArgumentNullException(nameof(next));
-    private readonly SecurityHeadersOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    private readonly TemplateSecurityHeadersOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
     /// <summary>
     /// Invokes the middleware for the given <paramref name="context"/>, applying configured

@@ -27,6 +27,7 @@ public static class RequestLoggingExtensions
                 {
                     return LogEventLevel.Error;
                 }
+                }
 
                 int statusCode = httpContext.Response.StatusCode;
 

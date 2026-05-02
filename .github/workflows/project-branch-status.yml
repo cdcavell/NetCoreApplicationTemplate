@@ -40,14 +40,11 @@ jobs:
 
           echo "Detected issue number: #$ISSUE_NUMBER"
 
-          REPO_OWNER="${REPOSITORY%/*}"
-          REPO_NAME="${REPOSITORY#*/}"
-
           echo "Fetching issue and project item information..."
 
           gh api graphql \
-            -f repoOwner="$REPO_OWNER" \
-            -f repoName="$REPO_NAME" \
+            -f repoOwner="$PROJECT_OWNER" \
+            -f repoName="$PROJECT_NUMBER" \
             -F issueNumber="$ISSUE_NUMBER" \
             -f query='
               query($repoOwner: String!, $repoName: String!, $issueNumber: Int!) {

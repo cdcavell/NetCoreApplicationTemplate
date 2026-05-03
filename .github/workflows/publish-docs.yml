@@ -36,8 +36,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Install DocFX
-        run: dotnet tool update -g docfx
+      - name: Restore .NET tools
+        run: dotnet tool restore
 
       - name: Build DocFX site
         run: dotnet tool run docfx -- docs/docfx.json

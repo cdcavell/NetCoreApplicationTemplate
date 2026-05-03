@@ -647,7 +647,7 @@ Initial planned milestones:
 - [x]  Add security headers.
 - [x]  Add forwarded headers support.
 - [x]  Add rate limiting policies.
-- [ ]  Add centralized error handling.
+- [x]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.
 - [ ]  Add authentication module structure.

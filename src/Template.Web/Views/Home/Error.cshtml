@@ -1,0 +1,17 @@
+@model Template.Web.Models.ErrorViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<h1>@Model.Title</h1>
+
+<p>@Model.Message</p>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong>
+        <code>@Model.RequestId</code>
+    </p>
+}

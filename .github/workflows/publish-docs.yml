@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -39,7 +40,7 @@ jobs:
         run: dotnet tool update -g docfx
 
       - name: Build DocFX site
-        run: docfx docs/docfx.json
+        run: dotnet tool run docfx -- docs/docfx.json
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5

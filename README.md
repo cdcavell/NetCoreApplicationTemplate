@@ -1,4 +1,9 @@
-# .NET Core Application Template &nbsp;&nbsp;&nbsp;&nbsp;[![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)&nbsp;&nbsp;![GitHub top language](https://img.shields.io/github/languages/top/cdcavell/NetCoreApplicationTemplate)&nbsp;&nbsp;![GitHub language count](https://img.shields.io/github/languages/count/cdcavell/NetCoreApplicationTemplate)
+# .NET Core Application Template 
+[![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
+[![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
+[![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
@@ -30,6 +35,12 @@ Primary goals include:
 Initial repository and folder structure are in place.
 
 Development has not yet started. This README will evolve as each area of the project is implemented.
+
+## Documentation
+
+The generated project documentation is published with DocFX and GitHub Pages:
+
+[View Documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 
 ## Repository Structure
 

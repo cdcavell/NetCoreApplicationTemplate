@@ -1,4 +1,4 @@
-# .NET Core Application Template
+# .NET Core Application Template &nbsp;&nbsp;&nbsp;&nbsp;[![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)&nbsp;&nbsp;![GitHub top language](https://img.shields.io/github/languages/top/cdcavell/NetCoreApplicationTemplate)&nbsp;&nbsp;![GitHub language count](https://img.shields.io/github/languages/count/cdcavell/NetCoreApplicationTemplate)
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
@@ -576,7 +576,7 @@ Initial planned milestones:
 - [x]  Add Serilog logging.
 - [x]  Add security headers.
 - [x]  Add forwarded headers support.
-- [ ]  Add rate limiting policies.
+- [x]  Add rate limiting policies.
 - [ ]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.

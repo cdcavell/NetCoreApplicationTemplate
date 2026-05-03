@@ -234,7 +234,7 @@ The default configuration is intentionally conservative. Applications created fr
 
 For example, a local development configuration may temporarily disable CSP while troubleshooting script or style loading:
 ```json
-{
+"Template": {
   "SecurityHeaders": {
     "EnableContentSecurityPolicy": false
   }
@@ -313,17 +313,97 @@ to reduce the risk of host header spoofing.
 
 ## Rate Limiting
 
-This section will document rate limiting policies used by the template.
+The template includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.
 
-Planned areas:
+Rate limiting is registered through the template service extension:
 
-- Global rate limiting.
-- Endpoint-specific policies.
-- Fixed window policies.
-- Concurrency policies.
-- Authentication-sensitive endpoint protection.
-- Rejection responses.
-- Logging and monitoring rejected requests.
+```csharp
+builder.Services.AddTemplateRateLimiting(builder.Configuration);
+```
+The middleware is applied in the standard template pipeline:
+```csharp
+app.UseRateLimiter();
+```
+`UseRateLimiter()` is intentionally placed after routing so endpoint-specific rate limiting policies can be applied, and before endpoint execution so requests can be rejected before reaching controllers, Razor Pages, or minimal API handlers.
+
+### Default Behavior
+
+The template supports:
+
+- A global fixed-window limiter for baseline request protection.
+- A named fixed-window policy for endpoint-specific use.
+- A named concurrency policy for sensitive or resource-heavy operations.
+- JSON rejection responses.
+- `429 Too Many Requests` responses when limits are exceeded.
+- Logging for rejected requests.
+
+Rejected requests return a response similar to:
+```json
+{
+  "error": "Too many requests.",
+  "statusCode": 429
+}
+```
+Configuration
+
+Rate limiting values can be configured from `appsettings.json`:
+```json
+"Template": {
+  "RateLimiting": {
+    "Enabled": true,
+    "GlobalFixedWindow": {
+      "PermitLimit": 60,
+      "WindowSeconds": 60,
+      "QueueLimit": 0
+    },
+    "FixedWindowPolicy": {
+      "PermitLimit": 60,
+      "WindowSeconds": 60,
+      "QueueLimit": 0
+    },
+    "ConcurrencyPolicy": {
+      "PermitLimit": 10,
+      "QueueLimit": 0
+    }
+  }
+}
+```
+These defaults are intentionally conservative and should be reviewed before production use.
+
+### Endpoint-Specific Policies
+
+Named policies can be applied to specific endpoints when stricter or specialized protection is needed.
+
+Minimal API example:
+```csharp
+app.MapGet("/api/data", () => "Limited endpoint")
+    .RequireRateLimiting("fixed");
+```
+Concurrency-sensitive endpoint example:
+```csharp
+app.MapPost("/admin/export", () => "Export started")
+    .RequireRateLimiting("concurrency");
+```
+Controller or Razor Page handlers can also use rate limiting attributes:
+```csharp
+using Microsoft.AspNetCore.RateLimiting;
+
+[EnableRateLimiting("fixed")]
+public class ReportsController : Controller
+{
+}
+```
+### Middleware Order
+
+The template pipeline applies rate limiting after routing:
+```csharp
+app.UseRouting();
+
+app.UseCors();
+
+app.UseRateLimiter();
+```
+If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
 
 ## Authentication and Authorization
 

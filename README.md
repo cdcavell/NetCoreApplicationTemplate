@@ -576,7 +576,7 @@ Initial planned milestones:
 - [x]  Add Serilog logging.
 - [x]  Add security headers.
 - [x]  Add forwarded headers support.
-- [ ]  Add rate limiting policies.
+- [x]  Add rate limiting policies.
 - [ ]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.

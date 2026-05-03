@@ -19,7 +19,7 @@ try
     builder.Services.AddRazorPages();
     builder.Services.AddTemplateForwardedHeaders(builder.Configuration);
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
-    builder.Services.AddTemplateRateLimiting();
+    builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
 
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();

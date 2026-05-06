@@ -34,7 +34,22 @@ Primary goals include:
 
 Initial repository and folder structure are in place.
 
-Development has not yet started. This README will evolve as each area of the project is implemented.
+Development has started. This README will evolve as each area of the project is implemented.
+
+## Versioning
+
+This project follows Semantic Versioning using the format:
+
+```text
+MAJOR.MINOR.PATCH
+```
+The current template version is:
+```text
+0.1.0
+```
+Until the project reaches `1.0.0`, breaking changes may occur as the template structure, middleware pipeline, authentication modules, data access patterns, documentation, and packaging process continue to evolve.
+
+Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
 
 ## Documentation
 

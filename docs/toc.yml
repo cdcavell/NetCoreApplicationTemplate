@@ -3,3 +3,6 @@
 
 - name: API Reference
   href: api/
+
+- name: Repository
+  href: https://github.com/cdcavell/NetCoreApplicationTemplate

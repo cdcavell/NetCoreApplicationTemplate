@@ -2,8 +2,10 @@
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-[![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
+<!--![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?sort=semver)-->
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
@@ -34,7 +36,22 @@ Primary goals include:
 
 Initial repository and folder structure are in place.
 
-Development has not yet started. This README will evolve as each area of the project is implemented.
+Development has started. This README will evolve as each area of the project is implemented.
+
+## Versioning
+
+This project follows Semantic Versioning using the format:
+
+```text
+MAJOR.MINOR.PATCH
+```
+The current template version is:
+```text
+0.1.0
+```
+Until the project reaches `1.0.0`, breaking changes may occur as the template structure, middleware pipeline, authentication modules, data access patterns, documentation, and packaging process continue to evolve.
+
+Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
 
 ## Documentation
 
@@ -172,6 +189,65 @@ Planned areas:
 - User-safe error responses.
 - Developer exception pages for local development.
 - Logging behavior for handled and unhandled errors.
+
+## Error Handling
+
+The template includes centralized error handling for both unhandled exceptions and HTTP status code responses.
+
+Error handling is configured through the application pipeline using:
+
+```csharp
+app.UseTemplateErrorHandling();
+```
+The error handling behavior is environment-aware:
+
+- In Development, the application uses the developer exception page.
+- In non-development environments, unhandled exceptions are routed to `/Home/Error/500`.
+- HTTP status code responses are re-executed through `/Home/Error/{statusCode}`.
+- Error responses are user-safe and do not expose exception details.
+- Error events are logged using source-generated `LoggerMessage` methods.
+- The request ID displayed on the error page matches the request ID written to the application logs.
+
+### Status Code Pages
+
+Status code pages are handled centrally using:
+```csharp
+app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+```
+This allows common HTTP responses such as `404 Not Found`, `401 Unauthorized`, `403 Forbidden`, and `429 Too Many Requests` to use the shared error page strategy.
+
+### Unhandled Exceptions
+
+In non-development environments, unhandled exceptions are routed through:
+```csharp
+app.UseExceptionHandler("/Home/Error/500");
+```
+This allows unhandled exceptions to be logged and displayed using the shared error page strategy without exposing sensitive exception details to end users.
+
+### Request ID Correlation
+
+The error page displays the same request ID that is written to the log entry.
+
+Example browser output:
+```text
+Request ID: 0HNL9ADUFCPUT:00000009
+```
+Example log output:
+```text
+Status code page routed to error page. StatusCode: 404; OriginalPath: /invalid; RemoteIpAddress: ::1; RequestId: 0HNL9ADUFCPUT:00000009
+```
+This makes it easier to match a user-facing error page with the corresponding application log entry.
+
+### Logging
+
+Error handling logs include:
+- Status code routed to the error page.
+- Original request path.
+- Remote IP address when available.
+- Request ID.
+- Exception details for unhandled exceptions.
+
+Log event IDs are centralized in TemplateLogEventIds to keep application logging consistent.
 
 ## Security Headers
 
@@ -588,7 +664,7 @@ Initial planned milestones:
 - [x]  Add security headers.
 - [x]  Add forwarded headers support.
 - [x]  Add rate limiting policies.
-- [ ]  Add centralized error handling.
+- [x]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.
 - [ ]  Add authentication module structure.

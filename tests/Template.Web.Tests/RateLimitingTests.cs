@@ -32,8 +32,8 @@ public sealed class RateLimitingTests
 
         using HttpClient client = CreateHttpsClient(factory);
 
-        using HttpResponseMessage firstResponse = await client.GetAsync("/");
-        using HttpResponseMessage secondResponse = await client.GetAsync("/");
+        using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        using HttpResponseMessage secondResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(HttpStatusCode.TooManyRequests, secondResponse.StatusCode);
@@ -57,8 +57,8 @@ public sealed class RateLimitingTests
 
         using HttpClient client = CreateHttpsClient(factory);
 
-        using HttpResponseMessage firstResponse = await client.GetAsync("/test/rate-limiting/fixed");
-        using HttpResponseMessage secondResponse = await client.GetAsync("/test/rate-limiting/fixed");
+        using HttpResponseMessage firstResponse = await client.GetAsync("/test/rate-limiting/fixed", TestContext.Current.CancellationToken);
+        using HttpResponseMessage secondResponse = await client.GetAsync("/test/rate-limiting/fixed", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(HttpStatusCode.TooManyRequests, secondResponse.StatusCode);
@@ -83,11 +83,11 @@ public sealed class RateLimitingTests
 
         using HttpClient client = CreateHttpsClient(factory);
 
-        Task<HttpResponseMessage> firstRequest = client.GetAsync("/test/rate-limiting/concurrency");
+        Task<HttpResponseMessage> firstRequest = client.GetAsync("/test/rate-limiting/concurrency", TestContext.Current.CancellationToken);
 
         await RateLimitingTestController.WaitForConcurrencyRequestStartedAsync();
 
-        using HttpResponseMessage secondResponse = await client.GetAsync("/test/rate-limiting/concurrency");
+        using HttpResponseMessage secondResponse = await client.GetAsync("/test/rate-limiting/concurrency", TestContext.Current.CancellationToken);
         using HttpResponseMessage firstResponse = await firstRequest;
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
@@ -112,14 +112,14 @@ public sealed class RateLimitingTests
 
         using HttpClient client = CreateHttpsClient(factory);
 
-        using HttpResponseMessage firstResponse = await client.GetAsync("/");
-        using HttpResponseMessage rejectedResponse = await client.GetAsync("/");
+        using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        using HttpResponseMessage rejectedResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(HttpStatusCode.TooManyRequests, rejectedResponse.StatusCode);
         Assert.Equal("application/json", rejectedResponse.Content.Headers.ContentType?.MediaType);
 
-        using var document = JsonDocument.Parse(await rejectedResponse.Content.ReadAsStringAsync());
+        using var document = JsonDocument.Parse(await rejectedResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         Assert.Equal("Too many requests.", document.RootElement.GetProperty("error").GetString());
         Assert.Equal(429, document.RootElement.GetProperty("statusCode").GetInt32());
@@ -144,8 +144,8 @@ public sealed class RateLimitingTests
 
         using HttpClient client = CreateHttpsClient(factory);
 
-        using HttpResponseMessage firstResponse = await client.GetAsync("/");
-        using HttpResponseMessage secondResponse = await client.GetAsync("/");
+        using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
+        using HttpResponseMessage secondResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);

@@ -139,6 +139,65 @@ public sealed class ForwardedHeadersTests
     }
 
     /// <summary>
+    /// Verifies that startup validation fails when a configured known proxy is not a valid IP address.
+    /// </summary>
+    [Fact]
+    public void ForwardedHeaders_InvalidProxyIp_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertOptionsValidationFails<TemplateForwardedHeadersOptions>(
+                new Dictionary<string, string?>
+                {
+                    ["Template:ForwardedHeaders:KnownProxies:0"] = "not-an-ip-address"
+                });
+
+        Assert.Contains(
+            "Template:ForwardedHeaders:KnownProxies must contain valid IP addresses",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when a configured known network is not a valid CIDR range.
+    /// </summary>
+    [Fact]
+    public void ForwardedHeaders_InvalidKnownNetwork_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertOptionsValidationFails<TemplateForwardedHeadersOptions>(
+                new Dictionary<string, string?>
+                {
+                    ["Template:ForwardedHeaders:KnownNetworks:0"] = "10.0.0.0"
+                });
+
+        Assert.Contains(
+            "Template:ForwardedHeaders:KnownNetworks must contain valid CIDR ranges",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when X-Forwarded-Host is enabled without configured allowed hosts.
+    /// </summary>
+    [Fact]
+    public void ForwardedHeaders_XForwardedHostWithoutAllowedHosts_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertOptionsValidationFails<TemplateForwardedHeadersOptions>(
+                new Dictionary<string, string?>
+                {
+                    ["Template:ForwardedHeaders:Headers:0"] = "XForwardedFor",
+                    ["Template:ForwardedHeaders:Headers:1"] = "XForwardedProto",
+                    ["Template:ForwardedHeaders:Headers:2"] = "XForwardedHost"
+                });
+
+        Assert.Contains(
+            "Template:ForwardedHeaders:AllowedHosts must contain at least one host when XForwardedHost is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>
     /// <param name="configurationValues">The configuration key/value pairs used to override template settings for a test.</param>
@@ -158,5 +217,54 @@ public sealed class ForwardedHeadersTests
         return factory.Services
             .GetRequiredService<IOptions<ForwardedHeadersOptions>>()
             .Value;
+    }
+
+    private static OptionsValidationException AssertOptionsValidationFails<TOptions>(
+        IReadOnlyDictionary<string, string?> configurationValues)
+        where TOptions : class
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(configurationValues);
+
+        Exception? exception = Record.Exception(() =>
+        {
+            _ = factory.Services
+                .GetRequiredService<IOptions<TOptions>>()
+                .Value;
+        });
+
+        Assert.NotNull(exception);
+
+        OptionsValidationException? optionsValidationException =
+            FindOptionsValidationException(exception);
+
+        Assert.NotNull(optionsValidationException);
+
+        return optionsValidationException;
+    }
+
+    private static OptionsValidationException? FindOptionsValidationException(Exception exception)
+    {
+        if (exception is OptionsValidationException optionsValidationException)
+        {
+            return optionsValidationException;
+        }
+
+        if (exception is AggregateException aggregateException)
+        {
+            foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
+            {
+                OptionsValidationException? foundException =
+                    FindOptionsValidationException(innerException);
+
+                if (foundException is not null)
+                {
+                    return foundException;
+                }
+            }
+        }
+
+        return exception.InnerException is null
+            ? null
+            : FindOptionsValidationException(exception.InnerException);
     }
 }

@@ -18,8 +18,26 @@ public static class SecurityHeadersExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<TemplateSecurityHeadersOptions>(
-            configuration.GetSection("Template:SecurityHeaders"));
+        services
+            .AddOptions<TemplateSecurityHeadersOptions>()
+            .Bind(configuration.GetSection(TemplateSecurityHeadersOptions.SectionName))
+            .Validate(
+                options =>
+                    !options.EnableContentSecurityPolicy ||
+                    !string.IsNullOrWhiteSpace(options.ContentSecurityPolicy),
+                "Template:SecurityHeaders:ContentSecurityPolicy is required when CSP is enabled.")
+            .Validate(
+                options =>
+                    !options.EnablePermissionsPolicy ||
+                    !string.IsNullOrWhiteSpace(options.PermissionsPolicy),
+                "Template:SecurityHeaders:PermissionsPolicy is required when Permissions-Policy is enabled.")
+            .Validate(
+                options =>
+                    options.ExcludedPathPrefixes.All(path =>
+                        !string.IsNullOrWhiteSpace(path) &&
+                        path.StartsWith('/')),
+                "Template:SecurityHeaders:ExcludedPathPrefixes values must start with '/'.")
+            .ValidateOnStart();
 
         return services;
     }

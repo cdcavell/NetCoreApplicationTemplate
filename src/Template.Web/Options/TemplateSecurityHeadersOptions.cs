@@ -6,6 +6,11 @@ namespace Template.Web.Options;
 public sealed class TemplateSecurityHeadersOptions
 {
     /// <summary>
+    /// Gets the configuration section name used to bind security header settings.
+    /// </summary>
+    public static string SectionName { get; internal set; } = "Template:SecurityHeaders";
+
+    /// <summary>
     /// Gets or sets a value indicating whether security headers are enabled.
     /// </summary>
     public bool Enabled { get; set; } = true;

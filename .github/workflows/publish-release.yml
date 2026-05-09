@@ -38,7 +38,7 @@ jobs:
           url = os.environ["RELEASE_URL"]
 
           replacement = f"""<!-- BEGIN LATEST_RELEASE -->
-          Current release: [{name}]({url})
+          Current release: __[{name}]({url})__
 
           Tag: `{tag}`
           <!-- END LATEST_RELEASE -->"""

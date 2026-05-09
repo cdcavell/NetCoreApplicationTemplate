@@ -37,6 +37,11 @@ public static class ForwardedHeadersExtensions
             .Validate(
                 options => options.KnownNetworks.All(IsValidKnownNetwork),
                 "Template:ForwardedHeaders:KnownNetworks must contain valid CIDR ranges such as 10.0.0.0/24.")
+            .Validate(
+                options =>
+                    !options.Headers.Any(IsForwardedHost) ||
+                    options.AllowedHosts.Any(host => !string.IsNullOrWhiteSpace(host)),
+                "Template:ForwardedHeaders:AllowedHosts must contain at least one host when XForwardedHost is enabled.")
             .ValidateOnStart();
 
         services.Configure<ForwardedHeadersOptions>(options =>
@@ -162,5 +167,11 @@ public static class ForwardedHeadersExtensions
         int prefixLength = int.Parse(parts[1], CultureInfo.InvariantCulture);
 
         return new NetIPNetwork(prefix, prefixLength);
+    }
+
+    private static bool IsForwardedHost(string value)
+    {
+        return TryParseForwardedHeader(value, out ForwardedHeaders forwardedHeader) &&
+               forwardedHeader.HasFlag(ForwardedHeaders.XForwardedHost);
     }
 }

@@ -43,8 +43,26 @@ public static partial class RateLimitingServiceExtensions
             options.ConcurrencyPolicy.QueueLimit = defaultOptions.ConcurrencyPolicy.QueueLimit;
         });
 
-        services.Configure<TemplateRateLimitingOptions>(
-            configuration.GetSection(TemplateRateLimitingOptions.SectionName));
+        services
+            .AddOptions<TemplateRateLimitingOptions>()
+            .Bind(configuration.GetSection(TemplateRateLimitingOptions.SectionName))
+            .Validate(options => options.GlobalFixedWindow.PermitLimit > 0,
+                "Template:RateLimiting:GlobalFixedWindow:PermitLimit must be greater than zero.")
+            .Validate(options => options.GlobalFixedWindow.WindowSeconds > 0,
+                "Template:RateLimiting:GlobalFixedWindow:WindowSeconds must be greater than zero.")
+            .Validate(options => options.GlobalFixedWindow.QueueLimit >= 0,
+                "Template:RateLimiting:GlobalFixedWindow:QueueLimit must be zero or greater.")
+            .Validate(options => options.FixedWindowPolicy.PermitLimit > 0,
+                "Template:RateLimiting:FixedWindowPolicy:PermitLimit must be greater than zero.")
+            .Validate(options => options.FixedWindowPolicy.WindowSeconds > 0,
+                "Template:RateLimiting:FixedWindowPolicy:WindowSeconds must be greater than zero.")
+            .Validate(options => options.FixedWindowPolicy.QueueLimit >= 0,
+                "Template:RateLimiting:FixedWindowPolicy:QueueLimit must be zero or greater.")
+            .Validate(options => options.ConcurrencyPolicy.PermitLimit > 0,
+                "Template:RateLimiting:ConcurrencyPolicy:PermitLimit must be greater than zero.")
+            .Validate(options => options.ConcurrencyPolicy.QueueLimit >= 0,
+                "Template:RateLimiting:ConcurrencyPolicy:QueueLimit must be zero or greater.")
+            .ValidateOnStart();
 
         _ = services.AddRateLimiter();
 

@@ -1,8 +1,12 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Template.Web.Extensions;
 using Template.Web.Options;
 using Template.Web.Tests.Infrastructure;
 using Template.Web.Tests.TestControllers;
@@ -191,6 +195,66 @@ public sealed class RateLimitingTests
     }
 
     /// <summary>
+    /// Verifies that startup validation fails when a fixed-window permit limit is zero.
+    /// </summary>
+    [Fact]
+    public void RateLimiting_ZeroPermitLimit_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertRateLimitingOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["Template:RateLimiting:Enabled"] = "true",
+                    ["Template:RateLimiting:GlobalFixedWindow:PermitLimit"] = "0"
+                });
+
+        Assert.Contains(
+            "Template:RateLimiting:GlobalFixedWindow:PermitLimit must be greater than zero",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when a rate-limiting queue limit is negative.
+    /// </summary>
+    [Fact]
+    public void RateLimiting_NegativeQueueLimit_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertRateLimitingOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["Template:RateLimiting:Enabled"] = "true",
+                    ["Template:RateLimiting:GlobalFixedWindow:QueueLimit"] = "-1"
+                });
+
+        Assert.Contains(
+            "Template:RateLimiting:GlobalFixedWindow:QueueLimit must be zero or greater",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when a fixed-window duration is zero seconds.
+    /// </summary>
+    [Fact]
+    public void RateLimiting_ZeroWindowSeconds_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertRateLimitingOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["Template:RateLimiting:Enabled"] = "true",
+                    ["Template:RateLimiting:GlobalFixedWindow:WindowSeconds"] = "0"
+                });
+
+        Assert.Contains(
+            "Template:RateLimiting:GlobalFixedWindow:WindowSeconds must be greater than zero",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>
     /// <param name="configurationValues">The configuration key/value pairs used to override template settings for a test.</param>
@@ -212,5 +276,63 @@ public sealed class RateLimitingTests
             BaseAddress = new Uri("https://localhost"),
             AllowAutoRedirect = false
         });
+    }
+
+    private static OptionsValidationException AssertRateLimitingOptionsValidationFails(
+        IReadOnlyDictionary<string, string?> configurationValues)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationValues)
+            .Build();
+
+        IServiceCollection services = new ServiceCollection();
+
+        _ = services.AddTemplateRateLimiting(
+            configuration,
+            new TestHostEnvironment());
+
+        using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
+
+        return Assert.Throws<OptionsValidationException>(() =>
+            provider
+                .GetRequiredService<IOptions<TemplateRateLimitingOptions>>()
+                .Value);
+    }
+
+    private static OptionsValidationException? FindOptionsValidationException(Exception exception)
+    {
+        if (exception is OptionsValidationException optionsValidationException)
+        {
+            return optionsValidationException;
+        }
+
+        if (exception is AggregateException aggregateException)
+        {
+            foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
+            {
+                OptionsValidationException? foundException =
+                    FindOptionsValidationException(innerException);
+
+                if (foundException is not null)
+                {
+                    return foundException;
+                }
+            }
+        }
+
+        return exception.InnerException is null
+            ? null
+            : FindOptionsValidationException(exception.InnerException);
+    }
+
+    private sealed class TestHostEnvironment : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = "Testing";
+
+        public string ApplicationName { get; set; } = "Template.Web.Tests";
+
+        public string ContentRootPath { get; set; } = AppContext.BaseDirectory;
+
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }

@@ -401,7 +401,7 @@ The template includes baseline ASP.NET Core rate limiting support to help protec
 Rate limiting is registered through the template service extension:
 
 ```csharp
-builder.Services.AddTemplateRateLimiting(builder.Configuration);
+builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
 ```
 The middleware is applied in the standard template pipeline:
 ```csharp
@@ -555,6 +555,18 @@ Planned areas:
 - Strongly typed settings.
 - Validation on startup.
 - Sensitive configuration handling.
+
+## Configuration Validation
+
+The template uses strongly typed options classes for template-owned configuration under the `Template` section.
+
+Validated configuration areas include:
+
+- `Template:SecurityHeaders`
+- `Template:ForwardedHeaders`
+- `Template:RateLimiting`
+
+Invalid startup-sensitive values fail application startup rather than being silently corrected. This helps catch unsafe or malformed production configuration before the application begins serving requests.
 
 ## Template Packaging
 

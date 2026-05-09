@@ -1,5 +1,10 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Template.Web.Extensions;
+using Template.Web.Options;
 using Template.Web.Tests.Infrastructure;
 
 namespace Template.Web.Tests;
@@ -113,6 +118,47 @@ public sealed class SecurityHeadersTests
     }
 
     /// <summary>
+    /// Verifies that startup validation fails when an excluded security-header path prefix does not start with '/'.
+    /// </summary>
+    [Fact]
+    public void SecurityHeaders_InvalidExcludedPathPrefix_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertSecurityHeadersOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["Template:SecurityHeaders:Enabled"] = "true",
+                    ["Template:SecurityHeaders:ExcludedPathPrefixes:0"] = "health"
+                });
+
+        Assert.Contains(
+            "Template:SecurityHeaders:ExcludedPathPrefixes values must start with '/'",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when Content-Security-Policy is enabled but no policy value is configured.
+    /// </summary>
+    [Fact]
+    public void SecurityHeaders_CspEnabledWithEmptyPolicy_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertSecurityHeadersOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["Template:SecurityHeaders:Enabled"] = "true",
+                    ["Template:SecurityHeaders:EnableContentSecurityPolicy"] = "true",
+                    ["Template:SecurityHeaders:ContentSecurityPolicy"] = string.Empty
+                });
+
+        Assert.Contains(
+            "Template:SecurityHeaders:ContentSecurityPolicy is required when CSP is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Verifies that configured excluded path prefixes do not receive security headers.
     /// </summary>
     /// <param name="path">The excluded request path to verify.</param>
@@ -187,5 +233,50 @@ public sealed class SecurityHeadersTests
     private static void AssertHeaderMissing(HttpResponseMessage response, string name)
     {
         Assert.False(response.Headers.Contains(name), $"Did not expect response header '{name}'.");
+    }
+
+    private static OptionsValidationException AssertSecurityHeadersOptionsValidationFails(
+        IReadOnlyDictionary<string, string?> configurationValues)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationValues)
+            .Build();
+
+        IServiceCollection services = new ServiceCollection();
+
+        _ = services.AddTemplateSecurityHeaders(configuration);
+
+        using ServiceProvider provider = services.BuildServiceProvider(validateScopes: true);
+
+        return Assert.Throws<OptionsValidationException>(() =>
+            provider
+                .GetRequiredService<IOptions<TemplateSecurityHeadersOptions>>()
+                .Value);
+    }
+
+    private static OptionsValidationException? FindOptionsValidationException(Exception exception)
+    {
+        if (exception is OptionsValidationException optionsValidationException)
+        {
+            return optionsValidationException;
+        }
+
+        if (exception is AggregateException aggregateException)
+        {
+            foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
+            {
+                OptionsValidationException? foundException =
+                    FindOptionsValidationException(innerException);
+
+                if (foundException is not null)
+                {
+                    return foundException;
+                }
+            }
+        }
+
+        return exception.InnerException is null
+            ? null
+            : FindOptionsValidationException(exception.InnerException);
     }
 }

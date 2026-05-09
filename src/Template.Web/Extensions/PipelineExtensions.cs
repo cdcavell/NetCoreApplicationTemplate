@@ -1,3 +1,5 @@
+using Template.Web.ErrorHandling;
+
 namespace Template.Web.Extensions;
 
 /// <summary>
@@ -21,6 +23,7 @@ public static class PipelineExtensions
 
         // 2. Centralized exception handling.
         app.UseTemplateErrorHandling();
+        app.UseTemplateProblemDetails();
 
         // 3. Structured request logging should see corrected scheme, host, and client IP.
         app.UseTemplateRequestLogging();

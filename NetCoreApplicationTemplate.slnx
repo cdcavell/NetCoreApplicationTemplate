@@ -3,5 +3,10 @@
     <File Path="ASSETS-LICENSES.md" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="src/Template.Web/Template.Web.csproj" Id="1e92d402-e410-4f7f-8483-de6af17d61a2" />
+  <Folder Name="/src/">
+    <Project Path="src/Template.Web/Template.Web.csproj" Id="1e92d402-e410-4f7f-8483-de6af17d61a2" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Template.Web.Tests/Template.Web.Tests.csproj" />
+  </Folder>
 </Solution>

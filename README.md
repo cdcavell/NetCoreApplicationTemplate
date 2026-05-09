@@ -488,6 +488,22 @@ app.UseRateLimiter();
 ```
 If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
 
+### Automated Test Strategy
+
+Rate limiting behavior is covered by integration tests under `tests/Template.Web.Tests`.
+
+The tests use `WebApplicationFactory<Program>` to boot the real `Template.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
+
+This keeps production endpoints unchanged while allowing the tests to verify:
+
+- Global fixed-window limiter behavior.
+- Named fixed-window policy behavior.
+- Named concurrency policy behavior.
+- JSON `429 Too Many Requests` rejection responses.
+- Disabled rate limiting behavior.
+- Configuration binding for template rate limiting options.
+
+
 ## Authentication and Authorization
 
 This section will document authentication and authorization architecture.

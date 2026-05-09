@@ -43,9 +43,9 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.1.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.1.0)__
+Current release: __[Release 0.1.1](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.1.1)__
 
-Tag: `v0.1.0`
+Tag: `v0.1.1`
 <!-- END LATEST_RELEASE -->
 
 ## Documentation

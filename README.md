@@ -2,7 +2,7 @@
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?sort=semver)
+[![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
 
@@ -31,12 +31,6 @@ Primary goals include:
 - Future packaging as a reusable .NET project template.
 - Local Git development with GitHub remote repository support.
 
-## Current Status
-
-Initial repository and folder structure are in place.
-
-Development has started. This README will evolve as each area of the project is implemented.
-
 ## Versioning
 
 This project follows Semantic Versioning using the format:
@@ -44,13 +38,15 @@ This project follows Semantic Versioning using the format:
 ```text
 MAJOR.MINOR.PATCH
 ```
-The current template version is:
-```text
-0.1.0
-```
-Until the project reaches `1.0.0`, breaking changes may occur as the template structure, middleware pipeline, authentication modules, data access patterns, documentation, and packaging process continue to evolve.
-
 Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
+
+## Current Release
+
+<!-- BEGIN LATEST_RELEASE -->
+Current release: __[Release 0.1.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.1.0)__
+
+Tag: `v0.1.0`
+<!-- END LATEST_RELEASE -->
 
 ## Documentation
 
@@ -491,6 +487,22 @@ app.UseCors();
 app.UseRateLimiter();
 ```
 If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
+
+### Automated Test Strategy
+
+Rate limiting behavior is covered by integration tests under `tests/Template.Web.Tests`.
+
+The tests use `WebApplicationFactory<Program>` to boot the real `Template.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
+
+This keeps production endpoints unchanged while allowing the tests to verify:
+
+- Global fixed-window limiter behavior.
+- Named fixed-window policy behavior.
+- Named concurrency policy behavior.
+- JSON `429 Too Many Requests` rejection responses.
+- Disabled rate limiting behavior.
+- Configuration binding for template rate limiting options.
+
 
 ## Authentication and Authorization
 

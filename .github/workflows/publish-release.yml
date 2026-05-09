@@ -1,0 +1,71 @@
+name: Update README release section
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update README release section
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          readme = Path("README.md")
+          text = readme.read_text(encoding="utf-8")
+
+          tag = os.environ["RELEASE_TAG"]
+          name = os.environ["RELEASE_NAME"] or tag
+          url = os.environ["RELEASE_URL"]
+
+          replacement = f"""<!-- BEGIN LATEST_RELEASE -->
+          Current release: __[{name}]({url})__
+
+          Tag: `{tag}`
+          <!-- END LATEST_RELEASE -->"""
+
+          pattern = r"<!-- BEGIN LATEST_RELEASE -->.*?<!-- END LATEST_RELEASE -->"
+
+          updated, count = re.subn(
+              pattern,
+              replacement,
+              text,
+              flags=re.DOTALL,
+          )
+
+          if count == 0:
+              raise SystemExit("README release markers were not found.")
+
+          if updated != text:
+              readme.write_text(updated, encoding="utf-8")
+          PY
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "Update README latest release section"
+          title: "Update README latest release section"
+          body: |
+            Updates the README latest release section after publishing `${{ github.event.release.tag_name }}`.
+          branch: docs/update-latest-release
+          base: main
+          delete-branch: true

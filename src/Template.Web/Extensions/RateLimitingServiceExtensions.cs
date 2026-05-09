@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using Template.Web.Constants;
 using Template.Web.Options;
 
@@ -22,87 +24,103 @@ public static partial class RateLimitingServiceExtensions
         IConfiguration configuration,
         IHostEnvironment environment)
     {
-        TemplateRateLimitingOptions rateLimitingOptions = CreateDefaultOptions(environment);
+        services.Configure<TemplateRateLimitingOptions>(options =>
+        {
+            TemplateRateLimitingOptions defaultOptions = CreateDefaultOptions(environment);
 
-        configuration
-            .GetSection(TemplateRateLimitingOptions.SectionName)
-            .Bind(rateLimitingOptions);
+            options.Enabled = defaultOptions.Enabled;
+            options.UseGlobalLimiter = defaultOptions.UseGlobalLimiter;
+
+            options.GlobalFixedWindow.PermitLimit = defaultOptions.GlobalFixedWindow.PermitLimit;
+            options.GlobalFixedWindow.WindowSeconds = defaultOptions.GlobalFixedWindow.WindowSeconds;
+            options.GlobalFixedWindow.QueueLimit = defaultOptions.GlobalFixedWindow.QueueLimit;
+
+            options.FixedWindowPolicy.PermitLimit = defaultOptions.FixedWindowPolicy.PermitLimit;
+            options.FixedWindowPolicy.WindowSeconds = defaultOptions.FixedWindowPolicy.WindowSeconds;
+            options.FixedWindowPolicy.QueueLimit = defaultOptions.FixedWindowPolicy.QueueLimit;
+
+            options.ConcurrencyPolicy.PermitLimit = defaultOptions.ConcurrencyPolicy.PermitLimit;
+            options.ConcurrencyPolicy.QueueLimit = defaultOptions.ConcurrencyPolicy.QueueLimit;
+        });
 
         services.Configure<TemplateRateLimitingOptions>(
             configuration.GetSection(TemplateRateLimitingOptions.SectionName));
 
+        _ = services.AddRateLimiter();
 
-        _ = services.AddRateLimiter(options =>
-        {
-            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-            options.OnRejected = async (context, cancellationToken) =>
+        _ = services.AddOptions<RateLimiterOptions>()
+            .Configure<IOptions<TemplateRateLimitingOptions>>((options, rateLimitingOptionsAccessor) =>
             {
-                HttpContext httpContext = context.HttpContext;
-                HttpResponse response = httpContext.Response;
+                TemplateRateLimitingOptions rateLimitingOptions = rateLimitingOptionsAccessor.Value;
 
-                TimeSpan? retryAfter = null;
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfterValue))
+                options.OnRejected = async (context, cancellationToken) =>
                 {
-                    retryAfter = retryAfterValue;
+                    HttpContext httpContext = context.HttpContext;
+                    HttpResponse response = httpContext.Response;
 
-                    response.Headers.RetryAfter =
-                        Math.Ceiling(retryAfterValue.TotalSeconds)
-                            .ToString(CultureInfo.InvariantCulture);
+                    TimeSpan? retryAfter = null;
+
+                    if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfterValue))
+                    {
+                        retryAfter = retryAfterValue;
+
+                        response.Headers.RetryAfter =
+                            Math.Ceiling(retryAfterValue.TotalSeconds)
+                                .ToString(CultureInfo.InvariantCulture);
+                    }
+
+                    ILogger logger = httpContext.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("Template.Web.RateLimiting");
+
+                    LogRateLimitRejectedRequest(
+                        logger,
+                        httpContext.Request.Method,
+                        httpContext.Request.Path.Value ?? string.Empty,
+                        httpContext.Connection.RemoteIpAddress?.ToString(),
+                        httpContext.GetEndpoint()?.DisplayName,
+                        retryAfter?.TotalSeconds,
+                        httpContext.TraceIdentifier);
+
+                    response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    response.ContentType = "application/json";
+
+                    await response.WriteAsJsonAsync(new
+                    {
+                        error = "Too many requests.",
+                        statusCode = StatusCodes.Status429TooManyRequests,
+                        traceId = httpContext.TraceIdentifier
+                    }, cancellationToken);
+                };
+
+                if (!rateLimitingOptions.Enabled)
+                {
+                    return;
                 }
 
-                ILogger logger = httpContext.RequestServices
-                    .GetRequiredService<ILoggerFactory>()
-                    .CreateLogger("Template.Web.RateLimiting");
-
-                LogRateLimitRejectedRequest(
-                    logger,
-                    httpContext.Request.Method,
-                    httpContext.Request.Path.Value ?? string.Empty,
-                    httpContext.Connection.RemoteIpAddress?.ToString(),
-                    httpContext.GetEndpoint()?.DisplayName,
-                    retryAfter?.TotalSeconds,
-                    httpContext.TraceIdentifier);
-
-                response.StatusCode = StatusCodes.Status429TooManyRequests;
-                response.ContentType = "application/json";
-
-                await response.WriteAsJsonAsync(new
+                if (rateLimitingOptions.UseGlobalLimiter)
                 {
-                    error = "Too many requests.",
-                    statusCode = StatusCodes.Status429TooManyRequests,
-                    traceId = httpContext.TraceIdentifier
-                }, cancellationToken);
-            };
+                    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                        RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: GetClientPartitionKey(httpContext),
+                            factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.GlobalFixedWindow)));
+                }
 
-            if (!rateLimitingOptions.Enabled)
-            {
-                return;
-            }
-
-            if (rateLimitingOptions.UseGlobalLimiter)
-            {
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                options.AddPolicy(TemplateRateLimitingPolicyNames.Fixed, httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: GetClientPartitionKey(httpContext),
-                        factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.GlobalFixedWindow)));
-            }
+                        factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.FixedWindowPolicy)));
 
-            options.AddPolicy(TemplateRateLimitingPolicyNames.Fixed, httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: GetClientPartitionKey(httpContext),
-                    factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.FixedWindowPolicy)));
-
-            options.AddPolicy(TemplateRateLimitingPolicyNames.Concurrency, httpContext =>
-                RateLimitPartition.GetConcurrencyLimiter(
-                    partitionKey: GetEndpointPartitionKey(httpContext),
-                    factory: _ => CreateConcurrencyLimiterOptions(rateLimitingOptions.ConcurrencyPolicy)));
-        });
+                options.AddPolicy(TemplateRateLimitingPolicyNames.Concurrency, httpContext =>
+                    RateLimitPartition.GetConcurrencyLimiter(
+                        partitionKey: GetEndpointPartitionKey(httpContext),
+                        factory: _ => CreateConcurrencyLimiterOptions(rateLimitingOptions.ConcurrencyPolicy)));
+            });
 
         return services;
     }
-
     private static TemplateRateLimitingOptions CreateDefaultOptions(IHostEnvironment environment)
     {
         TemplateRateLimitingOptions options = new();

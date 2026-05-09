@@ -2,10 +2,9 @@
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?sort=semver)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
-<!--![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?sort=semver)-->
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
@@ -174,22 +173,6 @@ The application logs any exceptions that occur during the bootstrapping process 
 ```csharp
 Log.Fatal(ex, "Template.Web application terminated unexpectedly");
 ```
-
-
-## Error Handling
-
-This section will document centralized exception handling and status code behavior.
-
-Planned areas:
-
-- Global exception handling.
-- Status code pages.
-- Error controller or endpoint strategy.
-- Problem Details support.
-- User-safe error responses.
-- Developer exception pages for local development.
-- Logging behavior for handled and unhandled errors.
-
 ## Error Handling
 
 The template includes centralized error handling for both unhandled exceptions and HTTP status code responses.
@@ -248,6 +231,24 @@ Error handling logs include:
 - Exception details for unhandled exceptions.
 
 Log event IDs are centralized in TemplateLogEventIds to keep application logging consistent.
+
+### Centralized Problem Details Error Handling
+
+The application uses centralized error handling to provide consistent responses for both browser and API-style requests.
+
+Browser requests are routed to the standard application error page, such as `/Home/Error/{statusCode}`. API, AJAX, and JSON-oriented requests receive a Problem Details response using the ASP.NET Core `IProblemDetailsService`.
+
+Problem Details responses include safe metadata such as:
+
+- HTTP status code
+- Error title
+- Request path
+- Trace ID
+- Request ID
+
+Detailed exception information is only exposed in the Development environment. Production responses avoid leaking stack traces, exception messages, connection details, or internal implementation information.
+
+Unhandled exceptions are logged centrally and converted into safe Problem Details responses when the request expects JSON.
 
 ## Security Headers
 
@@ -358,7 +359,6 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';
 ```
 The exact CSP and Permissions-Policy values may differ if overridden by configuration.
-
 
 ## Forwarded Headers and Proxy Support
 

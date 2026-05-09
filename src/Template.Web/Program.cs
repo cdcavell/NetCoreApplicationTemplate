@@ -1,4 +1,5 @@
 using Serilog;
+using Template.Web.ErrorHandling;
 using Template.Web.Extensions;
 
 Log.Logger = new LoggerConfiguration()
@@ -20,6 +21,8 @@ try
     builder.Services.AddTemplateForwardedHeaders(builder.Configuration);
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
     builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
+
+    builder.Services.AddTemplateProblemDetails(builder.Environment);
 
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();

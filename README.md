@@ -174,22 +174,6 @@ The application logs any exceptions that occur during the bootstrapping process 
 ```csharp
 Log.Fatal(ex, "Template.Web application terminated unexpectedly");
 ```
-
-
-## Error Handling
-
-This section will document centralized exception handling and status code behavior.
-
-Planned areas:
-
-- Global exception handling.
-- Status code pages.
-- Error controller or endpoint strategy.
-- Problem Details support.
-- User-safe error responses.
-- Developer exception pages for local development.
-- Logging behavior for handled and unhandled errors.
-
 ## Error Handling
 
 The template includes centralized error handling for both unhandled exceptions and HTTP status code responses.
@@ -248,6 +232,24 @@ Error handling logs include:
 - Exception details for unhandled exceptions.
 
 Log event IDs are centralized in TemplateLogEventIds to keep application logging consistent.
+
+### Centralized Problem Details Error Handling
+
+The application uses centralized error handling to provide consistent responses for both browser and API-style requests.
+
+Browser requests are routed to the standard application error page, such as `/Home/Error/{statusCode}`. API, AJAX, and JSON-oriented requests receive a Problem Details response using the ASP.NET Core `IProblemDetailsService`.
+
+Problem Details responses include safe metadata such as:
+
+- HTTP status code
+- Error title
+- Request path
+- Trace ID
+- Request ID
+
+Detailed exception information is only exposed in the Development environment. Production responses avoid leaking stack traces, exception messages, connection details, or internal implementation information.
+
+Unhandled exceptions are logged centrally and converted into safe Problem Details responses when the request expects JSON.
 
 ## Security Headers
 
@@ -358,7 +360,6 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';
 ```
 The exact CSP and Permissions-Policy values may differ if overridden by configuration.
-
 
 ## Forwarded Headers and Proxy Support
 

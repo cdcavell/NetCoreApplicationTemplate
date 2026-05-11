@@ -165,6 +165,8 @@ public sealed class SecurityHeadersTests
     /// <returns>A task that represents the asynchronous test operation.</returns>
     [Theory]
     [InlineData("/health")]
+    [InlineData("/health/ready")]
+    [InlineData("/health/live")]
     [InlineData("/metrics")]
     public async Task ExcludedPathPrefixes_DoNotApplySecurityHeaders(string path)
     {

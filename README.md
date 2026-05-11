@@ -394,6 +394,63 @@ networks using `KnownProxies` or `KnownNetworks`.
 `XForwardedHost` is intentionally not enabled by default. If enabled, configure `AllowedHosts`
 to reduce the risk of host header spoofing.
 
+## Health Checks
+
+The template includes baseline ASP.NET Core health check endpoints for local development, reverse proxy hosting, load balancers, container platforms, and future deployment scenarios.
+
+Health checks are registered during service configuration:
+
+```csharp
+builder.Services.AddTemplateHealthChecks();
+```
+The endpoints are mapped during application startup:
+```csharp
+app.MapTemplateHealthChecks();
+``` 
+### Default Endpoints
+|Endpoint|Purpose|
+|:-------|:------|
+|/health|General application health endpoint.|
+|/health/ready|Readiness endpoint intended for dependency-aware checks such as database, cache, or external service availability.|
+|/health/live|Liveness endpoint intended to verify that the application process can respond.|
+
+The baseline template does not yet register database or external dependency checks. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
+
+Example future readiness check:
+```csharp
+builder.Services
+    .AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>(
+        "database",
+        tags: new[] { "ready" });
+```
+### Reverse Proxy and Hosting Use
+
+Health endpoints are intended for infrastructure-level checks from reverse proxies, load balancers, deployment platforms, and monitoring systems.
+
+Typical uses include:
+
+- Confirming the application process is running.
+- Removing an unhealthy instance from load balancing rotation.
+- Supporting future container or deployment probes.
+- Providing a stable infrastructure path that avoids normal browser-facing error pages.
+### Security Headers
+
+The default security header configuration excludes `/health`:
+```json
+"ExcludedPathPrefixes": [
+  "/health",
+  "/metrics"
+]
+```
+Because the exclusion is prefix-based, `/health`, `/health/ready`, and `/health/live` are all excluded from security header application. This keeps health probe responses small and infrastructure-friendly.
+```text
+
+## Run tests
+
+```bash
+dotnet test
+```
 ## Rate Limiting
 
 The template includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.

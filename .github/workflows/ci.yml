@@ -6,8 +6,14 @@ on:
       - main
 
   push:
-    branches-ignore:
+    branches:
       - main
+      - 'feature/**'
+      - 'fix/**'
+      - 'docs/**'
+      - 'refactor/**'
+      - 'test/**'
+      - 'chore/**'
 
   workflow_dispatch:
 

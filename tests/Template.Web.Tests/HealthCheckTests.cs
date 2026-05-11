@@ -22,11 +22,12 @@ public sealed class HealthCheckTests
         using HttpResponseMessage response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("text/plain", response.Content.Headers.ContentType?.MediaType);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
 
         string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
-        Assert.Equal("Healthy", body);
+        Assert.Contains("Healthy", body, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

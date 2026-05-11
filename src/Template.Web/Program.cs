@@ -18,6 +18,7 @@ try
     Log.Information("Bootstrapping Template.Web application");
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
+    builder.Services.AddTemplateHealthChecks();
     builder.Services.AddTemplateForwardedHeaders(builder.Configuration);
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
     builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
@@ -29,7 +30,7 @@ try
 
     Log.Information("Configuring pipeline for Template.Web application");
     app.UseTemplatePipeline();
-
+    app.MapTemplateHealthChecks();
     app.MapGet("/", () => "Hello World!");
 
     Log.Information("Running Template.Web application");

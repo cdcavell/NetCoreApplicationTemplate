@@ -563,21 +563,44 @@ This keeps production endpoints unchanged while allowing the tests to verify:
 
 ## Authentication and Authorization
 
-This section will document authentication and authorization architecture.
+The template includes a provider-neutral authentication module structure intended to support future authentication providers without coupling provider setup directly to `Program.cs`.
 
-Planned areas:
+Authentication services are registered through:
 
-- Cookie authentication.
-- OpenID Connect.
-- SAML2.
-- Microsoft authentication.
-- Google authentication.
-- Social provider modules.
-- External login configuration.
-- Claims transformation.
-- Authorization policies.
-- Role and permission patterns.
-- Pluggable authentication module design.
+```csharp
+builder.Services.AddTemplateAuthentication(builder.Configuration);
+```
+Authentication and authorization middleware are applied through the standard template pipeline:
+```csharp
+app.UseTemplatePipeline();
+```
+The template reads authentication settings from:
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": false,
+    "DefaultScheme": "Cookies",
+    "Providers": {
+      "OpenIdConnect": {
+        "Enabled": false
+      },
+      "Saml2": {
+        "Enabled": false
+      },
+      "Microsoft": {
+        "Enabled": false
+      },
+      "Google": {
+        "Enabled": false
+      },
+      "Social": {
+        "Enabled": false
+      }
+    }
+  }
+}
+```
+Authentication is disabled by default so the base template remains lightweight. Provider-specific implementations such as OIDC, SAML2, Microsoft, Google, and other social providers can be added later in isolated provider folders under `Authentication/Providers`.
 
 ## Data Access
 

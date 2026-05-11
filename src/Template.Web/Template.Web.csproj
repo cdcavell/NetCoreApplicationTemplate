@@ -19,6 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Providers\Microsoft\" />
+    <Folder Include="Authentication\Providers\Google\" />
+    <Folder Include="Authentication\Providers\Social\" />
+    <Folder Include="Authentication\Providers\Saml2\" />
+    <Folder Include="Authentication\Providers\OpenIdConnect\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 

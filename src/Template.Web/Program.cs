@@ -1,4 +1,5 @@
 using Serilog;
+using Template.Web.Authentication;
 using Template.Web.ErrorHandling;
 using Template.Web.Extensions;
 
@@ -22,6 +23,7 @@ try
     builder.Services.AddTemplateForwardedHeaders(builder.Configuration);
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
     builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
+    builder.Services.AddTemplateAuthentication(builder.Configuration);
 
     builder.Services.AddTemplateProblemDetails(builder.Environment);
 
@@ -30,6 +32,7 @@ try
 
     Log.Information("Configuring pipeline for Template.Web application");
     app.UseTemplatePipeline();
+
     app.MapTemplateHealthChecks();
     app.MapGet("/", () => "Hello World!");
 

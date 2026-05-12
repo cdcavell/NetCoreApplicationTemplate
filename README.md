@@ -690,16 +690,35 @@ Planned setup steps:
 - Run the application.
 - Execute tests.
 
-## Build and Test
+## Testing
 
-Build and test instructions will be added once the solution structure is finalized
+The repository includes automated tests under `tests/Template.Web.Tests`.
 
-Planned commands:
+The test project uses `WebApplicationFactory<Program>` to start the real `Template.Web`
+application pipeline in memory. Tests can override configuration through in-memory
+settings and can register test-only MVC controllers from the test assembly.
 
-```
-dotnet restore
-dotnet build
+### Current integration coverage includes:
+
+- Health check endpoints.
+- Security header middleware behavior.
+- Forwarded header behavior.
+- Rate limiting policies.
+- JSON 429 rejection responses.
+- Configuration binding and validation.
+
+### Run tests with:
+
+```bash
 dotnet test
+```
+
+### Run locally:
+
+```bash
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
 ```
 
 ## Git Workflow

@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
 

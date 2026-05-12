@@ -1,10 +1,10 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Template.Web.Extensions;
 using Template.Web.Options;
+using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
 
 namespace Template.Web.Tests;
@@ -26,7 +26,7 @@ public sealed class SecurityHeadersTests
             ["Template:SecurityHeaders:Enabled"] = "true"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/test/security-headers", TestContext.Current.CancellationToken);
 
@@ -60,7 +60,7 @@ public sealed class SecurityHeadersTests
             ["Template:SecurityHeaders:EnableContentSecurityPolicy"] = "false"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/test/security-headers", TestContext.Current.CancellationToken);
 
@@ -83,7 +83,7 @@ public sealed class SecurityHeadersTests
             ["Template:SecurityHeaders:EnablePermissionsPolicy"] = "false"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/test/security-headers", TestContext.Current.CancellationToken);
 
@@ -106,7 +106,7 @@ public sealed class SecurityHeadersTests
             ["Template:SecurityHeaders:EnableCrossOriginHeaders"] = "false"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/test/security-headers", TestContext.Current.CancellationToken);
 
@@ -177,7 +177,7 @@ public sealed class SecurityHeadersTests
             ["Template:SecurityHeaders:ExcludedPathPrefixes:1"] = "/metrics"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync(path, TestContext.Current.CancellationToken);
 
@@ -194,20 +194,6 @@ public sealed class SecurityHeadersTests
     private static TemplateWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?> configurationValues)
     {
         return new TemplateWebApplicationFactory(configurationValues);
-    }
-
-    /// <summary>
-    /// Creates an HTTPS test client so requests are not intercepted by HTTPS redirection middleware.
-    /// </summary>
-    /// <param name="factory">The web application factory used to create the client.</param>
-    /// <returns>An <see cref="HttpClient"/> configured with an HTTPS base address.</returns>
-    private static HttpClient CreateHttpsClient(WebApplicationFactory<Program> factory)
-    {
-        return factory.CreateClient(new WebApplicationFactoryClientOptions
-        {
-            BaseAddress = new Uri("https://localhost"),
-            AllowAutoRedirect = false
-        });
     }
 
     private static void AssertSecurityHeadersMissing(HttpResponseMessage response)

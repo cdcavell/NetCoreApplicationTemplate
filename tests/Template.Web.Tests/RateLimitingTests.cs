@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Template.Web.Extensions;
 using Template.Web.Options;
+using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
 using Template.Web.Tests.TestControllers;
 
@@ -34,7 +34,7 @@ public sealed class RateLimitingTests
             ["Template:RateLimiting:GlobalFixedWindow:QueueLimit"] = "0"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
         using HttpResponseMessage secondResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
@@ -59,7 +59,7 @@ public sealed class RateLimitingTests
             ["Template:RateLimiting:FixedWindowPolicy:QueueLimit"] = "0"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage firstResponse = await client.GetAsync("/test/rate-limiting/fixed", TestContext.Current.CancellationToken);
         using HttpResponseMessage secondResponse = await client.GetAsync("/test/rate-limiting/fixed", TestContext.Current.CancellationToken);
@@ -85,7 +85,7 @@ public sealed class RateLimitingTests
             ["Template:RateLimiting:ConcurrencyPolicy:QueueLimit"] = "0"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         Task<HttpResponseMessage> firstRequest = client.GetAsync("/test/rate-limiting/concurrency", TestContext.Current.CancellationToken);
 
@@ -114,7 +114,7 @@ public sealed class RateLimitingTests
             ["Template:RateLimiting:GlobalFixedWindow:QueueLimit"] = "0"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
         using HttpResponseMessage rejectedResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
@@ -146,7 +146,7 @@ public sealed class RateLimitingTests
             ["Template:RateLimiting:GlobalFixedWindow:QueueLimit"] = "0"
         });
 
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage firstResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
         using HttpResponseMessage secondResponse = await client.GetAsync("/", TestContext.Current.CancellationToken);
@@ -262,20 +262,6 @@ public sealed class RateLimitingTests
     private static TemplateWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?> configurationValues)
     {
         return new TemplateWebApplicationFactory(configurationValues);
-    }
-
-    /// <summary>
-    /// Creates an HTTPS test client so requests are not intercepted by HTTPS redirection middleware.
-    /// </summary>
-    /// <param name="factory">The web application factory used to create the client.</param>
-    /// <returns>An <see cref="HttpClient"/> configured with an HTTPS base address.</returns>
-    private static HttpClient CreateHttpsClient(WebApplicationFactory<Program> factory)
-    {
-        return factory.CreateClient(new WebApplicationFactoryClientOptions
-        {
-            BaseAddress = new Uri("https://localhost"),
-            AllowAutoRedirect = false
-        });
     }
 
     private static OptionsValidationException AssertRateLimitingOptionsValidationFails(

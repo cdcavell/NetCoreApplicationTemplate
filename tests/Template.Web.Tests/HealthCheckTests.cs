@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
 
 namespace Template.Web.Tests;
@@ -17,11 +18,10 @@ public sealed class HealthCheckTests
     public async Task HealthEndpoint_ReturnsHealthy()
     {
         using TemplateWebApplicationFactory factory = CreateFactory();
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
 
@@ -38,7 +38,7 @@ public sealed class HealthCheckTests
     public async Task HealthReadyEndpoint_ReturnsHealthy()
     {
         using TemplateWebApplicationFactory factory = CreateFactory();
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/health/ready", TestContext.Current.CancellationToken);
 
@@ -57,7 +57,7 @@ public sealed class HealthCheckTests
     public async Task HealthLiveEndpoint_ReturnsHealthy()
     {
         using TemplateWebApplicationFactory factory = CreateFactory();
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync("/health/live", TestContext.Current.CancellationToken);
 
@@ -80,7 +80,7 @@ public sealed class HealthCheckTests
     public async Task HealthEndpoints_DoNotApplySecurityHeaders(string path)
     {
         using TemplateWebApplicationFactory factory = CreateFactory();
-        using HttpClient client = CreateHttpsClient(factory);
+        using HttpClient client = factory.CreateHttpsClient();
 
         using HttpResponseMessage response = await client.GetAsync(path, TestContext.Current.CancellationToken);
 
@@ -99,14 +99,5 @@ public sealed class HealthCheckTests
     private static TemplateWebApplicationFactory CreateFactory()
     {
         return new TemplateWebApplicationFactory(new Dictionary<string, string?>());
-    }
-
-    private static HttpClient CreateHttpsClient(WebApplicationFactory<Program> factory)
-    {
-        return factory.CreateClient(new WebApplicationFactoryClientOptions
-        {
-            BaseAddress = new Uri("https://localhost"),
-            AllowAutoRedirect = false
-        });
     }
 }

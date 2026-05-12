@@ -21,12 +21,12 @@ public static class PipelineExtensions
         // 1. Proxy/load balancer correction must happen early.
         app.UseTemplateForwardedHeaders();
 
-        // 2. Centralized exception handling.
+        // 2. Structured request logging should see corrected scheme, host, and client IP.
+        app.UseTemplateRequestLogging();
+
+        // 3. Centralized exception handling.
         app.UseTemplateErrorHandling();
         app.UseTemplateProblemDetails();
-
-        // 3. Structured request logging should see corrected scheme, host, and client IP.
-        app.UseTemplateRequestLogging();
 
         // 4. Optional security response headers.
         app.UseTemplateSecurityHeaders();

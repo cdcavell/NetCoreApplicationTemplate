@@ -169,6 +169,55 @@ The application logs any exceptions that occur during the bootstrapping process 
 ```csharp
 Log.Fatal(ex, "Template.Web application terminated unexpectedly");
 ```
+### Structured Request Logging
+
+The template includes structured HTTP request logging through Serilog.
+
+Request logging records a single completion event for each normal request and includes:
+
+- HTTP method
+- Request path
+- Response status code
+- Elapsed request duration
+- Request ID
+- Correlation ID
+- Request scheme and host
+- Remote IP address, when enabled
+- Authenticated user name, when enabled
+
+Request logging is configured through:
+
+```csharp
+builder.Services.AddTemplateRequestLogging(builder.Configuration);
+```
+And applied through the standard template pipeline:
+```csharp
+app.UseTemplateRequestLogging();
+```
+Configuration is controlled through `appsettings.json`:
+```json
+"Template": {
+  "RequestLogging": {
+    "Enabled": true,
+    "CorrelationHeaderName": "X-Correlation-ID",
+    "IncludeQueryString": false,
+    "IncludeUserName": true,
+    "IncludeRemoteIpAddress": true,
+    "ExcludedPathPrefixes": [
+      "/health",
+      "/metrics",
+      "/favicon.ico",
+      "/css",
+      "/js",
+      "/lib",
+      "/_framework"
+    ]
+  }
+}
+```
+Query string logging is disabled by default because query strings may contain sensitive values. Applications should avoid logging request bodies, response bodies, cookies, authorization headers, access tokens, refresh tokens, or authentication payloads unless a specific, reviewed diagnostic need exists.
+
+
 ## Error Handling
 
 The template includes centralized error handling for both unhandled exceptions and HTTP status code responses.

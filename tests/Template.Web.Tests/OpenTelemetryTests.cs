@@ -26,7 +26,7 @@ public sealed class OpenTelemetryTests
         {
             ["Template:OpenTelemetry:Enabled"] = "true",
             ["Template:OpenTelemetry:ServiceName"] = "Template.Web",
-            ["Template:OpenTelemetry:ServiceVersion"] = "0.1.4",
+            ["Template:OpenTelemetry:ServiceVersion"] = "0.2.0",
             ["Template:OpenTelemetry:EnableTracing"] = "true",
             ["Template:OpenTelemetry:EnableMetrics"] = "true",
             ["Template:OpenTelemetry:EnableAspNetCoreInstrumentation"] = "true",
@@ -42,7 +42,7 @@ public sealed class OpenTelemetryTests
 
         Assert.True(options.Enabled);
         Assert.Equal("Template.Web", options.ServiceName);
-        Assert.Equal("0.1.4", options.ServiceVersion);
+        Assert.Equal("0.2.0", options.ServiceVersion);
         Assert.True(options.EnableTracing);
         Assert.True(options.EnableMetrics);
         Assert.True(options.EnableAspNetCoreInstrumentation);
@@ -65,7 +65,7 @@ public sealed class OpenTelemetryTests
                 {
                     ["Template:OpenTelemetry:Enabled"] = "true",
                     ["Template:OpenTelemetry:ServiceName"] = "Template.Web",
-                    ["Template:OpenTelemetry:ServiceVersion"] = "0.1.4",
+                    ["Template:OpenTelemetry:ServiceVersion"] = "0.2.0",
                     ["Template:OpenTelemetry:EnableTracing"] = "true",
                     ["Template:OpenTelemetry:EnableMetrics"] = "true",
                     ["Template:OpenTelemetry:EnableAspNetCoreInstrumentation"] = "true",
@@ -92,7 +92,7 @@ public sealed class OpenTelemetryTests
         {
             ["Template:OpenTelemetry:Enabled"] = "true",
             ["Template:OpenTelemetry:ServiceName"] = "Template.Web",
-            ["Template:OpenTelemetry:ServiceVersion"] = "0.1.4",
+            ["Template:OpenTelemetry:ServiceVersion"] = "0.2.0",
             ["Template:OpenTelemetry:EnableTracing"] = "true",
             ["Template:OpenTelemetry:EnableMetrics"] = "true",
             ["Template:OpenTelemetry:EnableAspNetCoreInstrumentation"] = "true",
@@ -120,7 +120,7 @@ public sealed class OpenTelemetryTests
         {
             ["Template:OpenTelemetry:Enabled"] = "false",
             ["Template:OpenTelemetry:ServiceName"] = "Template.Web",
-            ["Template:OpenTelemetry:ServiceVersion"] = "0.1.4",
+            ["Template:OpenTelemetry:ServiceVersion"] = "0.2.0",
             ["Template:OpenTelemetry:EnableTracing"] = "true",
             ["Template:OpenTelemetry:EnableMetrics"] = "true",
             ["Template:OpenTelemetry:EnableAspNetCoreInstrumentation"] = "true",

@@ -647,21 +647,54 @@ http://localhost:4318
 The OTLP exporter can also be configured through standard OpenTelemetry environment variables such as `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_PROTOCOL`.
 ## Authentication and Authorization
 
-This section will document authentication and authorization architecture.
+The template includes an initial authentication and authorization module abstraction.
 
-Planned areas:
+Authentication is registered through:
 
-- Cookie authentication.
-- OpenID Connect.
-- SAML2.
-- Microsoft authentication.
-- Google authentication.
-- Social provider modules.
-- External login configuration.
-- Claims transformation.
-- Authorization policies.
-- Role and permission patterns.
-- Pluggable authentication module design.
+```csharp
+builder.Services.AddTemplateAuthentication(builder.Configuration);
+```
+Authorization policies are registered through:
+```csharp
+builder.Services.AddTemplateAuthorization();
+```
+The standard template pipeline applies authentication and authorization in the expected middleware order:
+```csharp
+app.UseRouting();
+app.UseCors();
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+```
+### Current Authentication Baseline
+
+The initial implementation provides:
+- Cookie authentication baseline.
+- Strongly typed authentication options.
+- Centralized authentication service registration.
+- Centralized authorization policy registration.
+- Placeholder provider registration pattern for future OIDC, SAML2, Microsoft, Google, and social providers.
+### Configuration
+
+Authentication configuration is controlled through appsettings.json:
+```json
+"Template": {
+  "Authentication": {
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "Cookies",
+    "Cookie": {
+      "Scheme": "Cookies",
+      "CookieName": ".Template.Web.Auth",
+      "LoginPath": "/Account/Login",
+      "LogoutPath": "/Account/Logout",
+      "AccessDeniedPath": "/Account/AccessDenied",
+      "ExpireTimeSpanMinutes": 60,
+      "SlidingExpiration": true
+    }
+  }
+}
+```
+The login, logout, and access denied paths are placeholders for future authentication UI/provider work.
 
 ## Data Access
 
@@ -864,7 +897,7 @@ Initial planned milestones:
 - [x]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.
-- [ ]  Add authentication module structure.
+- [X]  Add authentication module structure.
 - [ ]  Add OIDC support.
 - [ ]  Add SAML2 support.
 - [ ]  Add external provider support.

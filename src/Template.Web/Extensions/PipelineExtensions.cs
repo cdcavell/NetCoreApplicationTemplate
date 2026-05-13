@@ -47,7 +47,7 @@ public static class PipelineExtensions
         app.UseRateLimiter();
 
         // 10. Authentication and authorization.
-        //app.UseAuthentication();
+        app.UseAuthentication();
         app.UseAuthorization();
 
         // 11. Endpoint mapping.

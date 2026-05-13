@@ -781,6 +781,19 @@ dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release
 ```
+### Code Coverage
+
+Automated test runs collect code coverage using Coverlet.
+
+Coverage reports are generated during CI using ReportGenerator and published as GitHub Actions artifacts.
+
+The initial line coverage threshold is:
+
+```text
+60%
+```
+This threshold is intentionally modest while the template is still growing. It should be raised over time as additional modules, data access features, authentication providers, and template packaging tests are added.
+
 
 ## Git Workflow
 

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 namespace Template.Web.Options;
 
 /// <summary>
@@ -18,10 +20,15 @@ public sealed class TemplateAuthenticationOptions
     /// <summary>
     /// Gets or sets the default authentication scheme.
     /// </summary>
-    public string DefaultScheme { get; set; } = "Cookies";
+    public string DefaultScheme { get; set; } = CookieAuthenticationDefaults.AuthenticationScheme;
 
     /// <summary>
-    /// Gets or sets provider-specific authentication options.
+    /// Gets or sets the default challenge scheme.
     /// </summary>
-    public AuthenticationProviderOptions Providers { get; set; } = new();
+    public string DefaultChallengeScheme { get; set; } = CookieAuthenticationDefaults.AuthenticationScheme;
+
+    /// <summary>
+    /// Gets or sets cookie authentication options.
+    /// </summary>
+    public TemplateCookieAuthenticationOptions Cookie { get; set; } = new();
 }

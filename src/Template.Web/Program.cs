@@ -28,6 +28,8 @@ try
 
     builder.Services.AddTemplateOpenTelemetry(builder.Configuration, builder.Environment);
     builder.Services.AddTemplateProblemDetails(builder.Environment);
+    builder.Services.AddTemplateAuthentication(builder.Configuration);
+    builder.Services.AddTemplateAuthorization();
 
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();

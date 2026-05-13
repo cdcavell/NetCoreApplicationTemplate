@@ -23,6 +23,7 @@ try
     builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
     builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
     builder.Services.AddTemplateRequestLogging(builder.Configuration);
+    builder.Services.AddTemplateOpenTelemetry(builder.Configuration, builder.Environment);
     builder.Services.AddTemplateProblemDetails(builder.Environment);
 
     Log.Information("Starting Template.Web application");

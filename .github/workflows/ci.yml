@@ -67,12 +67,68 @@ jobs:
 
           if (-not $testProjects) {
               Write-Host "No test projects found. Skipping dotnet test."
-              return
+              exit 0
           }
 
           foreach ($project in $testProjects) {
               Write-Host "Running tests for $($project.FullName)"
-              dotnet test $project.FullName --configuration $env:CONFIGURATION --no-restore --verbosity normal
+              dotnet test $project.FullName `
+                --configuration $env:CONFIGURATION `
+                --no-restore `
+                --verbosity normal `
+                --collect:"XPlat Code Coverage" `
+                --logger "trx" `
+                --results-directory "./artifacts/test-results"
+          }
+
+      - name: Restore local tools
+        run: dotnet tool restore
+
+      - name: Generate coverage report
+        shell: pwsh
+        run: |
+          dotnet reportgenerator `
+            -reports:"./artifacts/test-results/**/coverage.cobertura.xml" `
+            -targetdir:"./artifacts/coverage-report" `
+            -reporttypes:"Html;MarkdownSummaryGithub;Cobertura" `
+            -assemblyfilters:"+Template.Web;-*.Tests"
+
+      - name: Publish test results artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: ./artifacts/test-results
+          if-no-files-found: warn
+
+      - name: Publish coverage report artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: ./artifacts/coverage-report
+          if-no-files-found: warn
+
+      - name: Enforce initial coverage threshold
+        shell: pwsh
+        run: |
+          $threshold = 60
+          $coverageFile = Get-ChildItem -Path "./artifacts/coverage-report" -Recurse -Filter "*.xml" |
+            Where-Object { $_.Name -match "Cobertura|coverage" } |
+            Select-Object -First 1
+
+          if (-not $coverageFile) {
+              Write-Error "Coverage file was not generated."
+              exit 1
+          }
+
+          [xml]$coverage = Get-Content $coverageFile.FullName
+          $lineRate = [double]$coverage.coverage.'line-rate'
+          $percentage = [math]::Round($lineRate * 100, 2)
+
+          Write-Host "Line coverage: $percentage%"
+
+          if ($percentage -lt $threshold) {
+              Write-Error "Coverage $percentage% is below required threshold of $threshold%."
+              exit 1
           }
 
   codeql-analysis:

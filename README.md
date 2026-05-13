@@ -43,9 +43,9 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.1.3](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.1.3)__
+Current release: __[Release 0.1.4](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.1.4)__
 
-Tag: `v0.1.3`
+Tag: `v0.1.4`
 <!-- END LATEST_RELEASE -->
 
 ## Documentation
@@ -804,6 +804,19 @@ dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release
 ```
+### Code Coverage
+
+Automated test runs collect code coverage using Coverlet.
+
+Coverage reports are generated during CI using ReportGenerator and published as GitHub Actions artifacts.
+
+The initial line coverage threshold is:
+
+```text
+60%
+```
+This threshold is intentionally modest while the template is still growing. It should be raised over time as additional modules, data access features, authentication providers, and template packaging tests are added.
+
 
 ## Git Workflow
 

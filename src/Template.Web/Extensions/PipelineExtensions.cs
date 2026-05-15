@@ -1,3 +1,4 @@
+using Template.Web.Authentication.Extensions;
 using Template.Web.ErrorHandling;
 
 namespace Template.Web.Extensions;
@@ -47,7 +48,7 @@ public static class PipelineExtensions
         app.UseRateLimiter();
 
         // 10. Authentication and authorization.
-        //app.UseAuthentication();
+        app.UseTemplateAuthentication();
         app.UseAuthorization();
 
         // 11. Endpoint mapping.

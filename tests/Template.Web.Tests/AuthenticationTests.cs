@@ -32,12 +32,45 @@ public sealed class AuthenticationTests
             ["Template:Authentication:Cookie:AccessDeniedPath"] = "/Account/AccessDenied",
             ["Template:Authentication:Cookie:ExpireMinutes"] = "90",
             ["Template:Authentication:Cookie:SlidingExpiration"] = "false",
+
             ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
+            ["Template:Authentication:Providers:OpenIdConnect:Scheme"] = "OpenIdConnect",
+            ["Template:Authentication:Providers:OpenIdConnect:DisplayName"] = "OpenID Connect",
+            ["Template:Authentication:Providers:OpenIdConnect:Authority"] = "https://login.example.test",
+            ["Template:Authentication:Providers:OpenIdConnect:ClientId"] = "test-oidc-client-id",
+            ["Template:Authentication:Providers:OpenIdConnect:CallbackPath"] = "/signin-oidc",
+            ["Template:Authentication:Providers:OpenIdConnect:ResponseType"] = "code",
+            ["Template:Authentication:Providers:OpenIdConnect:Scopes:0"] = "openid",
+            ["Template:Authentication:Providers:OpenIdConnect:Scopes:1"] = "profile",
+            ["Template:Authentication:Providers:OpenIdConnect:Scopes:2"] = "email",
+
             ["Template:Authentication:Providers:Saml2:Enabled"] = "true",
+            ["Template:Authentication:Providers:Saml2:Scheme"] = "Saml2",
+            ["Template:Authentication:Providers:Saml2:DisplayName"] = "SAML2",
+            ["Template:Authentication:Providers:Saml2:EntityId"] = "https://template.example.test/saml2",
+            ["Template:Authentication:Providers:Saml2:MetadataUrl"] = "https://idp.example.test/metadata",
             ["Template:Authentication:Providers:Saml2:ModulePath"] = "/custom-saml2-acs",
+
             ["Template:Authentication:Providers:Microsoft:Enabled"] = "true",
+            ["Template:Authentication:Providers:Microsoft:Scheme"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:DisplayName"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:ClientId"] = "test-microsoft-client-id",
+            ["Template:Authentication:Providers:Microsoft:ClientSecret"] = "test-microsoft-client-secret",
+            ["Template:Authentication:Providers:Microsoft:CallbackPath"] = "/signin-microsoft",
+
             ["Template:Authentication:Providers:Google:Enabled"] = "true",
-            ["Template:Authentication:Providers:GitHub:Enabled"] = "true"
+            ["Template:Authentication:Providers:Google:Scheme"] = "Google",
+            ["Template:Authentication:Providers:Google:DisplayName"] = "Google",
+            ["Template:Authentication:Providers:Google:ClientId"] = "test-google-client-id",
+            ["Template:Authentication:Providers:Google:ClientSecret"] = "test-google-client-secret",
+            ["Template:Authentication:Providers:Google:CallbackPath"] = "/signin-google",
+
+            ["Template:Authentication:Providers:GitHub:Enabled"] = "true",
+            ["Template:Authentication:Providers:GitHub:Scheme"] = "GitHub",
+            ["Template:Authentication:Providers:GitHub:DisplayName"] = "GitHub",
+            ["Template:Authentication:Providers:GitHub:ClientId"] = "test-github-client-id",
+            ["Template:Authentication:Providers:GitHub:ClientSecret"] = "test-github-client-secret",
+            ["Template:Authentication:Providers:GitHub:CallbackPath"] = "/signin-github"
         });
 
         TemplateAuthenticationOptions options = factory.Services

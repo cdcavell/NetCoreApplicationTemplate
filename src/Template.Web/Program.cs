@@ -1,4 +1,5 @@
 using Serilog;
+using Template.Web.Authentication.Extensions;
 using Template.Web.ErrorHandling;
 using Template.Web.Extensions;
 
@@ -25,6 +26,8 @@ try
     builder.Services.AddTemplateRequestLogging(builder.Configuration);
     builder.Services.AddTemplateOpenTelemetry(builder.Configuration, builder.Environment);
     builder.Services.AddTemplateProblemDetails(builder.Environment);
+    builder.Services.AddTemplateAuthentication(builder.Configuration);
+    builder.Services.AddTemplateAuthorization(builder.Configuration);
 
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();
@@ -40,7 +43,8 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "Template.Web application terminated unexpectedly");
-    Environment.ExitCode = 1;
+    //Environment.ExitCode = 1;
+    throw;
 }
 finally
 {

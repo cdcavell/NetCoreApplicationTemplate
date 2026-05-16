@@ -35,6 +35,8 @@ public static class Saml2AuthenticationServiceExtensions
             saml2Options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             saml2Options.SPOptions.EntityId = new EntityId(options.EntityId);
             saml2Options.SPOptions.ModulePath = options.ModulePath;
+            saml2Options.SPOptions.WantAssertionsSigned = options.RequireSignedAssertions;
+            saml2Options.SPOptions.ValidateCertificates = options.ValidateCertificates;
 
             IdentityProvider identityProvider = new(
                 new EntityId(options.MetadataUrl),
@@ -42,8 +44,7 @@ public static class Saml2AuthenticationServiceExtensions
             {
                 MetadataLocation = options.MetadataUrl,
                 LoadMetadata = options.LoadMetadata,
-                AllowUnsolicitedAuthnResponse = false,
-                WantAuthnRequestsSigned = options.RequireSignedAssertions
+                AllowUnsolicitedAuthnResponse = false
             };
 
             saml2Options.IdentityProviders.Add(identityProvider);

@@ -1,3 +1,17 @@
+The following asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
 
 ## [Serilog](https://serilog.net/) 
 _Serilog is a diagnostic logging library for .NET applications. It provides a simple and flexible API for logging structured data, making it easier to analyze and query logs._
@@ -19,29 +33,8 @@ _OpenTelemetry is a collection of tools, APIs, and SDKs that can be used to inst
 - [OpenTelemetry.Instrumentation.AspNetCore](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNetCore)
 - [OpenTelemetry.Instrumentation.Http](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http)
 
-The above asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
-```
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
-
-## [coverlet.collector](https://www.nuget.org/packages/coverlet.collector)
-_Coverlet is a cross platform code coverage framework for .NET, with support for line, branch and method coverage. It works with [.NET Framework](https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/KnownIssues.md#badimageformatexception-net-framework-47x-48x) on Windows and .NET Core on all supported platforms._
-## [Microsoft.AspNetCore.Mvc.Testing](https://www.nuget.org/packages/Microsoft.AspNetCore.Mvc.Testing/10.0.0)
-_`Microsoft.AspNetCore.Mvc.Testing` provides support for writing integration tests for ASP.NET Core apps that utilize MVC or Minimal APIs._
-## [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk/17.14.1)
-_The MSbuild targets and properties for building .NET test projects._
-
-The above asset(s) are under the [MIT](https://licenses.nuget.org/MIT) license:
+<br /><br />
+The following asset(s) are under the [MIT](https://licenses.nuget.org/MIT) license:
 ```text
 MIT License
 
@@ -65,3 +58,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## [coverlet.collector](https://www.nuget.org/packages/coverlet.collector)
+_Coverlet is a cross platform code coverage framework for .NET, with support for line, branch and method coverage. It works with [.NET Framework](https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/KnownIssues.md#badimageformatexception-net-framework-47x-48x) on Windows and .NET Core on all supported platforms._
+## [Microsoft.AspNetCore.Mvc.Testing](https://www.nuget.org/packages/Microsoft.AspNetCore.Mvc.Testing/10.0.0)
+_`Microsoft.AspNetCore.Mvc.Testing` provides support for writing integration tests for ASP.NET Core apps that utilize MVC or Minimal APIs._
+## [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk/17.14.1)
+_The MSbuild targets and properties for building .NET test projects._
+## [Microsoft.AspNetCore.Authentication.OpenIdConnect](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.OpenIdConnect)
+_This package contains the OpenID Connect middleware for ASP.NET Core. It enables an application to support authentication using the OpenID Connect protocol, which is an identity layer on top of the OAuth 2.0 protocol. This middleware allows applications to authenticate users by redirecting them to an OpenID Connect provider (such as Azure AD, IdentityServer, etc.) and handling the authentication response._
+

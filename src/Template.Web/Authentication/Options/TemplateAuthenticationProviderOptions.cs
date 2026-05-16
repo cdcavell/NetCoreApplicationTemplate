@@ -27,4 +27,9 @@ public sealed class TemplateAuthenticationProviderOptions
     /// Gets or sets Google provider options.
     /// </summary>
     public TemplateExternalAuthenticationProviderOptions Google { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the options used to configure GitHub as an external authentication provider.
+    /// </summary>
+    public TemplateExternalAuthenticationProviderOptions GitHub { get; set; } = new();
 }

@@ -35,7 +35,8 @@ public sealed class AuthenticationTests
             ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
             ["Template:Authentication:Providers:Saml2:Enabled"] = "true",
             ["Template:Authentication:Providers:Microsoft:Enabled"] = "true",
-            ["Template:Authentication:Providers:Google:Enabled"] = "true"
+            ["Template:Authentication:Providers:Google:Enabled"] = "true",
+            ["Template:Authentication:Providers:GitHub:Enabled"] = "true"
         });
 
         TemplateAuthenticationOptions options = factory.Services
@@ -59,6 +60,7 @@ public sealed class AuthenticationTests
         Assert.True(options.Providers.Saml2.Enabled);
         Assert.True(options.Providers.Microsoft.Enabled);
         Assert.True(options.Providers.Google.Enabled);
+        Assert.True(options.Providers.GitHub.Enabled);
     }
 
     /// <summary>

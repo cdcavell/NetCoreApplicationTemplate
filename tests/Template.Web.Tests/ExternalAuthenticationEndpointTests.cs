@@ -255,7 +255,7 @@ public sealed class ExternalAuthenticationEndpointTests
             CookieAuthenticationDefaults.AuthenticationScheme);
 
         string protectedTicket = options.TicketDataFormat.Protect(ticket);
-        string cookieName = options.Cookie.Name ?? CookieAuthenticationDefaults.CookiePrefix + CookieAuthenticationDefaults.AuthenticationScheme;
+        string cookieName = options.Cookie.Name ?? (CookieAuthenticationDefaults.CookiePrefix + CookieAuthenticationDefaults.AuthenticationScheme);
 
         return new AuthenticationCookieContext(
             cookieName,

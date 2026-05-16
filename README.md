@@ -645,23 +645,42 @@ http://localhost:4317
 http://localhost:4318
 ```
 The OTLP exporter can also be configured through standard OpenTelemetry environment variables such as `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_PROTOCOL`.
+
 ## Authentication and Authorization
 
-This section will document authentication and authorization architecture.
+### OpenID Connect
 
-Planned areas:
+The template includes standards-based OpenID Connect authentication support.
 
-- Cookie authentication.
-- OpenID Connect.
-- SAML2.
-- Microsoft authentication.
-- Google authentication.
-- Social provider modules.
-- External login configuration.
-- Claims transformation.
-- Authorization policies.
-- Role and permission patterns.
-- Pluggable authentication module design.
+OIDC is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
+
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "OpenIdConnect",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "OpenIdConnect": {
+        "Enabled": true,
+        "Authority": "https://login.example.com",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CallbackPath": "/signin-oidc",
+        "ResponseType": "code",
+        "SaveTokens": true,
+        "Scopes": [
+          "openid",
+          "profile",
+          "email"
+        ]
+      }
+    }
+  }
+}
+```
+Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store.
 
 ## Data Access
 
@@ -864,8 +883,8 @@ Initial planned milestones:
 - [x]  Add centralized error handling.
 - [ ]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.
-- [ ]  Add authentication module structure.
-- [ ]  Add OIDC support.
+- [x]  Add authentication module structure.
+- [x]  Add OIDC support.
 - [ ]  Add SAML2 support.
 - [ ]  Add external provider support.
 - [ ]  Add template packaging.

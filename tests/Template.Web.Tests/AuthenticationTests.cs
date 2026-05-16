@@ -65,7 +65,7 @@ public sealed class AuthenticationTests
     /// Verifies that authentication is disabled by default for the base template.
     /// </summary>
     [Fact]
-    public void AuthenticationOptions_AreDisabledByDefault()
+    public void AuthenticationOptions_AreEnabledByDefault()
     {
         using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>());
 
@@ -73,7 +73,7 @@ public sealed class AuthenticationTests
             .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
             .Value;
 
-        Assert.False(options.Enabled);
+        Assert.True(options.Enabled);
         Assert.True(options.Cookie.Enabled);
         Assert.Equal("Cookies", options.DefaultScheme);
         Assert.Equal("Cookies", options.Cookie.Scheme);

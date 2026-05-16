@@ -1,3 +1,5 @@
+using Template.Web.Authentication.Providers.OpenIdConnect;
+
 namespace Template.Web.Authentication.Options;
 
 /// <summary>
@@ -8,7 +10,7 @@ public sealed class TemplateAuthenticationProviderOptions
     /// <summary>
     /// Gets or sets OpenID Connect provider options.
     /// </summary>
-    public TemplateExternalAuthenticationProviderOptions OpenIdConnect { get; set; } = new();
+    public TemplateOpenIdConnectAuthenticationOptions OpenIdConnect { get; set; } = new();
 
     /// <summary>
     /// Gets or sets SAML2 provider options.

@@ -709,7 +709,41 @@ SAML2 is disabled by default. To enable it, configure the `Template:Authenticati
 }
 ```
 _Do not commit real certificates, private keys, or real IdP metadata to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+### External Providers
 
+The template includes foundational external provider configuration for Microsoft, Google, GitHub, and future OAuth/OIDC-compatible providers.
+External providers are disabled by default. This issue provides the configuration and extension-point structure only. Production provider registration, account linking, MFA enforcement, and provider-specific setup are handled by future dedicated issues.
+```json
+"Template": {
+  "Authentication": {
+    "Microsoft": {
+      "Enabled": false,
+      "Scheme": "Microsoft",
+      "DisplayName": "Microsoft",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-microsoft"
+    },
+    "Google": {
+      "Enabled": false,
+      "Scheme": "Google",
+      "DisplayName": "Google",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-google"
+    },
+    "GitHub": {
+      "Enabled": false,
+      "Scheme": "GitHub",
+      "DisplayName": "GitHub",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-github"
+    }
+  }
+}
+```
+_Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
 ## Data Access
 

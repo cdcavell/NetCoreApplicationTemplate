@@ -90,11 +90,15 @@ public static class AuthenticationServiceExtensions
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
 
+        TemplateAuthenticationOptions templateAuthenticationOptions = configuration
+            .GetSection(TemplateAuthenticationOptions.SectionName)
+            .Get<TemplateAuthenticationOptions>() ?? new TemplateAuthenticationOptions();
+
         authenticationBuilder
-            .AddTemplateOpenIdConnectAuthentication(new TemplateExternalAuthenticationProviderOptions())
-            .AddTemplateSaml2Authentication(new TemplateExternalAuthenticationProviderOptions())
-            .AddTemplateMicrosoftAuthentication(new TemplateExternalAuthenticationProviderOptions())
-            .AddTemplateGoogleAuthentication(new TemplateExternalAuthenticationProviderOptions());
+            .AddTemplateOpenIdConnectAuthentication(templateAuthenticationOptions.Providers.OpenIdConnect)
+            .AddTemplateSaml2Authentication(templateAuthenticationOptions.Providers.Saml2)
+            .AddTemplateMicrosoftAuthentication(templateAuthenticationOptions.Providers.Microsoft)
+            .AddTemplateGoogleAuthentication(templateAuthenticationOptions.Providers.Google);
 
         return services;
     }

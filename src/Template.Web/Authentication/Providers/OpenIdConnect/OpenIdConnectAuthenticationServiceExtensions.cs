@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
-using Template.Web.Authentication.Options;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Template.Web.Authentication.Providers.OpenIdConnect;
 
@@ -16,7 +16,7 @@ public static class OpenIdConnectAuthenticationServiceExtensions
     /// <returns>The same <see cref="AuthenticationBuilder"/> instance for chaining.</returns>
     public static AuthenticationBuilder AddTemplateOpenIdConnectAuthentication(
         this AuthenticationBuilder builder,
-        TemplateExternalAuthenticationProviderOptions options)
+        TemplateOpenIdConnectAuthenticationOptions options)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(options);
@@ -26,8 +26,24 @@ public static class OpenIdConnectAuthenticationServiceExtensions
             return builder;
         }
 
-        // OpenID Connect provider support will be implemented in a future provider-specific issue.
-        // This placeholder intentionally does not register a concrete authentication handler yet.
+        builder.AddOpenIdConnect(options.Scheme, options.DisplayName, openIdConnectOptions =>
+        {
+            openIdConnectOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            openIdConnectOptions.Authority = options.Authority;
+            openIdConnectOptions.ClientId = options.ClientId;
+            openIdConnectOptions.ClientSecret = options.ClientSecret;
+            openIdConnectOptions.CallbackPath = options.CallbackPath;
+            openIdConnectOptions.ResponseType = options.ResponseType;
+            openIdConnectOptions.SaveTokens = options.SaveTokens;
+
+            openIdConnectOptions.Scope.Clear();
+
+            foreach (string scope in options.Scopes.Where(scope => !string.IsNullOrWhiteSpace(scope)))
+            {
+                openIdConnectOptions.Scope.Add(scope);
+            }
+        });
+
         return builder;
     }
 }

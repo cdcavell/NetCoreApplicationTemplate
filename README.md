@@ -760,6 +760,24 @@ External providers are disabled by default. This issue provides the configuratio
 ```
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
+### Authentication Provider Startup Validation
+
+Authentication provider configuration is validated during application startup.
+
+Provider-specific values are only required when that provider is enabled. Disabled providers may keep placeholder or empty values so the base template remains safe to run without external identity-provider setup.
+
+When a provider is enabled, startup validation fails fast if required values are missing. Validation messages identify the missing configuration key, but do not log configured secret values.
+
+Validated providers include:
+
+- OpenID Connect
+- SAML2
+- Microsoft
+- Google
+- GitHub
+
+This prevents partially configured authentication providers from failing later during runtime login flows.
+
 ## Data Access
 
 This section will document EF Core and database patterns.

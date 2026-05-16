@@ -210,6 +210,121 @@ public sealed class AuthenticationTests
     }
 
     /// <summary>
+    /// Verifies that the OpenIdConnect authentication provider does not require configuration when it is disabled.
+    /// </summary>
+    /// <remarks>This test ensures that when the OpenIdConnect provider is explicitly disabled in the
+    /// configuration, missing or empty configuration values for authority and client ID do not cause errors. Use this
+    /// test to validate that the application can start without OpenIdConnect settings when the provider is not
+    /// enabled.</remarks>
+    [Fact]
+    public void DisabledOpenIdConnectProvider_DoesNotRequireConfiguration()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "false",
+            ["Template:Authentication:Providers:OpenIdConnect:Authority"] = "",
+            ["Template:Authentication:Providers:OpenIdConnect:ClientId"] = ""
+        });
+
+        TemplateAuthenticationOptions options = factory.Services
+            .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+            .Value;
+
+        Assert.False(options.Providers.OpenIdConnect.Enabled);
+    }
+
+    /// <summary>
+    /// Verifies that enabling the OpenIdConnect authentication provider without specifying an authority causes
+    /// application startup to fail with an options validation exception.
+    /// </summary>
+    /// <remarks>This test ensures that the configuration is validated and that the authority setting is
+    /// required when the OpenIdConnect provider is enabled. It helps prevent misconfiguration at startup by asserting
+    /// that a missing authority results in a clear validation error.</remarks>
+    [Fact]
+    public void EnabledOpenIdConnectProvider_MissingAuthority_FailsStartup()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
+            ["Template:Authentication:Providers:OpenIdConnect:Authority"] = "",
+            ["Template:Authentication:Providers:OpenIdConnect:ClientId"] = "test-client-id",
+            ["Template:Authentication:Providers:OpenIdConnect:CallbackPath"] = "/signin-oidc",
+            ["Template:Authentication:Providers:OpenIdConnect:ResponseType"] = "code",
+            ["Template:Authentication:Providers:OpenIdConnect:Scopes:0"] = "openid"
+        });
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            factory.Services
+                .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+                .Value);
+
+        Assert.Contains(
+            "Template:Authentication:Providers:OpenIdConnect:Authority is required when the provider is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that application startup fails with an OptionsValidationException when the SAML2 provider is enabled
+    /// but the MetadataUrl configuration is missing or empty.
+    /// </summary>
+    /// <remarks>This test ensures that the SAML2 authentication provider enforces the requirement for a
+    /// non-empty MetadataUrl when enabled. It validates that misconfiguration is detected early during application
+    /// startup, preventing the application from running with incomplete authentication settings.</remarks>
+    [Fact]
+    public void EnabledSaml2Provider_MissingMetadataUrl_FailsStartup()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:Saml2:Enabled"] = "true",
+            ["Template:Authentication:Providers:Saml2:EntityId"] = "https://template.example/saml2",
+            ["Template:Authentication:Providers:Saml2:MetadataUrl"] = "",
+            ["Template:Authentication:Providers:Saml2:ModulePath"] = "/Saml2/Acs"
+        });
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            factory.Services
+                .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+                .Value);
+
+        Assert.Contains(
+            "Template:Authentication:Providers:Saml2:MetadataUrl is required when the provider is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that application startup fails with an options validation exception when the Microsoft authentication
+    /// provider is enabled but the client secret is missing.
+    /// </summary>
+    /// <remarks>This test ensures that the configuration for the Microsoft authentication provider enforces
+    /// the requirement for a client secret when the provider is enabled. It validates that an appropriate exception is
+    /// thrown and that the error message clearly indicates the missing configuration.</remarks>
+    [Fact]
+    public void EnabledMicrosoftProvider_MissingClientSecret_FailsStartup()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:Microsoft:Enabled"] = "true",
+            ["Template:Authentication:Providers:Microsoft:Scheme"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:DisplayName"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:ClientId"] = "test-client-id",
+            ["Template:Authentication:Providers:Microsoft:ClientSecret"] = "",
+            ["Template:Authentication:Providers:Microsoft:CallbackPath"] = "/signin-microsoft"
+        });
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            factory.Services
+                .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+                .Value);
+
+        Assert.Contains(
+            "Template:Authentication:Providers:Microsoft:ClientSecret is required when the provider is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>
     /// <param name="configurationValues">The configuration key/value pairs used to override template settings for a test.</param>

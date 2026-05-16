@@ -27,21 +27,11 @@ public static class AuthenticationServiceExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        services.AddSingleton<IValidateOptions<TemplateAuthenticationOptions>, TemplateAuthenticationOptionsValidator>();
+
         services
             .AddOptions<TemplateAuthenticationOptions>()
             .Bind(configuration.GetSection(TemplateAuthenticationOptions.SectionName))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.DefaultScheme),
-                "Template:Authentication:DefaultScheme is required.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.DefaultChallengeScheme),
-                "Template:Authentication:DefaultChallengeScheme is required.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.DefaultSignInScheme),
-                "Template:Authentication:DefaultSignInScheme is required.")
-            .Validate(options => !options.Enabled || options.Cookie.Enabled,
-                "Template:Authentication:Cookie:Enabled must be true when template authentication is enabled.")
-            .Validate(options => !options.Enabled || !string.IsNullOrWhiteSpace(options.Cookie.Scheme),
-                "Template:Authentication:Cookie:Scheme is required when template authentication is enabled.")
-            .Validate(options => !options.Enabled || options.Cookie.ExpireMinutes > 0,
-                "Template:Authentication:Cookie:ExpireMinutes must be greater than zero when template authentication is enabled.")
             .ValidateOnStart();
 
         AuthenticationBuilder authenticationBuilder = services.AddAuthentication(options =>

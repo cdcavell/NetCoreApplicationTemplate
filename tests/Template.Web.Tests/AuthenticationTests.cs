@@ -49,6 +49,7 @@ public sealed class AuthenticationTests
         Assert.Equal("Cookies", options.DefaultSignInScheme);
 
         Assert.True(options.Cookie.Enabled);
+        Assert.Equal("Cookies", options.DefaultChallengeScheme);
         Assert.Equal("Cookies", options.Cookie.Scheme);
         Assert.Equal("/Account/Login", options.Cookie.LoginPath);
         Assert.Equal("/Account/Logout", options.Cookie.LogoutPath);
@@ -64,7 +65,7 @@ public sealed class AuthenticationTests
     }
 
     /// <summary>
-    /// Verifies that authentication is disabled by default for the base template.
+    /// Verifies that template authentication and cookie authentication are enabled by default for the base template.
     /// </summary>
     [Fact]
     public void AuthenticationOptions_AreEnabledByDefault()

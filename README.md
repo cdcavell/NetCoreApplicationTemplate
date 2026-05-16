@@ -648,10 +648,25 @@ The OTLP exporter can also be configured through standard OpenTelemetry environm
 
 ## Authentication and Authorization
 
+### Default Authentication Posture
+
+The base template enables the template authentication module and local cookie authentication by default.
+
+By default:
+
+- `Template:Authentication:Enabled` is `true`.
+- The default authenticate, challenge, and sign-in schemes use `Cookies`.
+- Local cookie authentication is enabled.
+- External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are disabled.
+
+This gives applications a working local authentication baseline while keeping external identity provider integration opt-in.
+
+To enable an external provider, keep template authentication enabled and set only the required provider configuration to enabled. For example, OIDC requires `Template:Authentication:Providers:OpenIdConnect:Enabled` to be set to `true` along with valid authority, client ID, and client secret values.
+
 ### OpenID Connect
 
 The template includes standards-based OpenID Connect authentication support.
-OIDC is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
+External OIDC provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
 
 ```json
 "Template": {
@@ -684,7 +699,7 @@ _Do not commit real client secrets to source control. Use user secrets, environm
 ### SAML2
 
 The template includes standards-based SAML2 authentication support.
-SAML2 is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
+External SAML2 provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
 ```json
 "Template": {
   "Authentication": {
@@ -949,7 +964,7 @@ Initial planned milestones:
 - [x]  Add authentication module structure.
 - [x]  Add OIDC support.
 - [x]  Add SAML2 support.
-- [ ]  Add external provider support.
+- [x]  Add external provider support.
 - [ ]  Add template packaging.
 - [x]  Add GitHub workflows.
 - [x]  Add documentation.

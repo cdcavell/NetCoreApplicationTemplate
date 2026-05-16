@@ -714,7 +714,7 @@ External SAML2 provider integration is disabled by default. To enable it, config
         "DisplayName": "SAML2",
         "EntityId": "https://localhost:5001/saml2",
         "MetadataUrl": "https://idp.example.com/metadata",
-        "CallbackPath": "/Saml2/Acs",
+        "ModulePath": "/Saml2/Acs",
         "LoadMetadata": true,
         "RequireSignedAssertions": true,
         "ValidateCertificates": true

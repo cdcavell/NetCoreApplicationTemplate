@@ -34,6 +34,7 @@ public sealed class AuthenticationTests
             ["Template:Authentication:Cookie:SlidingExpiration"] = "false",
             ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
             ["Template:Authentication:Providers:Saml2:Enabled"] = "true",
+            ["Template:Authentication:Providers:Saml2:ModulePath"] = "/custom-saml2-acs",
             ["Template:Authentication:Providers:Microsoft:Enabled"] = "true",
             ["Template:Authentication:Providers:Google:Enabled"] = "true",
             ["Template:Authentication:Providers:GitHub:Enabled"] = "true"
@@ -59,6 +60,7 @@ public sealed class AuthenticationTests
 
         Assert.True(options.Providers.OpenIdConnect.Enabled);
         Assert.True(options.Providers.Saml2.Enabled);
+        Assert.Equal("/custom-saml2-acs", options.Providers.Saml2.ModulePath);
         Assert.True(options.Providers.Microsoft.Enabled);
         Assert.True(options.Providers.Google.Enabled);
         Assert.True(options.Providers.GitHub.Enabled);

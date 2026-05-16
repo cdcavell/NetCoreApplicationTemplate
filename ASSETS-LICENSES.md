@@ -12,6 +12,12 @@ _Serilog is a diagnostic logging library for .NET applications. It provides a si
 _xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 8 or later._
 - [xunit.runner.visualstudio](https://www.nuget.org/packages/xunit.runner.visualstudio)
 
+## [OpenTelemetry](https://www.nuget.org/packages/OpenTelemetry)
+_OpenTelemetry is a collection of tools, APIs, and SDKs that can be used to instrument, generate, collect, and export telemetry data (such as traces, metrics, and logs) to help you analyze your software's performance and behavior. The OpenTelemetry .NET SDK provides the necessary components to enable telemetry in your .NET applications._
+- [OpenTelemetry.Extensions.Hosting](https://www.nuget.org/packages/OpenTelemetry.Extensions.Hosting)
+- [OpenTelemetry.Exporter.OpenTelemetryProtocol](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol)
+- [OpenTelemetry.Instrumentation.AspNetCore](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNetCore)
+- [OpenTelemetry.Instrumentation.Http](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http)
 
 The above asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
 ```

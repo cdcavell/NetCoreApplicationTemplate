@@ -778,6 +778,21 @@ Validated providers include:
 
 This prevents partially configured authentication providers from failing later during runtime login flows.
 
+### Baseline Authentication Endpoints
+
+The template provides minimal account and external authentication endpoints:
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /Account/Login` | Displays the baseline login page and available registered external providers. |
+| `POST /Account/Logout` | Signs out of the local cookie session. Requires anti-forgery validation. |
+| `GET /Account/AccessDenied` | Displays a safe access denied response. |
+| `GET /External/Challenge` | Starts an external authentication challenge for a registered provider scheme. |
+
+`/External/Challenge` accepts a `provider` value and an optional `returnUrl`.
+
+Return URLs are validated as local URLs before redirecting to avoid open redirect vulnerabilities. Unknown provider schemes are rejected safely. Provider secrets, tokens, cookies, and sensitive query-string values should not be logged.
+
 ## Data Access
 
 This section will document EF Core and database patterns.

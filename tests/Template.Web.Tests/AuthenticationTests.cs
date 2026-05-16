@@ -35,7 +35,8 @@ public sealed class AuthenticationTests
             ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
             ["Template:Authentication:Providers:Saml2:Enabled"] = "true",
             ["Template:Authentication:Providers:Microsoft:Enabled"] = "true",
-            ["Template:Authentication:Providers:Google:Enabled"] = "true"
+            ["Template:Authentication:Providers:Google:Enabled"] = "true",
+            ["Template:Authentication:Providers:GitHub:Enabled"] = "true"
         });
 
         TemplateAuthenticationOptions options = factory.Services
@@ -48,6 +49,7 @@ public sealed class AuthenticationTests
         Assert.Equal("Cookies", options.DefaultSignInScheme);
 
         Assert.True(options.Cookie.Enabled);
+        Assert.Equal("Cookies", options.DefaultChallengeScheme);
         Assert.Equal("Cookies", options.Cookie.Scheme);
         Assert.Equal("/Account/Login", options.Cookie.LoginPath);
         Assert.Equal("/Account/Logout", options.Cookie.LogoutPath);
@@ -59,10 +61,11 @@ public sealed class AuthenticationTests
         Assert.True(options.Providers.Saml2.Enabled);
         Assert.True(options.Providers.Microsoft.Enabled);
         Assert.True(options.Providers.Google.Enabled);
+        Assert.True(options.Providers.GitHub.Enabled);
     }
 
     /// <summary>
-    /// Verifies that authentication is disabled by default for the base template.
+    /// Verifies that template authentication and cookie authentication are enabled by default for the base template.
     /// </summary>
     [Fact]
     public void AuthenticationOptions_AreEnabledByDefault()

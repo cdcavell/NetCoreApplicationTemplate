@@ -1,4 +1,5 @@
 using Template.Web.Authentication.Providers.OpenIdConnect;
+using Template.Web.Authentication.Providers.Saml2;
 
 namespace Template.Web.Authentication.Options;
 
@@ -15,7 +16,7 @@ public sealed class TemplateAuthenticationProviderOptions
     /// <summary>
     /// Gets or sets SAML2 provider options.
     /// </summary>
-    public TemplateExternalAuthenticationProviderOptions Saml2 { get; set; } = new();
+    public TemplateSaml2AuthenticationOptions Saml2 { get; set; } = new();
 
     /// <summary>
     /// Gets or sets Microsoft provider options.
@@ -26,4 +27,9 @@ public sealed class TemplateAuthenticationProviderOptions
     /// Gets or sets Google provider options.
     /// </summary>
     public TemplateExternalAuthenticationProviderOptions Google { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the options used to configure GitHub as an external authentication provider.
+    /// </summary>
+    public TemplateExternalAuthenticationProviderOptions GitHub { get; set; } = new();
 }

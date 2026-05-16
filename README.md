@@ -43,9 +43,9 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.2.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/0.2.0)__
+Current release: __[Release 0.2.3](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.2.3)__
 
-Tag: `0.2.0`
+Tag: `v0.2.3`
 <!-- END LATEST_RELEASE -->
 
 ## Documentation
@@ -648,11 +648,25 @@ The OTLP exporter can also be configured through standard OpenTelemetry environm
 
 ## Authentication and Authorization
 
+### Default Authentication Posture
+
+The base template enables the template authentication module and local cookie authentication by default.
+
+By default:
+
+- `Template:Authentication:Enabled` is `true`.
+- The default authenticate, challenge, and sign-in schemes use `Cookies`.
+- Local cookie authentication is enabled.
+- External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are disabled.
+
+This gives applications a working local authentication baseline while keeping external identity provider integration opt-in.
+
+To enable an external provider, keep template authentication enabled and set only the required provider configuration to enabled. For example, OIDC requires `Template:Authentication:Providers:OpenIdConnect:Enabled` to be set to `true` along with valid authority, client ID, and client secret values.
+
 ### OpenID Connect
 
 The template includes standards-based OpenID Connect authentication support.
-
-OIDC is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
+External OIDC provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
 
 ```json
 "Template": {
@@ -680,7 +694,71 @@ OIDC is disabled by default. To enable it, configure the `Template:Authenticatio
   }
 }
 ```
-Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store.
+_Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+
+### SAML2
+
+The template includes standards-based SAML2 authentication support.
+External SAML2 provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "Saml2",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "Saml2": {
+        "Enabled": true,
+        "Scheme": "Saml2",
+        "DisplayName": "SAML2",
+        "EntityId": "https://localhost:5001/saml2",
+        "MetadataUrl": "https://idp.example.com/metadata",
+        "CallbackPath": "/Saml2/Acs",
+        "LoadMetadata": true,
+        "RequireSignedAssertions": true,
+        "ValidateCertificates": true
+      }
+    }
+  }
+}
+```
+_Do not commit real certificates, private keys, or real IdP metadata to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+### External Providers
+
+The template includes foundational external provider configuration for Microsoft, Google, GitHub, and future OAuth/OIDC-compatible providers.
+External providers are disabled by default. This issue provides the configuration and extension-point structure only. Production provider registration, account linking, MFA enforcement, and provider-specific setup are handled by future dedicated issues.
+```json
+"Template": {
+  "Authentication": {
+    "Microsoft": {
+      "Enabled": false,
+      "Scheme": "Microsoft",
+      "DisplayName": "Microsoft",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-microsoft"
+    },
+    "Google": {
+      "Enabled": false,
+      "Scheme": "Google",
+      "DisplayName": "Google",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-google"
+    },
+    "GitHub": {
+      "Enabled": false,
+      "Scheme": "GitHub",
+      "DisplayName": "GitHub",
+      "ClientId": "",
+      "ClientSecret": "",
+      "CallbackPath": "/signin-github"
+    }
+  }
+}
+```
+_Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
 ## Data Access
 
@@ -885,8 +963,8 @@ Initial planned milestones:
 - [ ]  Add SQL Server provider option.
 - [x]  Add authentication module structure.
 - [x]  Add OIDC support.
-- [ ]  Add SAML2 support.
-- [ ]  Add external provider support.
+- [x]  Add SAML2 support.
+- [x]  Add external provider support.
 - [ ]  Add template packaging.
 - [x]  Add GitHub workflows.
 - [x]  Add documentation.

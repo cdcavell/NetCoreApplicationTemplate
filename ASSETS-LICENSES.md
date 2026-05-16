@@ -67,4 +67,5 @@ _`Microsoft.AspNetCore.Mvc.Testing` provides support for writing integration tes
 _The MSbuild targets and properties for building .NET test projects._
 ## [Microsoft.AspNetCore.Authentication.OpenIdConnect](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.OpenIdConnect)
 _This package contains the OpenID Connect middleware for ASP.NET Core. It enables an application to support authentication using the OpenID Connect protocol, which is an identity layer on top of the OAuth 2.0 protocol. This middleware allows applications to authenticate users by redirecting them to an OpenID Connect provider (such as Azure AD, IdentityServer, etc.) and handling the authentication response._
-
+## [Sustainsys.Saml2.AspNetCore2](https://www.nuget.org/packages/Sustainsys.Saml2.AspNetCore2)
+_Sustainsys.Saml2.AspNetCore2 is a library that provides support for integrating SAML2 authentication into ASP.NET Core 2 applications. It allows developers to authenticate users using SAML2 identity providers, enabling single sign-on (SSO) capabilities for their applications._

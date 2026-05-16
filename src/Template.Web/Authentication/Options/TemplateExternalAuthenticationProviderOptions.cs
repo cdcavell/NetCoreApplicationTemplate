@@ -11,12 +11,12 @@ public sealed class TemplateExternalAuthenticationProviderOptions
     public bool Enabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the URI scheme component (such as "http", "https", or "ftp").
+    /// Gets or sets the authentication scheme used for the current operation.
     /// </summary>
     public string Scheme { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the display name associated with the object.
+    /// Gets or sets the display name associated with the authentication scheme.
     /// </summary>
     public string DisplayName { get; set; } = string.Empty;
 

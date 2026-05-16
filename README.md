@@ -651,7 +651,6 @@ The OTLP exporter can also be configured through standard OpenTelemetry environm
 ### OpenID Connect
 
 The template includes standards-based OpenID Connect authentication support.
-
 OIDC is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
 
 ```json
@@ -680,7 +679,37 @@ OIDC is disabled by default. To enable it, configure the `Template:Authenticatio
   }
 }
 ```
-Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store.
+_Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+
+### SAML2
+
+The template includes standards-based SAML2 authentication support.
+SAML2 is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "Saml2",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "Saml2": {
+        "Enabled": true,
+        "Scheme": "Saml2",
+        "DisplayName": "SAML2",
+        "EntityId": "https://localhost:5001/saml2",
+        "MetadataUrl": "https://idp.example.com/metadata",
+        "CallbackPath": "/Saml2/Acs",
+        "LoadMetadata": true,
+        "RequireSignedAssertions": true,
+        "ValidateCertificates": true
+      }
+    }
+  }
+}
+```
+_Do not commit real certificates, private keys, or real IdP metadata to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+
 
 ## Data Access
 
@@ -885,7 +914,7 @@ Initial planned milestones:
 - [ ]  Add SQL Server provider option.
 - [x]  Add authentication module structure.
 - [x]  Add OIDC support.
-- [ ]  Add SAML2 support.
+- [x]  Add SAML2 support.
 - [ ]  Add external provider support.
 - [ ]  Add template packaging.
 - [x]  Add GitHub workflows.

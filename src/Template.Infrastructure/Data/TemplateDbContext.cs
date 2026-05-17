@@ -145,11 +145,12 @@ public sealed partial class TemplateDbContext(
         return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
     }
 
-    private void OnAfterSaveChanges(List<AuditEntry> auditEntries)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0002:Simplify Member Access", Justification = "<Pending>")]
+    private int OnAfterSaveChanges(List<AuditEntry> auditEntries)
     {
         if (auditEntries == null || auditEntries.Count == 0)
         {
-            return;
+            return 0;
         }
 
         foreach (AuditEntry auditEntry in auditEntries)
@@ -172,15 +173,14 @@ public sealed partial class TemplateDbContext(
 
         }
 
-        SaveChanges();
-        return;
+        return base.SaveChanges();
     }
 
-    private async Task OnAfterSaveChangesAsync(List<AuditEntry> auditEntries)
+    private async Task<int> OnAfterSaveChangesAsync(List<AuditEntry> auditEntries)
     {
         if (auditEntries == null || auditEntries.Count == 0)
         {
-            return;
+            return 0;
         }
 
         foreach (AuditEntry auditEntry in auditEntries)
@@ -202,6 +202,6 @@ public sealed partial class TemplateDbContext(
             await AuditRecords.AddAsync(auditEntry.ToAuditRecord());
         }
 
-        await SaveChangesAsync();
+        return await base.SaveChangesAsync();
     }
 }

@@ -1,15 +1,16 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Template.Web.Authentication.Extensions;
 using Template.Web.Authentication.Options;
-using Template.Web.Tests.Infrastructure;
 
 namespace Template.Web.Tests;
 
 /// <summary>
-/// Provides integration tests for Microsoft external authentication provider registration.
+/// Provides tests for Microsoft external authentication provider registration.
 /// </summary>
 public sealed class MicrosoftAuthenticationTests
 {
@@ -20,14 +21,14 @@ public sealed class MicrosoftAuthenticationTests
     [Fact]
     public async Task DisabledMicrosoftProvider_DoesNotRegisterMicrosoftScheme()
     {
-        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        using ServiceProvider services = CreateServiceProvider(new Dictionary<string, string?>
         {
             ["Template:Authentication:Providers:Microsoft:Enabled"] = "false",
             ["Template:Authentication:Providers:Microsoft:ClientId"] = "",
             ["Template:Authentication:Providers:Microsoft:ClientSecret"] = ""
         });
 
-        IAuthenticationSchemeProvider schemeProvider = factory.Services
+        IAuthenticationSchemeProvider schemeProvider = services
             .GetRequiredService<IAuthenticationSchemeProvider>();
 
         AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Microsoft");
@@ -42,9 +43,9 @@ public sealed class MicrosoftAuthenticationTests
     [Fact]
     public async Task EnabledMicrosoftProvider_RegistersMicrosoftScheme()
     {
-        using TemplateWebApplicationFactory factory = CreateFactory(CreateEnabledMicrosoftConfiguration());
+        using ServiceProvider services = CreateServiceProvider(CreateEnabledMicrosoftConfiguration());
 
-        IAuthenticationSchemeProvider schemeProvider = factory.Services
+        IAuthenticationSchemeProvider schemeProvider = services
             .GetRequiredService<IAuthenticationSchemeProvider>();
 
         AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Microsoft");
@@ -60,9 +61,9 @@ public sealed class MicrosoftAuthenticationTests
     [Fact]
     public void EnabledMicrosoftProvider_ConfiguresMicrosoftHandlerOptions()
     {
-        using TemplateWebApplicationFactory factory = CreateFactory(CreateEnabledMicrosoftConfiguration());
+        using ServiceProvider services = CreateServiceProvider(CreateEnabledMicrosoftConfiguration());
 
-        IOptionsMonitor<MicrosoftAccountOptions> optionsMonitor = factory.Services
+        IOptionsMonitor<MicrosoftAccountOptions> optionsMonitor = services
             .GetRequiredService<IOptionsMonitor<MicrosoftAccountOptions>>();
 
         MicrosoftAccountOptions options = optionsMonitor.Get("Microsoft");
@@ -80,9 +81,9 @@ public sealed class MicrosoftAuthenticationTests
     [Fact]
     public void MicrosoftProviderScopes_AreBoundFromConfiguration()
     {
-        using TemplateWebApplicationFactory factory = CreateFactory(CreateEnabledMicrosoftConfiguration());
+        using ServiceProvider services = CreateServiceProvider(CreateEnabledMicrosoftConfiguration());
 
-        TemplateAuthenticationOptions options = factory.Services
+        TemplateAuthenticationOptions options = services
             .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
             .Value;
 
@@ -109,13 +110,16 @@ public sealed class MicrosoftAuthenticationTests
         };
     }
 
-    /// <summary>
-    /// Creates a test application factory with the supplied in-memory configuration overrides.
-    /// </summary>
-    /// <param name="configurationValues">The configuration key/value pairs used to override template settings for a test.</param>
-    /// <returns>A configured <see cref="TemplateWebApplicationFactory"/> instance.</returns>
-    private static TemplateWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?> configurationValues)
+    private static ServiceProvider CreateServiceProvider(IReadOnlyDictionary<string, string?> configurationValues)
     {
-        return new TemplateWebApplicationFactory(configurationValues);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configurationValues)
+            .Build();
+
+        ServiceCollection services = [];
+        services.AddLogging();
+        services.AddTemplateAuthentication(configuration);
+
+        return services.BuildServiceProvider(validateScopes: true);
     }
 }

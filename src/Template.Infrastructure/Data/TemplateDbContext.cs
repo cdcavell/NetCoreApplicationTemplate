@@ -59,8 +59,8 @@ public sealed partial class TemplateDbContext(
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
-        int result = base.SaveChanges(acceptAllChangesOnSuccess);
         OnAfterSaveChanges(auditEntries);
+        int result = base.SaveChanges(acceptAllChangesOnSuccess);
 
         return result;
     }
@@ -68,8 +68,8 @@ public sealed partial class TemplateDbContext(
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
-        int result = await SaveChangesAsync(true, cancellationToken);
         await OnAfterSaveChangesAsync(auditEntries);
+        int result = await SaveChangesAsync(true, cancellationToken);
 
         return result;
     }
@@ -169,7 +169,6 @@ public sealed partial class TemplateDbContext(
 
             // Save the Audit entry
             AuditRecords.Add(auditEntry.ToAuditRecord());
-            SaveChanges();
         }
 
         return;
@@ -200,7 +199,5 @@ public sealed partial class TemplateDbContext(
             // Save the Audit entry
             await AuditRecords.AddAsync(auditEntry.ToAuditRecord());
         }
-
-        await SaveChangesAsync();
     }
 }

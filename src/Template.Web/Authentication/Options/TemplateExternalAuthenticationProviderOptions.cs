@@ -35,4 +35,9 @@ public sealed class TemplateExternalAuthenticationProviderOptions
     /// receive the authentication response.
     /// </summary>
     public string CallbackPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets optional provider scopes requested during the external authentication challenge.
+    /// </summary>
+    public string[] Scopes { get; set; } = [];
 }

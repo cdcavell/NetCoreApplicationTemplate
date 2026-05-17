@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Template.Web.Authentication.Options;
 
 namespace Template.Web.Authentication.Providers.Google;
@@ -26,8 +27,22 @@ public static class GoogleAuthenticationServiceExtensions
             return builder;
         }
 
-        // Google provider support will be implemented in a future provider-specific issue.
-        // This placeholder intentionally does not register a concrete authentication handler yet.
+        builder.AddGoogle(options.Scheme, options.DisplayName, googleOptions =>
+        {
+            googleOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            googleOptions.ClientId = options.ClientId;
+            googleOptions.ClientSecret = options.ClientSecret;
+            googleOptions.CallbackPath = options.CallbackPath;
+
+            foreach (string scope in options.Scopes.Where(scope => !string.IsNullOrWhiteSpace(scope)))
+            {
+                if (!googleOptions.Scope.Contains(scope, StringComparer.Ordinal))
+                {
+                    googleOptions.Scope.Add(scope);
+                }
+            }
+        });
+
         return builder;
     }
 }

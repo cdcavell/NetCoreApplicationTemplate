@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Template.Web.Authentication.Options;
 
 namespace Template.Web.Authentication.Providers.Microsoft;
@@ -26,8 +27,19 @@ public static class MicrosoftAuthenticationServiceExtensions
             return builder;
         }
 
-        // Microsoft provider support will be implemented in a future provider-specific issue.
-        // This placeholder intentionally does not register a concrete authentication handler yet.
+        builder.AddMicrosoftAccount(options.Scheme, options.DisplayName, microsoftOptions =>
+        {
+            microsoftOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            microsoftOptions.ClientId = options.ClientId;
+            microsoftOptions.ClientSecret = options.ClientSecret;
+            microsoftOptions.CallbackPath = options.CallbackPath;
+
+            foreach (string scope in options.Scopes.Where(scope => !string.IsNullOrWhiteSpace(scope)))
+            {
+                microsoftOptions.Scope.Add(scope);
+            }
+        });
+
         return builder;
     }
 }

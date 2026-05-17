@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Template.Infrastructure.Data.Entities;
 
 namespace Template.Infrastructure.Data;
@@ -6,13 +7,23 @@ namespace Template.Infrastructure.Data;
 /// <summary>
 /// Represents the EF Core database context for the template application.
 /// </summary>
-public sealed class TemplateDbContext(DbContextOptions<TemplateDbContext> options)
+public sealed partial class TemplateDbContext(DbContextOptions<TemplateDbContext> options, ILogger<TemplateDbContext> logger)
     : DbContext(options)
 {
+    private readonly ILogger<TemplateDbContext> _logger = logger;
+
     /// <summary>
-    /// Gets the sample records used to validate the initial EF Core foundation.
+    /// Gets the audit records for the application.
     /// </summary>
     public DbSet<AuditRecord> AuditRecords => Set<AuditRecord>();
+
+    [LoggerMessage(
+        EventId = 19000,
+        Level = LogLevel.Trace,
+        Message = "{EfCoreMessage}")]
+    private static partial void LogEfCoreMessage(
+        ILogger logger,
+        string efCoreMessage);
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,9 +31,17 @@ public sealed class TemplateDbContext(DbContextOptions<TemplateDbContext> option
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+    }
 
-        modelBuilder.Entity<AuditRecord>(entity =>
-        {
-        });
+    /// <inheritdoc />
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        ArgumentNullException.ThrowIfNull(optionsBuilder);
+
+        optionsBuilder
+            .LogTo(message => LogEfCoreMessage(_logger, message), LogLevel.Trace)
+            .EnableDetailedErrors();
+
+        base.OnConfiguring(optionsBuilder);
     }
 }

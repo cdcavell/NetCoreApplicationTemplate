@@ -678,6 +678,8 @@ External OIDC provider integration is disabled by default. To enable it, configu
     "Providers": {
       "OpenIdConnect": {
         "Enabled": true,
+        "Scheme": "OpenIdConnect",
+        "DisplayName": "OpenID Connect",
         "Authority": "https://login.example.com",
         "ClientId": "",
         "ClientSecret": "",
@@ -724,21 +726,45 @@ External SAML2 provider integration is disabled by default. To enable it, config
 }
 ```
 _Do not commit real certificates, private keys, or real IdP metadata to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+
+### Microsoft External Provider
+
+The template includes Microsoft external authentication support through `Microsoft.AspNetCore.Authentication.MicrosoftAccount`.
+
+The Microsoft provider is disabled by default and only registers when:
+
+`Template:Authentication:Providers:Microsoft:Enabled`
+
+is set to `true`.
+
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "Microsoft",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "Microsoft": {
+        "Enabled": true,
+        "Scheme": "Microsoft",
+        "DisplayName": "Microsoft",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CallbackPath": "/signin-microsoft",
+        "Scopes": []
+      }
+    }
+  }
+}
+```
 ### External Providers
 
-The template includes foundational external provider configuration for Microsoft, Google, GitHub, and future OAuth/OIDC-compatible providers.
+The template includes foundational external provider configuration for Google, GitHub, and future OAuth/OIDC-compatible providers.
 External providers are disabled by default. This issue provides the configuration and extension-point structure only. Production provider registration, account linking, MFA enforcement, and provider-specific setup are handled by future dedicated issues.
 ```json
 "Template": {
   "Authentication": {
-    "Microsoft": {
-      "Enabled": false,
-      "Scheme": "Microsoft",
-      "DisplayName": "Microsoft",
-      "ClientId": "",
-      "ClientSecret": "",
-      "CallbackPath": "/signin-microsoft"
-    },
     "Google": {
       "Enabled": false,
       "Scheme": "Google",

@@ -65,11 +65,18 @@ public sealed partial class TemplateDbContext(
         return result;
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
     {
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
-        int result = await SaveChangesAsync(true, cancellationToken);
-        await OnAfterSaveChangesAsync(auditEntries);
+
+        int result = await base.SaveChangesAsync(
+            acceptAllChangesOnSuccess,
+            cancellationToken).ConfigureAwait(false);
+
+        _ = await OnAfterSaveChangesAsync(auditEntries, cancellationToken)
+            .ConfigureAwait(false);
 
         return result;
     }
@@ -145,7 +152,10 @@ public sealed partial class TemplateDbContext(
         return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0002:Simplify Member Access", Justification = "<Pending>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Style",
+        "IDE0002:Simplify Member Access",
+        Justification = "The base call intentionally bypasses the overridden SaveChanges audit pipeline.")]
     private int OnAfterSaveChanges(List<AuditEntry> auditEntries)
     {
         if (auditEntries == null || auditEntries.Count == 0)
@@ -168,7 +178,7 @@ public sealed partial class TemplateDbContext(
                 }
             }
 
-            // Save the Audit entry
+            // harden the Audit entry
             AuditRecords.Add(auditEntry.ToAuditRecord());
 
         }
@@ -176,7 +186,13 @@ public sealed partial class TemplateDbContext(
         return base.SaveChanges();
     }
 
-    private async Task<int> OnAfterSaveChangesAsync(List<AuditEntry> auditEntries)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Style",
+        "IDE0002:Simplify Member Access",
+        Justification = "The base call intentionally bypasses the overridden SaveChanges audit pipeline.")]
+    private async Task<int> OnAfterSaveChangesAsync(
+        List<AuditEntry> auditEntries,
+        CancellationToken cancellationToken)
     {
         if (auditEntries == null || auditEntries.Count == 0)
         {
@@ -199,9 +215,13 @@ public sealed partial class TemplateDbContext(
             }
 
             // Save the Audit entry
-            await AuditRecords.AddAsync(auditEntry.ToAuditRecord());
+            await AuditRecords
+                .AddAsync(auditEntry.ToAuditRecord(), cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        return await base.SaveChangesAsync();
+        return await base
+            .SaveChangesAsync(cancellationToken)
+            .ConfigureAwait(false);
     }
 }

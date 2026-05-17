@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Template.Web.Authentication.Options;
 
 namespace Template.Web.Authentication.Providers.GitHub;
@@ -26,8 +27,19 @@ public static class GitHubAuthenticationServiceExtensions
             return builder;
         }
 
-        // GitHub provider support will be implemented in a future provider-specific issue.
-        // This placeholder intentionally does not register a concrete authentication handler yet.
+        builder.AddGitHub(options.Scheme, options.DisplayName, githubOptions =>
+        {
+            githubOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            githubOptions.ClientId = options.ClientId;
+            githubOptions.ClientSecret = options.ClientSecret;
+            githubOptions.CallbackPath = options.CallbackPath;
+
+            foreach (string scope in options.Scopes.Where(scope => !string.IsNullOrWhiteSpace(scope)))
+            {
+                githubOptions.Scope.Add(scope);
+            }
+        });
+
         return builder;
     }
 }

@@ -41,4 +41,8 @@
     <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.11.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Template.Infrastructure\Template.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

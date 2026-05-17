@@ -9,7 +9,7 @@ public class AuditRecord : DataEntity
     [DataType(DataType.Text)]
     public string ModifiedBy { get; set; } = string.Empty;
     [DataType(DataType.DateTime)]
-    public DateTime ModifiedOn { get; set; } = DateTime.UtcNow;
+    public DateTime ModifiedOnUtc { get; set; } = DateTime.UtcNow;
     [DataType(DataType.Text)]
     public string Application { get; set; } = string.Empty;
     [DataType(DataType.Text)]

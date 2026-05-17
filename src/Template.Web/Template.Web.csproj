@@ -19,6 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Constants\" />
     <Folder Include="Logs\" />
   </ItemGroup>
 

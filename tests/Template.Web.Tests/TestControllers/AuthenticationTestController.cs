@@ -32,4 +32,26 @@ public sealed class AuthenticationTestController : ControllerBase
     {
         return Ok(new { result = "protected" });
     }
+
+    /// <summary>
+    /// Returns a test response for users who satisfy the administrator role authorization policy.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> containing an administrator authorization test result.</returns>
+    [HttpGet("admin")]
+    [Authorize(Policy = TemplateAuthorizationPolicyNames.AdministratorRole)]
+    public IActionResult Admin()
+    {
+        return Ok(new { result = "admin" });
+    }
+
+    /// <summary>
+    /// Returns a test response for users who satisfy the manage application permission authorization policy.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> containing a manage application permission authorization test result.</returns>
+    [HttpGet("manage")]
+    [Authorize(Policy = TemplateAuthorizationPolicyNames.ManageApplicationPermission)]
+    public IActionResult Manage()
+    {
+        return Ok(new { result = "manage" });
+    }
 }

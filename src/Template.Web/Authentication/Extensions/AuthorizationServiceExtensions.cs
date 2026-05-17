@@ -1,3 +1,6 @@
+using Template.Web.Authentication.Claims;
+using Template.Web.Authentication.Options;
+
 namespace Template.Web.Authentication.Extensions;
 
 /// <summary>
@@ -18,8 +21,40 @@ public static class AuthorizationServiceExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        TemplateAuthorizationOptions options = configuration
+            .GetSection(TemplateAuthorizationOptions.SectionName)
+            .Get<TemplateAuthorizationOptions>() ?? new TemplateAuthorizationOptions();
+
+        string roleClaimType = string.IsNullOrWhiteSpace(options.RoleClaimType)
+            ? TemplateClaimTypes.Role
+            : options.RoleClaimType;
+
+        string permissionClaimType = string.IsNullOrWhiteSpace(options.PermissionClaimType)
+            ? TemplateClaimTypes.Permission
+            : options.PermissionClaimType;
+
+        services
+            .AddOptions<TemplateAuthorizationOptions>()
+            .Bind(configuration.GetSection(TemplateAuthorizationOptions.SectionName));
+
         services.AddAuthorizationBuilder()
-            .AddPolicy(TemplateAuthorizationPolicyNames.AuthenticatedUser, policy => policy.RequireAuthenticatedUser());
+            .AddPolicy(
+                TemplateAuthorizationPolicyNames.AuthenticatedUser,
+                policy => policy.RequireAuthenticatedUser())
+            .AddPolicy(
+                TemplateAuthorizationPolicyNames.AdministratorRole,
+                policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(roleClaimType, options.AdministratorRoles);
+                })
+            .AddPolicy(
+                TemplateAuthorizationPolicyNames.ManageApplicationPermission,
+                policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(permissionClaimType, options.ManageApplicationPermissions);
+                });
 
         return services;
     }
@@ -34,4 +69,12 @@ public static class TemplateAuthorizationPolicyNames
     /// Policy requiring the current user to be authenticated.
     /// </summary>
     public const string AuthenticatedUser = "Template.AuthenticatedUser";
+    /// <summary>
+    /// Policy defining the administrator role.
+    /// </summary>
+    public const string AdministratorRole = "Template.Role.Administrator";
+    /// <summary>
+    /// Policy defining the manage application permission.
+    /// </summary>
+    public const string ManageApplicationPermission = "Template.Permission.ManageApplication";
 }

@@ -4,6 +4,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Template.Infrastructure/Template.Infrastructure.csproj" />
     <Project Path="src/Template.Web/Template.Web.csproj" Id="1e92d402-e410-4f7f-8483-de6af17d61a2" />
   </Folder>
   <Folder Name="/tests/">

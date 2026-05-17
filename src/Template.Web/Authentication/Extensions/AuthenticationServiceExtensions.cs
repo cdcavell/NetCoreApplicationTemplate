@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using Template.Web.Authentication.Options;
+using Template.Web.Authentication.Providers.GitHub;
 using Template.Web.Authentication.Providers.Google;
 using Template.Web.Authentication.Providers.Microsoft;
 using Template.Web.Authentication.Providers.OpenIdConnect;
 using Template.Web.Authentication.Providers.Saml2;
-using Template.Web.Authentication.Providers.GitHub;
 
 namespace Template.Web.Authentication.Extensions;
 

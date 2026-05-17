@@ -863,6 +863,33 @@ The template provides minimal account and external authentication endpoints:
 
 Return URLs are validated as local URLs before redirecting to avoid open redirect vulnerabilities. Unknown provider schemes are rejected safely. Provider secrets, tokens, cookies, and sensitive query-string values should not be logged.
 
+### External Social Provider Strategy and OpenIddict Client Evaluation
+
+The template currently uses provider-specific ASP.NET Core authentication handlers for Microsoft, Google, and GitHub. This keeps the implementation simple, scheme-based, and consistent with the existing authentication module structure.
+
+Current provider-specific packages remain supported and are the active implementation path for this template. They are disabled by default, registered only when enabled, validated during startup, and configured through:
+
+```text
+Template:Authentication:Providers:Microsoft
+Template:Authentication:Providers:Google
+Template:Authentication:Providers:GitHub
+```
+OpenIddict Client was evaluated as a future external social provider architecture. OpenIddict Client provides a broader OAuth 2.0/OpenID Connect client stack with web-provider integrations for many external providers, including GitHub, Microsoft, and Google. It also provides stronger long-term capabilities such as OpenID Connect support, stateful client behavior, replay protections, discovery support, token introspection/revocation support, and resilient backchannel behavior.
+
+However, adopting OpenIddict Client would be an architectural migration rather than a direct package swap. A migration would need to account for:
+- OpenIddict client/core service registration.
+- Token/state storage requirements.
+- Provider-specific redirect endpoint design.
+- Callback endpoint/controller handling.
+- Existing `/External/Challenge` behavior.
+- Existing startup validation behavior.
+- Existing tests and documentation.
+- Compatibility with Microsoft, Google, GitHub, and future providers.
+
+OpenIddict Client may be implemented as the preferred candidate for a future broader social-provider architecture if the template later needs a unified OAuth/OIDC client model across many providers or advanced token-handling features.
+
+Any future migration would be handled through a dedicated implementation issue and should preserve the existing working Microsoft, Google, and GitHub behavior until a replacement path is fully tested.
+
 ## Data Access
 
 This section will document EF Core and database patterns.

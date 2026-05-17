@@ -33,6 +33,9 @@ _OpenTelemetry is a collection of tools, APIs, and SDKs that can be used to inst
 - [OpenTelemetry.Instrumentation.AspNetCore](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNetCore)
 - [OpenTelemetry.Instrumentation.Http](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http)
 
+## [AspNet.Security.OAuth.GitHub](https://www.nuget.org/packages/AspNet.Security.OAuth.GitHub)
+_This package contains the GitHub authentication middleware for ASP.NET Core. It enables an application to support authentication using GitHub accounts, allowing users to sign in with their GitHub credentials. This middleware allows applications to authenticate users by redirecting them to the GitHub login page and handling the authentication response._
+
 <br /><br />
 The following asset(s) are under the [MIT](https://licenses.nuget.org/MIT) license:
 ```text

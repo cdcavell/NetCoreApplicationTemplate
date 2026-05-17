@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Template.Web.Authentication.Options;
+using Template.Web.Authentication.Providers.GitHub;
 using Template.Web.Authentication.Providers.Google;
 using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
@@ -531,6 +532,107 @@ public sealed class AuthenticationTests
             exception.Message,
             StringComparison.Ordinal);
     }
+
+
+
+    /// <summary>
+    /// Verifies that the GitHub authentication provider does not register a scheme when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledGitHubProvider_DoesNotRegisterGitHubScheme()
+    {
+        ServiceCollection services = new();
+
+        AuthenticationBuilder builder = services.AddAuthentication();
+
+        builder.AddTemplateGitHubAuthentication(new TemplateExternalAuthenticationProviderOptions
+        {
+            Enabled = false,
+            Scheme = "GitHub",
+            DisplayName = "GitHub",
+            ClientId = "",
+            ClientSecret = "",
+            CallbackPath = "/signin-github"
+        });
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        IAuthenticationSchemeProvider schemeProvider = serviceProvider
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("GitHub");
+
+        Assert.Null(scheme);
+    }
+
+    /// <summary>
+    /// Verifies that the GitHub authentication provider registers a scheme when enabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task EnabledGitHubProvider_RegistersGitHubScheme()
+    {
+        ServiceCollection services = new();
+
+        AuthenticationBuilder builder = services.AddAuthentication();
+
+        builder.AddTemplateGitHubAuthentication(new TemplateExternalAuthenticationProviderOptions
+        {
+            Enabled = true,
+            Scheme = "GitHub",
+            DisplayName = "GitHub",
+            ClientId = "test-github-client-id",
+            ClientSecret = "test-github-client-secret",
+            CallbackPath = "/signin-github",
+            Scopes =
+            [
+                "profile",
+                "email"
+            ]
+        });
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        IAuthenticationSchemeProvider schemeProvider = serviceProvider
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("GitHub");
+
+        Assert.NotNull(scheme);
+        Assert.Equal("GitHub", scheme.Name);
+        Assert.Equal("GitHub", scheme.DisplayName);
+    }
+
+    /// <summary>
+    /// Verifies that application startup fails with an options validation exception when the GitHub authentication
+    /// provider is enabled but the client secret is missing.
+    /// </summary>
+    [Fact]
+    public void EnabledGitHubProvider_MissingClientSecret_FailsStartup()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:GitHub:Enabled"] = "true",
+            ["Template:Authentication:Providers:GitHub:Scheme"] = "GitHub",
+            ["Template:Authentication:Providers:GitHub:DisplayName"] = "GitHub",
+            ["Template:Authentication:Providers:GitHub:ClientId"] = "test-client-id",
+            ["Template:Authentication:Providers:GitHub:ClientSecret"] = "",
+            ["Template:Authentication:Providers:GitHub:CallbackPath"] = "/signin-github"
+        });
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            factory.Services
+                .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+                .Value);
+
+        Assert.Contains(
+            "Template:Authentication:Providers:GitHub:ClientSecret is required when the provider is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
+
+
     /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>

@@ -890,6 +890,21 @@ OpenIddict Client may be implemented as the preferred candidate for a future bro
 
 Any future migration would be handled through a dedicated implementation issue and should preserve the existing working Microsoft, Google, and GitHub behavior until a replacement path is fully tested.
 
+### Claims Transformation and Normalization
+
+The template includes an optional claims transformation layer that normalizes provider-specific claims into template-owned claim names.
+
+External identity providers often use different claim names for the same concept. For example, one provider may emit `sub`, another may emit `nameidentifier`, and another may use a SAML claim URI. The claims transformation layer allows these inputs to be mapped into consistent application claim names such as:
+
+- `template:subject`
+- `template:name`
+- `template:email`
+- `template:role`
+- `template:group`
+- `template:permission`
+
+Original provider claims are preserved by default. They are only removed when `Template:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
+
 ## Data Access
 
 This section will document EF Core and database patterns.

@@ -794,20 +794,36 @@ is set to `true`.
 }
 ```
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
-### External Providers
 
-The template includes foundational external provider configuration for Google, GitHub, and future OAuth/OIDC-compatible providers.
-External providers are disabled by default. This issue provides the configuration and extension-point structure only. Production provider registration, account linking, MFA enforcement, and provider-specific setup are handled by future dedicated issues.
+### GitHub External Provider
+The template includes Google external authentication support through `AspNet.Security.OAuth.GitHub`.
+
+The GitHub provider is disabled by default and only registers when:
+
+`Template:Authentication:Providers:GitHub:Enabled`
+
+is set to `true`.
+
 ```json
 "Template": {
   "Authentication": {
-    "GitHub": {
-      "Enabled": false,
-      "Scheme": "GitHub",
-      "DisplayName": "GitHub",
-      "ClientId": "",
-      "ClientSecret": "",
-      "CallbackPath": "/signin-github"
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "GitHub",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "GitHub": {
+        "Enabled": true,
+        "Scheme": "GitHub",
+        "DisplayName": "GitHub",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CallbackPath": "/signin-github",
+        "Scopes": [
+          "profile",
+          "email"
+        ]
+      }
     }
   }
 }

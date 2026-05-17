@@ -16,7 +16,7 @@ namespace Template.Web.Tests;
 /// </summary>
 public sealed class OpenTelemetryTests
 {
-    private const string _releaseVersion = "0.2.5";
+    private const string _releaseVersion = "0.2.6";
 
     /// <summary>
     /// Verifies that template OpenTelemetry options are bound from configuration.

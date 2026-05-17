@@ -43,9 +43,9 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.2.5](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.2.5)__
+Current release: __[Release 0.2.6](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.2.6)__
 
-Tag: `v0.2.5`
+Tag: `v0.2.6`
 <!-- END LATEST_RELEASE -->
 
 ## Documentation
@@ -904,6 +904,50 @@ External identity providers often use different claim names for the same concept
 - `template:permission`
 
 Original provider claims are preserved by default. They are only removed when `Template:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
+
+### Role and Permission Authorization Policies
+
+The template includes baseline authorization policy patterns for authenticated users, role-based access, and permission-based access.
+
+Default policy names:
+
+| Policy | Purpose |
+|---|---|
+| `Template.AuthenticatedUser` | Requires an authenticated user. |
+| `Template.Role.Administrator` | Requires a normalized role claim. |
+| `Template.Permission.ManageApplication` | Requires a normalized permission claim. |
+
+Default normalized claim types:
+
+| Claim Type | Purpose |
+|---|---|
+| `template:role` | Role claim used by role-based policies. |
+| `template:permission` | Permission claim used by permission-based policies. |
+
+Configuration example:
+
+```json
+"Template": {
+  "Authorization": {
+    "RoleClaimType": "template:role",
+    "PermissionClaimType": "template:permission",
+    "AdministratorRoles": [
+      "Administrator"
+    ],
+    "ManageApplicationPermissions": [
+      "application.manage"
+    ]
+  }
+}
+```
+Example usage:
+```csharp
+[Authorize(Policy = TemplateAuthorizationPolicyNames.AdministratorRole)]
+public IActionResult AdminOnly()
+{
+    return View();
+}
+```
 
 ## Data Access
 

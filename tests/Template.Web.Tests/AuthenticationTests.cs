@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Template.Web.Authentication.Options;
+using Template.Web.Authentication.Providers.Google;
 using Template.Web.Tests.Extensions;
 using Template.Web.Tests.Infrastructure;
 
@@ -267,6 +268,33 @@ public sealed class AuthenticationTests
     }
 
     /// <summary>
+    /// Verifies that the OpenIdConnect provider does not register a scheme when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledOpenIdConnectProvider_DoesNotRegisterScheme()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:OpenIdConnect:Enabled"] = "false",
+            ["Template:Authentication:Providers:OpenIdConnect:Scheme"] = "OpenIdConnect",
+            ["Template:Authentication:Providers:OpenIdConnect:DisplayName"] = "OpenId Connect",
+            ["Template:Authentication:Providers:OpenIdConnect:Authority"] = "",
+            ["Template:Authentication:Providers:OpenIdConnect:ClientId"] = "test-client-id",
+            ["Template:Authentication:Providers:OpenIdConnect:CallbackPath"] = "/signin-oidc",
+            ["Template:Authentication:Providers:OpenIdConnect:ResponseType"] = "code",
+            ["Template:Authentication:Providers:OpenIdConnect:Scopes:0"] = "openid"
+        });
+
+        IAuthenticationSchemeProvider schemeProvider = factory.Services
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("OpenIdConnect");
+
+        Assert.Null(scheme);
+    }
+
+    /// <summary>
     /// Verifies that enabling the OpenIdConnect authentication provider without specifying an authority causes
     /// application startup to fail with an options validation exception.
     /// </summary>
@@ -298,6 +326,31 @@ public sealed class AuthenticationTests
     }
 
     /// <summary>
+    /// Verifies that the SAML2 provider does not register a scheme when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledSaml2Provider_DoesNotRegisterScheme()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:Saml2:Enabled"] = "false",
+            ["Template:Authentication:Providers:Saml2:Scheme"] = "Saml2",
+            ["Template:Authentication:Providers:Saml2:DisplayName"] = "SAML2",
+            ["Template:Authentication:Providers:Saml2:EntityId"] = "https://template.example/saml2",
+            ["Template:Authentication:Providers:Saml2:MetadataUrl"] = "",
+            ["Template:Authentication:Providers:Saml2:ModulePath"] = "/Saml2/Acs"
+        });
+
+        IAuthenticationSchemeProvider schemeProvider = factory.Services
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Saml2");
+
+        Assert.Null(scheme);
+    }
+
+    /// <summary>
     /// Verifies that application startup fails with an OptionsValidationException when the SAML2 provider is enabled
     /// but the MetadataUrl configuration is missing or empty.
     /// </summary>
@@ -324,6 +377,31 @@ public sealed class AuthenticationTests
             "Template:Authentication:Providers:Saml2:MetadataUrl is required when the provider is enabled",
             exception.Message,
             StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that the Microsoft authentication provider does not register a scheme when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledMicrosoftProvider_DoesNotRegisterScheme()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:Microsoft:Enabled"] = "false",
+            ["Template:Authentication:Providers:Microsoft:Scheme"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:DisplayName"] = "Microsoft",
+            ["Template:Authentication:Providers:Microsoft:ClientId"] = "",
+            ["Template:Authentication:Providers:Microsoft:ClientSecret"] = "",
+            ["Template:Authentication:Providers:Microsoft:CallbackPath"] = "/signin-microsoft"
+        });
+
+        IAuthenticationSchemeProvider schemeProvider = factory.Services
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Microsoft");
+
+        Assert.Null(scheme);
     }
 
     /// <summary>
@@ -357,6 +435,102 @@ public sealed class AuthenticationTests
             StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Verifies that the Google authentication provider does not register a scheme when disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledGoogleProvider_DoesNotRegisterGoogleScheme()
+    {
+        ServiceCollection services = new();
+
+        AuthenticationBuilder builder = services.AddAuthentication();
+
+        builder.AddTemplateGoogleAuthentication(new TemplateExternalAuthenticationProviderOptions
+        {
+            Enabled = false,
+            Scheme = "Google",
+            DisplayName = "Google",
+            ClientId = "",
+            ClientSecret = "",
+            CallbackPath = "/signin-google"
+        });
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        IAuthenticationSchemeProvider schemeProvider = serviceProvider
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Google");
+
+        Assert.Null(scheme);
+    }
+
+    /// <summary>
+    /// Verifies that the Google authentication provider registers a scheme when enabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task EnabledGoogleProvider_RegistersGoogleScheme()
+    {
+        ServiceCollection services = new();
+
+        AuthenticationBuilder builder = services.AddAuthentication();
+
+        builder.AddTemplateGoogleAuthentication(new TemplateExternalAuthenticationProviderOptions
+        {
+            Enabled = true,
+            Scheme = "Google",
+            DisplayName = "Google",
+            ClientId = "test-google-client-id",
+            ClientSecret = "test-google-client-secret",
+            CallbackPath = "/signin-google",
+            Scopes =
+            [
+                "profile",
+            "email"
+            ]
+        });
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        IAuthenticationSchemeProvider schemeProvider = serviceProvider
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Google");
+
+        Assert.NotNull(scheme);
+        Assert.Equal("Google", scheme.Name);
+        Assert.Equal("Google", scheme.DisplayName);
+    }
+
+    /// <summary>
+    /// Verifies that application startup fails with an options validation exception when the Google authentication
+    /// provider is enabled but the client secret is missing.
+    /// </summary>
+    [Fact]
+    public void EnabledGoogleProvider_MissingClientSecret_FailsStartup()
+    {
+        using TemplateWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["Template:Authentication:Providers:Google:Enabled"] = "true",
+            ["Template:Authentication:Providers:Google:Scheme"] = "Google",
+            ["Template:Authentication:Providers:Google:DisplayName"] = "Google",
+            ["Template:Authentication:Providers:Google:ClientId"] = "test-client-id",
+            ["Template:Authentication:Providers:Google:ClientSecret"] = "",
+            ["Template:Authentication:Providers:Google:CallbackPath"] = "/signin-google"
+        });
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+            factory.Services
+                .GetRequiredService<IOptions<TemplateAuthenticationOptions>>()
+                .Value);
+
+        Assert.Contains(
+            "Template:Authentication:Providers:Google:ClientSecret is required when the provider is enabled",
+            exception.Message,
+            StringComparison.Ordinal);
+    }
     /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>

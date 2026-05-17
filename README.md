@@ -43,9 +43,9 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.2.3](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.2.3)__
+Current release: __[Release 0.2.4](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.2.4)__
 
-Tag: `v0.2.3`
+Tag: `v0.2.4`
 <!-- END LATEST_RELEASE -->
 
 ## Documentation
@@ -758,6 +758,42 @@ is set to `true`.
   }
 }
 ```
+_Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
+### Google External Provider
+
+The template includes Google external authentication support through `Microsoft.AspNetCore.Authentication.Google`.
+
+The Google provider is disabled by default and only registers when:
+
+`Template:Authentication:Providers:Google:Enabled`
+
+is set to `true`.
+
+```json
+"Template": {
+  "Authentication": {
+    "Enabled": true,
+    "DefaultScheme": "Cookies",
+    "DefaultChallengeScheme": "Google",
+    "DefaultSignInScheme": "Cookies",
+    "Providers": {
+      "Google": {
+        "Enabled": true,
+        "Scheme": "Google",
+        "DisplayName": "Google",
+        "ClientId": "",
+        "ClientSecret": "",
+        "CallbackPath": "/signin-google",
+        "Scopes": [
+          "profile",
+          "email"
+        ]
+      }
+    }
+  }
+}
+```
+_Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 ### External Providers
 
 The template includes foundational external provider configuration for Google, GitHub, and future OAuth/OIDC-compatible providers.
@@ -765,14 +801,6 @@ External providers are disabled by default. This issue provides the configuratio
 ```json
 "Template": {
   "Authentication": {
-    "Google": {
-      "Enabled": false,
-      "Scheme": "Google",
-      "DisplayName": "Google",
-      "ClientId": "",
-      "ClientSecret": "",
-      "CallbackPath": "/signin-google"
-    },
     "GitHub": {
       "Enabled": false,
       "Scheme": "GitHub",

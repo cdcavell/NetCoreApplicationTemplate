@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using Template.Web.Authentication.Options;
+using Template.Web.Authentication.Providers.GitHub;
 using Template.Web.Authentication.Providers.Google;
 using Template.Web.Authentication.Providers.Microsoft;
 using Template.Web.Authentication.Providers.OpenIdConnect;
@@ -88,7 +89,8 @@ public static class AuthenticationServiceExtensions
             .AddTemplateOpenIdConnectAuthentication(templateAuthenticationOptions.Providers.OpenIdConnect)
             .AddTemplateSaml2Authentication(templateAuthenticationOptions.Providers.Saml2)
             .AddTemplateMicrosoftAuthentication(templateAuthenticationOptions.Providers.Microsoft)
-            .AddTemplateGoogleAuthentication(templateAuthenticationOptions.Providers.Google);
+            .AddTemplateGoogleAuthentication(templateAuthenticationOptions.Providers.Google)
+            .AddTemplateGitHubAuthentication(templateAuthenticationOptions.Providers.GitHub);
 
         return services;
     }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using Template.Web.Authentication.Claims;
 using Template.Web.Authentication.Options;
 using Template.Web.Authentication.Providers.GitHub;
 using Template.Web.Authentication.Providers.Google;
@@ -28,6 +29,7 @@ public static class AuthenticationServiceExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        services.AddTransient<IClaimsTransformation, TemplateClaimsTransformation>();
         services.AddSingleton<IValidateOptions<TemplateAuthenticationOptions>, TemplateAuthenticationOptionsValidator>();
 
         services

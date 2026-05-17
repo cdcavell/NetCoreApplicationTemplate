@@ -1,3 +1,5 @@
+using Template.Web.Authentication.Claims;
+
 namespace Template.Web.Authentication.Options;
 
 /// <summary>
@@ -39,4 +41,9 @@ public sealed class TemplateAuthenticationOptions
     /// Gets or sets provider-specific authentication options.
     /// </summary>
     public TemplateAuthenticationProviderOptions Providers { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets claims transformation and normalization options.
+    /// </summary>
+    public TemplateClaimsTransformationOptions ClaimsTransformation { get; set; } = new();
 }

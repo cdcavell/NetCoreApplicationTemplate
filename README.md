@@ -951,21 +951,33 @@ public IActionResult AdminOnly()
 
 ## Data Access
 
-This section will document EF Core and database patterns.
+### EF Core and SQLite
 
-Planned areas:
+The template includes an initial EF Core data access foundation using SQLite as the default local development provider.
 
-- DbContext registration.
-- SQLite development configuration.
-- SQL Server production configuration.
-- Connection string management.
-- Migrations.
-- Repository or service patterns, if used.
-- Transaction handling.
-- Retry strategies.
-- Concurrency handling.
-- Auditing fields.
-- Soft delete patterns, if applicable.
+The SQLite connection string is configured in:
+
+```text
+src/Template.Web/appsettings.json
+```
+SQLite is used as the default development provider because it is lightweight, file-based, and does not require a separate database server.
+
+_Add a Migration:_
+```bash
+dotnet ef migrations add MigrationName `
+  --project src/Template.Infrastructure `
+  --startup-project src/Template.Web `
+  --context TemplateDbContext `
+  --output-dir Data/Migrations
+```
+_Update the Database:_
+```bash
+  dotnet ef database update `
+  --project src/Template.Infrastructure `
+  --startup-project src/Template.Web `
+  --context TemplateDbContext
+```
+Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 
 ## Configuration
 
@@ -1148,7 +1160,7 @@ Initial planned milestones:
 - [x]  Add forwarded headers support.
 - [x]  Add rate limiting policies.
 - [x]  Add centralized error handling.
-- [ ]  Add EF Core with SQLite.
+- [x]  Add EF Core with SQLite.
 - [ ]  Add SQL Server provider option.
 - [x]  Add authentication module structure.
 - [x]  Add OIDC support.

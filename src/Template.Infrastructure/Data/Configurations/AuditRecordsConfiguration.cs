@@ -12,7 +12,7 @@ public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRec
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<AuditRecord> entity)
     {
-        entity.ToTable("AuditRecords", "dbo");
+        entity.ToTable("AuditRecords");
 
         entity.HasKey(x => x.Id);
 

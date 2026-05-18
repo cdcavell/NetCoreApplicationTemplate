@@ -68,7 +68,7 @@ public sealed partial class TemplateDbContext(
     {
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
         int result = base.SaveChanges(acceptAllChangesOnSuccess);
-        OnAfterSaveChanges(auditEntries);
+        _ = OnAfterSaveChanges(auditEntries);
 
         return result;
     }

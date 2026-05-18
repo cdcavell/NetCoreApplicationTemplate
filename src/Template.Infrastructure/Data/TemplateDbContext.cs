@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
-using Template.Infrastructure.Data.Configurations;
 using Template.Infrastructure.Data.Entities;
 
 namespace Template.Infrastructure.Data;

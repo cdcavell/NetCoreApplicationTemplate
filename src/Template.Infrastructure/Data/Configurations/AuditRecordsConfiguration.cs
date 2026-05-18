@@ -17,14 +17,13 @@ public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRec
         entity.HasKey(x => x.Id);
 
         entity.Property(x => x.Id)
-            .HasDefaultValueSql("NEWID()");
+            .ValueGeneratedNever();
 
         entity.Property(x => x.ModifiedBy)
             .HasMaxLength(200)
             .IsRequired();
 
         entity.Property(x => x.ModifiedOnUtc)
-            .HasDefaultValueSql("GETUTCDATE()")
             .IsRequired();
 
         entity.Property(x => x.Application)

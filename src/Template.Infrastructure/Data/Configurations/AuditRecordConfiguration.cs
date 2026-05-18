@@ -7,7 +7,7 @@ namespace Template.Infrastructure.Data.Configurations;
 /// <summary>
 /// Configures the EF Core mapping for <see cref="AuditRecord"/>.
 /// </summary>
-public sealed class AuditRecordsConfiguration : IEntityTypeConfiguration<AuditRecord>
+public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRecord>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<AuditRecord> entity)

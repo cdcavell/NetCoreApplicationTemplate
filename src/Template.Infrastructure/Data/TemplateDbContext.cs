@@ -37,7 +37,7 @@ public sealed partial class TemplateDbContext(
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new AuditRecordsConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TemplateDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -229,7 +229,7 @@ public sealed partial class TemplateDbContext(
                 }
             }
 
-            // Save the Audit entry.
+            // Save the audit entry.
             await AuditRecords
                 .AddAsync(auditEntry.ToAuditRecord(), cancellationToken)
                 .ConfigureAwait(false);

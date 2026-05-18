@@ -28,6 +28,7 @@ try
     builder.Services.AddTemplateProblemDetails(builder.Environment);
     builder.Services.AddTemplateAuthentication(builder.Configuration);
     builder.Services.AddTemplateAuthorization(builder.Configuration);
+    builder.Services.AddTemplateDataAccess(builder.Configuration);
 
     Log.Information("Starting Template.Web application");
     WebApplication app = builder.Build();

@@ -6,7 +6,7 @@ using Template.Infrastructure.Data.Entities;
 
 namespace Template.Infrastructure.Data;
 
-internal class AuditEntry(EntityEntry entry)
+internal sealed class AuditEntry(EntityEntry entry)
 {
     internal EntityEntry Entry { get; } = entry;
     [DataType(DataType.Text)]

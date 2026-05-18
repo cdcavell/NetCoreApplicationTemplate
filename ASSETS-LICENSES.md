@@ -76,3 +76,8 @@ _Sustainsys.Saml2.AspNetCore2 is a library that provides support for integrating
 _This package contains the Microsoft Account authentication middleware for ASP.NET Core. It enables an application to support authentication using Microsoft Accounts (formerly known as Live ID), which are used for services like Outlook.com, Xbox Live, and other Microsoft services. This middleware allows applications to authenticate users by redirecting them to the Microsoft Account login page and handling the authentication response._
 ## [Microsoft.AspNetCore.Authentication.Google](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.Google)
 _This package contains the Google authentication middleware for ASP.NET Core. It enables an application to support authentication using Google accounts, allowing users to sign in with their Google credentials. This middleware allows applications to authenticate users by redirecting them to the Google login page and handling the authentication response._
+## [Microsoft.EntityFrameworkCore](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
+_Entity Framework Core (EF Core) is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations. EF Core works with a variety of databases, including SQL Server, SQLite, PostgreSQL, MySQL, and more._
+- [Microsoft.EntityFrameworkCore.Design](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Design)
+- [Microsoft.EntityFrameworkCore.Tools](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Tools) 
+- [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite)

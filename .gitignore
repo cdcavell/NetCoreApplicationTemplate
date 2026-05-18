@@ -17,6 +17,11 @@
 docs/_site/
 docs/api/
 
+# SQLite development databases
+*.db
+*.db-shm
+*.db-wal
+
 # Mono auto generated files
 mono_crash.*
 

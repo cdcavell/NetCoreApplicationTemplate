@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using Template.Infrastructure.Data.Configurations;
 using Template.Infrastructure.Data.Entities;
 
 namespace Template.Infrastructure.Data;
@@ -35,6 +36,8 @@ public sealed partial class TemplateDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
+
+        modelBuilder.ApplyConfiguration(new AuditRecordConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

@@ -1134,6 +1134,7 @@ If migrations are not discovered, confirm that the command uses:
 If SQLite provider configuration fails, confirm that the infrastructure project references the SQLite provider package and that the data access registration uses the configured TemplateDatabase connection string.
 
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
+SQLite remains the default development provider. SQL Server can be selected through configuration. Because EF Core migrations are provider-specific, production SQL Server deployments should generate and maintain SQL Server-compatible migrations before applying database updates.
 
 ### External Login Account Linking Persistence
 
@@ -1338,7 +1339,7 @@ Initial planned milestones:
 - [x]  Add rate limiting policies.
 - [x]  Add centralized error handling.
 - [x]  Add EF Core with SQLite.
-- [ ]  Add SQL Server provider option.
+- [x]  Add SQL Server provider option.
 - [x]  Add authentication module structure.
 - [x]  Add OIDC support.
 - [x]  Add SAML2 support.

@@ -979,6 +979,27 @@ _Update the Database:_
 ```
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 
+### External Login Account Linking Persistence
+
+The template includes an optional EF Core persistence model for applications that need to link external provider identities to local application users.
+
+This is different from claims-only sign-in.
+
+Claims-only sign-in uses the external provider claims from the current authentication session and does not require a local account-linking table. This is sufficient when the application only needs to authenticate the current request.
+
+Local account linking is useful when an application needs to associate one or more external identities with a local application user profile, preserve account-link audit history, support provider migration, or allow multiple providers to sign in to the same local account.
+
+The external login persistence model stores:
+
+- Local user ID
+- Provider name
+- Provider user ID
+- Display name
+- Email
+- Created, updated, and last-login timestamps
+
+Provider tokens are not stored by default. Applications that need token persistence should add that behavior intentionally and review the security, encryption, rotation, and retention requirements before enabling it.
+
 ## Configuration
 
 This section will document application configuration strategy.

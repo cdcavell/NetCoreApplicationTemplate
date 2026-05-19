@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Template.Infrastructure.Data;
+using Template.Infrastructure.Data.ExternalLogins;
 using Template.Web.Accessors;
 
 namespace Template.Web.Extensions;
@@ -27,6 +28,7 @@ public static class DataAccessServiceExtensions
         services.AddScoped<ICurrentActorAccessor, HttpContextCurrentActorAccessor>();
 
         services.AddDbContext<TemplateDbContext>(options => options.UseSqlite(connectionString));
+        services.AddScoped<IExternalLoginAccountResolver, EfCoreExternalLoginAccountResolver>();
 
         return services;
     }

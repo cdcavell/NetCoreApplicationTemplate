@@ -22,6 +22,10 @@ public sealed partial class TemplateDbContext(
     /// Gets the audit records for the application.
     /// </summary>
     public DbSet<AuditRecord> AuditRecords => Set<AuditRecord>();
+    /// <summary>
+    /// Gets the external login account links for the application.
+    /// </summary>
+    public DbSet<ExternalLoginAccount> ExternalLoginAccounts => Set<ExternalLoginAccount>();
 
     [LoggerMessage(
         EventId = 19000,

@@ -13,7 +13,7 @@
   "groupIdentity": "CDCavell.NetCoreApplicationTemplate",
   "name": ".NET Core Application Template",
   "shortName": "cdcavell-netcoreapp",
-  "sourceName": "Template",
+  "sourceName": "ProjectTemplate",
   "preferNameDirectory": true,
   "description": "Creates a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.",
   "tags": {
@@ -32,9 +32,13 @@
         ".gitattributes",
         ".gitignore",
         "LICENSE.txt",
+        "ASSETS-LICENSES.md",
         "NetCoreApplicationTemplate.slnx",
         "src/**/*",
-        "tests/**/*"
+        "tests/**/*",
+        "docs/**/*",
+        "scripts/**/*",
+        ".github/**/*"
       ],
       "exclude": [
         "**/[Bb]in/**",
@@ -48,7 +52,7 @@
         "**/*.log"
       ],
       "rename": {
-        "NetCoreApplicationTemplate.slnx": "Template.slnx"
+        "NetCoreApplicationTemplate.slnx": "ProjectTemplate.slnx"
       }
     }
   ]

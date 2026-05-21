@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Christopher D. Cavell",
+  "classifications": [
+    "Web",
+    "MVC",
+    "ASP.NET Core",
+    "Enterprise",
+    "Security",
+    "Template"
+  ],
+  "identity": "CDCavell.NetCoreApplicationTemplate.CSharp",
+  "groupIdentity": "CDCavell.NetCoreApplicationTemplate",
+  "name": ".NET Core Application Template",
+  "shortName": "cdcavell-netcoreapp",
+  "sourceName": "Template",
+  "preferNameDirectory": true,
+  "description": "Creates a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "guids": [
+    "1e92d402-e410-4f7f-8483-de6af17d61a2"
+  ],
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "include": [
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        "LICENSE.txt",
+        "NetCoreApplicationTemplate.slnx",
+        "src/**/*",
+        "tests/**/*"
+      ],
+      "exclude": [
+        "**/[Bb]in/**",
+        "**/[Oo]bj/**",
+        ".template.config/**/*",
+        "**/*.filelist",
+        "**/*.user",
+        "**/*.suo",
+        "**/*.lock.json",
+        "**/Logs/**",
+        "**/*.log"
+      ],
+      "rename": {
+        "NetCoreApplicationTemplate.slnx": "Template.slnx"
+      }
+    }
+  ]
+}

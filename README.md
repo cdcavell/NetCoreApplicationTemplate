@@ -127,25 +127,25 @@ Serilog is configured as the primary logging provider so that application events
 #### Bootstrap Logging
 The application logs a bootstrap message when the web application begins provider configuration:
 ```csharp
-Log.Information("Bootstrapping Template.Web application");
+Log.Information("Bootstrapping ProjectTemplate.Web application");
 ```
 
 #### Startup Logging
 The application logs a startup message when the web application begins initialization:
 ```csharp
-Log.Information("Starting Template.Web application");
+Log.Information("Starting ProjectTemplate.Web application");
 ```
 
 #### Pipline Logging 
 The application logs a startup message when the web application begins configuring the middleware pipeline:
 ```csharp
-Log.Information("Configuring pipline for Template.Web application");
+Log.Information("Configuring pipline for ProjectTemplate.Web application");
 ```
 
 #### Runtime Logging
 The application logs a startup message when the web application begins running:
 ```csharp
-Log.Information("Running Template.Web application");
+Log.Information("Running ProjectTemplate.Web application");
 ```
 
 #### Ongoing Application Logging
@@ -167,7 +167,7 @@ Additional logging can be added throughout the application by injecting ILogger<
 #### Bootstrap Exception Logging
 The application logs any exceptions that occur during the bootstrapping process or while configuring the middleware pipeline:
 ```csharp
-Log.Fatal(ex, "Template.Web application terminated unexpectedly");
+Log.Fatal(ex, "ProjectTemplate.Web application terminated unexpectedly");
 ```
 ### Structured Request Logging
 
@@ -596,9 +596,9 @@ If a future policy depends on the authenticated user identity, rate limiting may
 
 ### Automated Test Strategy
 
-Rate limiting behavior is covered by integration tests under `tests/Template.Web.Tests`.
+Rate limiting behavior is covered by integration tests under `tests/ProjectTemplate.Web.Tests`.
 
-The tests use `WebApplicationFactory<Program>` to boot the real `Template.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
+The tests use `WebApplicationFactory<Program>` to boot the real `ProjectTemplate.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
 
 This keeps production endpoints unchanged while allowing the tests to verify:
 
@@ -623,7 +623,7 @@ Configuration is controlled through `appsettings.json`:
 "Template": {
   "OpenTelemetry": {
     "Enabled": true,
-    "ServiceName": "Template.Web",
+    "ServiceName": "ProjectTemplate.Web",
     "ServiceVersion": "0.1.3",
     "EnableTracing": true,
     "EnableMetrics": true,
@@ -637,7 +637,7 @@ Configuration is controlled through `appsettings.json`:
   }
 }
 ```
-By default, the template collects local tracing and metrics instrumentation but does not export telemetry to an external collector. To enable OTLP export, configure an OTLP endpoint and set `Template:OpenTelemetry:Otlp:Enabled` to `true`.
+By default, the template collects local tracing and metrics instrumentation but does not export telemetry to an external collector. To enable OTLP export, configure an OTLP endpoint and set `ProjectTemplate:OpenTelemetry:Otlp:Enabled` to `true`.
 
 Common local OTLP collector endpoints:
 ```text
@@ -654,7 +654,7 @@ The base template enables the template authentication module and local cookie au
 
 By default:
 
-- `Template:Authentication:Enabled` is `true`.
+- `ProjectTemplate:Authentication:Enabled` is `true`.
 - The default authenticate, challenge, and sign-in schemes use `Cookies`.
 - Local cookie authentication is enabled.
 - External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are disabled.
@@ -666,7 +666,7 @@ To enable an external provider, keep template authentication enabled and set onl
 ### OpenID Connect
 
 The template includes standards-based OpenID Connect authentication support.
-External OIDC provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
+External OIDC provider integration is disabled by default. To enable it, configure the `ProjectTemplate:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
 
 ```json
 "Template": {
@@ -701,7 +701,7 @@ _Do not commit real client secrets to source control. Use user secrets, environm
 ### SAML2
 
 The template includes standards-based SAML2 authentication support.
-External SAML2 provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
+External SAML2 provider integration is disabled by default. To enable it, configure the `ProjectTemplate:Authentication` section and set both authentication and the Saml2 provider to enabled.
 ```json
 "Template": {
   "Authentication": {
@@ -733,7 +733,7 @@ The template includes Microsoft external authentication support through `Microso
 
 The Microsoft provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:Microsoft:Enabled`
+`ProjectTemplate:Authentication:Providers:Microsoft:Enabled`
 
 is set to `true`.
 
@@ -765,7 +765,7 @@ The template includes Google external authentication support through `Microsoft.
 
 The Google provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:Google:Enabled`
+`ProjectTemplate:Authentication:Providers:Google:Enabled`
 
 is set to `true`.
 
@@ -800,7 +800,7 @@ The template includes Google external authentication support through `AspNet.Sec
 
 The GitHub provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:GitHub:Enabled`
+`ProjectTemplate:Authentication:Providers:GitHub:Enabled`
 
 is set to `true`.
 
@@ -870,9 +870,9 @@ The template currently uses provider-specific ASP.NET Core authentication handle
 Current provider-specific packages remain supported and are the active implementation path for this template. They are disabled by default, registered only when enabled, validated during startup, and configured through:
 
 ```text
-Template:Authentication:Providers:Microsoft
-Template:Authentication:Providers:Google
-Template:Authentication:Providers:GitHub
+ProjectTemplate:Authentication:Providers:Microsoft
+ProjectTemplate:Authentication:Providers:Google
+ProjectTemplate:Authentication:Providers:GitHub
 ```
 OpenIddict Client was evaluated as a future external social provider architecture. OpenIddict Client provides a broader OAuth 2.0/OpenID Connect client stack with web-provider integrations for many external providers, including GitHub, Microsoft, and Google. It also provides stronger long-term capabilities such as OpenID Connect support, stateful client behavior, replay protections, discovery support, token introspection/revocation support, and resilient backchannel behavior.
 
@@ -896,14 +896,14 @@ The template includes an optional claims transformation layer that normalizes pr
 
 External identity providers often use different claim names for the same concept. For example, one provider may emit `sub`, another may emit `nameidentifier`, and another may use a SAML claim URI. The claims transformation layer allows these inputs to be mapped into consistent application claim names such as:
 
-- `template:subject`
-- `template:name`
-- `template:email`
-- `template:role`
-- `template:group`
-- `template:permission`
+- `ProjectTemplate:subject`
+- `ProjectTemplate:name`
+- `ProjectTemplate:email`
+- `ProjectTemplate:role`
+- `ProjectTemplate:group`
+- `ProjectTemplate:permission`
 
-Original provider claims are preserved by default. They are only removed when `Template:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
+Original provider claims are preserved by default. They are only removed when `ProjectTemplate:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
 
 ### Role and Permission Authorization Policies
 
@@ -913,24 +913,24 @@ Default policy names:
 
 | Policy | Purpose |
 |---|---|
-| `Template.AuthenticatedUser` | Requires an authenticated user. |
-| `Template.Role.Administrator` | Requires a normalized role claim. |
-| `Template.Permission.ManageApplication` | Requires a normalized permission claim. |
+| `ProjectTemplate.AuthenticatedUser` | Requires an authenticated user. |
+| `ProjectTemplate.Role.Administrator` | Requires a normalized role claim. |
+| `ProjectTemplate.Permission.ManageApplication` | Requires a normalized permission claim. |
 
 Default normalized claim types:
 
 | Claim Type | Purpose |
 |---|---|
-| `template:role` | Role claim used by role-based policies. |
-| `template:permission` | Permission claim used by permission-based policies. |
+| `ProjectTemplate:role` | Role claim used by role-based policies. |
+| `ProjectTemplate:permission` | Permission claim used by permission-based policies. |
 
 Configuration example:
 
 ```json
 "Template": {
   "Authorization": {
-    "RoleClaimType": "template:role",
-    "PermissionClaimType": "template:permission",
+    "RoleClaimType": "ProjectTemplate:role",
+    "PermissionClaimType": "ProjectTemplate:permission",
     "AdministratorRoles": [
       "Administrator"
     ],
@@ -960,7 +960,7 @@ SQLite is used as the default development provider because it is lightweight, fi
 The SQLite connection string is configured in:
 
 ```text
-src/Template.Web/appsettings.json
+src/ProjectTemplate.Web/appsettings.json
 ```
 The default connection string uses a local SQLite database file:
 ```json
@@ -970,7 +970,7 @@ The default connection string uses a local SQLite database file:
 ```
 SQLite is used as the default development provider because it is lightweight, file-based, and does not require a separate database server.
 
-EF Core migrations are stored in the infrastructure project because `Template.Infrastructure` owns the `TemplateDbContext`, entities, and EF Core configuration.
+EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `TemplateDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
 
@@ -994,16 +994,16 @@ dotnet tool update --global dotnet-ef
 Create a new migration from the repository root:
 ```bash
 dotnet ef migrations add MigrationName `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext `
   --output-dir Data/Migrations
 ```
 Replace `MigrationName` with a descriptive name, such as:
 ```bash
 dotnet ef migrations add AddExternalLoginAccounts `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext `
   --output-dir Data/Migrations
 ```
@@ -1011,8 +1011,8 @@ dotnet ef migrations add AddExternalLoginAccounts `
 Apply pending migrations to the configured local SQLite database:
 ```bash
 dotnet ef database update `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext
 ```
 This creates or updates the local SQLite database using the `TemplateDatabase` connection string resolved by the startup project.
@@ -1021,15 +1021,15 @@ This creates or updates the local SQLite database using the `TemplateDatabase` c
 List available migrations:
 ```bash
 dotnet ef migrations list `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext
 ```
 Generate a SQL script for review:
 ```bash
 dotnet ef migrations script `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext
   --output migration.sql
 ```
@@ -1038,8 +1038,8 @@ Migration commands use the startup project to resolve configuration.
 
 For this template, that means the connection string comes from:
 ```bash
-src/Template.Web/appsettings.json
-src/Template.Web/appsettings.{Environment}.json
+src/ProjectTemplate.Web/appsettings.json
+src/ProjectTemplate.Web/appsettings.{Environment}.json
 user secrets
 environment variables
 other configured providers
@@ -1091,8 +1091,8 @@ __5.__ Confirm the application version and database schema are compatible.
 Example script generation command:
 ```bash
 dotnet ef migrations script `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext `
   --idempotent `
   --output migration.sql
@@ -1105,8 +1105,8 @@ A common local development flow is:
 dotnet restore
 dotnet build --configuration Release
 dotnet ef database update `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
   --context TemplateDbContext
 dotnet test --configuration Release
 ```
@@ -1123,12 +1123,12 @@ If the startup project cannot be built, run:
 ```bash
 dotnet build --configuration Release
 ```
-If the connection string cannot be found, confirm that `ConnectionStrings:TemplateDatabase` exists in the startup project configuration.
+If the connection string cannot be found, confirm that `ConnectionStrings:ApplicationDatabase` exists in the startup project configuration.
 
 If migrations are not discovered, confirm that the command uses:
 ```bash
---project src/Template.Infrastructure
---startup-project src/Template.Web
+--project src/ProjectTemplate.Infrastructure
+--startup-project src/ProjectTemplate.Web
 --context TemplateDbContext
 ```
 If SQLite provider configuration fails, confirm that the infrastructure project references the SQLite provider package and that the data access registration uses the configured TemplateDatabase connection string.
@@ -1179,27 +1179,45 @@ The template uses strongly typed options classes for template-owned configuratio
 
 Validated configuration areas include:
 
-- `Template:SecurityHeaders`
-- `Template:ForwardedHeaders`
-- `Template:RateLimiting`
+- `ProjectTemplate:SecurityHeaders`
+- `ProjectTemplate:ForwardedHeaders`
+- `ProjectTemplate:RateLimiting`
 
 Invalid startup-sensitive values fail application startup rather than being silently corrected. This helps catch unsafe or malformed production configuration before the application begins serving requests.
 
 ## Template Packaging
 
-This section will document how the project will eventually be packaged as a reusable template.
+This repository includes an initial `dotnet new` template scaffold.
 
-Planned areas:
+The scaffold allows the repository to be installed locally as a project template and used to generate a new application from the current source structure.
 
-- .template.config setup.
-- Template parameters.
-- Project naming replacements.
-- Optional modules.
-- Authentication provider variants.
-- Database provider variants.
-- Local installation.
-- Template testing.
-- Publishing strategy.
+### Install the Template Locally
+
+From the repository root:
+
+```bash
+dotnet new install .\
+```
+On Linux or macOS:
+```bash
+dotnet new install ./
+```
+### Create a New Project from the Template
+From a separate working directory:
+```bash
+dotnet new cavell-netcoreapp -n ContosoSecurityPortal
+```
+_For the initial template scaffold, use a project name that is also a valid C# identifier, such as `ContosoSecurityPortal`. Dotted project names require additional template symbol handling so namespace replacement and type-name replacement can be handled separately._
+
+This creates a new project using ContosoSecurityPortal as the replacement name for the source template namespace and project prefix.
+### Build the Generated Project
+```bash
+cd ContosoSecurityPortal
+dotnet build
+dotnet test
+```
+
+
 
 ## Development Environment
 
@@ -1229,9 +1247,9 @@ Planned setup steps:
 
 ## Testing
 
-The repository includes automated tests under `tests/Template.Web.Tests`.
+The repository includes automated tests under `tests/ProjectTemplate.Web.Tests`.
 
-The test project uses `WebApplicationFactory<Program>` to start the real `Template.Web`
+The test project uses `WebApplicationFactory<Program>` to start the real `ProjectTemplate.Web`
 application pipeline in memory. Tests can override configuration through in-memory
 settings and can register test-only MVC controllers from the test assembly.
 

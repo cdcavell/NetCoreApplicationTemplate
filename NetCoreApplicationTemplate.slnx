@@ -4,10 +4,10 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Template.Infrastructure/Template.Infrastructure.csproj" />
-    <Project Path="src/Template.Web/Template.Web.csproj" Id="1e92d402-e410-4f7f-8483-de6af17d61a2" />
+    <Project Path="src/ProjectTemplate.Infrastructure/ProjectTemplate.Infrastructure.csproj" />
+    <Project Path="src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/Template.Web.Tests/Template.Web.Tests.csproj" />
+    <Project Path="tests/ProjectTemplate.Web.Tests/ProjectTemplate.Web.Tests.csproj" />
   </Folder>
 </Solution>

@@ -3,6 +3,9 @@
     <File Path="ASSETS-LICENSES.md" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/migration.sql" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ProjectTemplate.Infrastructure/ProjectTemplate.Infrastructure.csproj" />
     <Project Path="src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" />

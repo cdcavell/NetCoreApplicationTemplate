@@ -6,7 +6,7 @@
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
 
-A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
+A reusable, production-oriented .NET application application designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
 This project is intended to serve as a starting point for applications that need a consistent foundation for middleware ordering, logging, security headers, proxy support, rate limiting, centralized error handling, authentication integration, data access, and future template packaging.
 
@@ -85,7 +85,7 @@ The generated project documentation is published with DocFX and GitHub Pages:
 
 ## Application Architecture
 
-This section will describe the high-level architecture of the template application.
+This section will describe the high-level architecture of the application.
 
 Planned areas:
 
@@ -100,7 +100,7 @@ Planned areas:
 
 ## Middleware Pipeline
 
-This section will document the standard middleware order used by the template.
+This section will document the standard middleware order used by the application.
 
 Planned areas:
 
@@ -120,32 +120,32 @@ Planned areas:
 
 ## Logging
 
-This template uses Serilog for structured application logging.
+This application uses Serilog for structured application logging.
 
 Serilog is configured as the primary logging provider so that application events, startup events, errors, and HTTP request activity are written using a consistent structured format.
 
 #### Bootstrap Logging
 The application logs a bootstrap message when the web application begins provider configuration:
 ```csharp
-Log.Information("Bootstrapping Template.Web application");
+Log.Information("Bootstrapping ProjectTemplate.Web application");
 ```
 
 #### Startup Logging
 The application logs a startup message when the web application begins initialization:
 ```csharp
-Log.Information("Starting Template.Web application");
+Log.Information("Starting ProjectTemplate.Web application");
 ```
 
 #### Pipline Logging 
 The application logs a startup message when the web application begins configuring the middleware pipeline:
 ```csharp
-Log.Information("Configuring pipline for Template.Web application");
+Log.Information("Configuring pipline for ProjectTemplate.Web application");
 ```
 
 #### Runtime Logging
 The application logs a startup message when the web application begins running:
 ```csharp
-Log.Information("Running Template.Web application");
+Log.Information("Running ProjectTemplate.Web application");
 ```
 
 #### Ongoing Application Logging
@@ -167,11 +167,11 @@ Additional logging can be added throughout the application by injecting ILogger<
 #### Bootstrap Exception Logging
 The application logs any exceptions that occur during the bootstrapping process or while configuring the middleware pipeline:
 ```csharp
-Log.Fatal(ex, "Template.Web application terminated unexpectedly");
+Log.Fatal(ex, "ProjectTemplate.Web application terminated unexpectedly");
 ```
 ### Structured Request Logging
 
-The template includes structured HTTP request logging through Serilog.
+The application includes structured HTTP request logging through Serilog.
 
 Request logging records a single completion event for each normal request and includes:
 
@@ -188,15 +188,15 @@ Request logging records a single completion event for each normal request and in
 Request logging is configured through:
 
 ```csharp
-builder.Services.AddTemplateRequestLogging(builder.Configuration);
+builder.Services.AddApplicationRequestLogging(builder.Configuration);
 ```
-And applied through the standard template pipeline:
+And applied through the standard application pipeline:
 ```csharp
-app.UseTemplateRequestLogging();
+app.UseApplicationRequestLogging();
 ```
 Configuration is controlled through `appsettings.json`:
 ```json
-"Template": {
+"ProjectTemplate": {
   "RequestLogging": {
     "Enabled": true,
     "CorrelationHeaderName": "X-Correlation-ID",
@@ -220,12 +220,12 @@ Query string logging is disabled by default because query strings may contain se
 
 ## Error Handling
 
-The template includes centralized error handling for both unhandled exceptions and HTTP status code responses.
+The application includes centralized error handling for both unhandled exceptions and HTTP status code responses.
 
 Error handling is configured through the application pipeline using:
 
 ```csharp
-app.UseTemplateErrorHandling();
+app.UseApplicationErrorHandling();
 ```
 The error handling behavior is environment-aware:
 
@@ -275,7 +275,7 @@ Error handling logs include:
 - Request ID.
 - Exception details for unhandled exceptions.
 
-Log event IDs are centralized in TemplateLogEventIds to keep application logging consistent.
+Log event IDs are centralized in ApplicationLogEventIds to keep application logging consistent.
 
 ### Centralized Problem Details Error Handling
 
@@ -297,20 +297,20 @@ Unhandled exceptions are logged centrally and converted into safe Problem Detail
 
 ## Security Headers
 
-The template includes configurable security header middleware that applies common HTTP response headers to help reduce browser-based attack surface. The middleware is registered through the template extension pattern so `Program.cs` can remain clean and minimal.
+The application includes configurable security header middleware that applies common HTTP response headers to help reduce browser-based attack surface. The middleware is registered through the application extension pattern so `Program.cs` can remain clean and minimal.
 
 Security headers are registered during service configuration:
 
 ```csharp
-builder.Services.AddTemplateSecurityHeaders(builder.Configuration);
+builder.Services.AddApplicationSecurityHeaders(builder.Configuration);
 ```
-They are applied through the standard template pipeline:
+They are applied through the standard application pipeline:
 ```csharp
-app.UseTemplatePipeline();
+app.UseApplicationPipeline();
 ```
 The pipeline calls:
 ```csharp
-app.UseTemplateSecurityHeaders();
+app.UseApplicationSecurityHeaders();
 ```
 ### Default Headers
 
@@ -333,7 +333,7 @@ The middleware intentionally does not add `X-XSS-Protection` because that header
 
 Security headers can be configured from `appsettings.json`:
 ```json
-"Template": {
+"ProjectTemplate": {
   "SecurityHeaders": {
     "Enabled": true,
     "EnableContentSecurityPolicy": true,
@@ -363,11 +363,11 @@ Security headers can be configured from `appsettings.json`:
 
 Environment-Specific Behavior
 
-The default configuration is intentionally conservative. Applications created from this template can loosen or override headers in environment-specific settings files such as `appsettings.Development.json`.
+The default configuration is intentionally conservative. Applications created from this application can loosen or override headers in environment-specific settings files such as `appsettings.Development.json`.
 
 For example, a local development configuration may temporarily disable CSP while troubleshooting script or style loading:
 ```json
-"Template": {
+"ProjectTemplate": {
   "SecurityHeaders": {
     "EnableContentSecurityPolicy": false
   }
@@ -407,7 +407,7 @@ The exact CSP and Permissions-Policy values may differ if overridden by configur
 
 ## Forwarded Headers and Proxy Support
 
-The template includes optional forwarded headers support for deployments behind reverse proxies,
+The application includes optional forwarded headers support for deployments behind reverse proxies,
 load balancers, ingress controllers, and hosted infrastructure.
 
 Forwarded headers allow the application to correctly resolve the original client IP address,
@@ -416,7 +416,7 @@ request scheme, and host when traffic is forwarded through another server before
 Configuration is controlled through `appsettings.json`:
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "ForwardedHeaders": {
     "Enabled": true,
     "Headers": [
@@ -432,7 +432,7 @@ Configuration is controlled through `appsettings.json`:
   }
 }
 ```
-By default, the template processes:
+By default, the application processes:
 
 - `X-Forwarded-For`
 - `X-Forwarded-Proto`
@@ -445,16 +445,16 @@ to reduce the risk of host header spoofing.
 
 ## Health Checks
 
-The template includes baseline ASP.NET Core health check endpoints for local development, reverse proxy hosting, load balancers, container platforms, and future deployment scenarios.
+The application includes baseline ASP.NET Core health check endpoints for local development, reverse proxy hosting, load balancers, container platforms, and future deployment scenarios.
 
 Health checks are registered during service configuration:
 
 ```csharp
-builder.Services.AddTemplateHealthChecks();
+builder.Services.AddApplicationHealthChecks();
 ```
 The endpoints are mapped during application startup:
 ```csharp
-app.MapTemplateHealthChecks();
+app.MapApplicationHealthChecks();
 ``` 
 ### Default Endpoints
 |Endpoint|Purpose|
@@ -463,7 +463,7 @@ app.MapTemplateHealthChecks();
 |/health/ready|Readiness endpoint intended for dependency-aware checks such as database, cache, or external service availability.|
 |/health/live|Liveness endpoint intended to verify that the application process can respond.|
 
-The baseline template does not yet register database or external dependency checks. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
+The baseline application does not yet register database or external dependency checks. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
 
 Example future readiness check:
 ```csharp
@@ -502,14 +502,14 @@ dotnet test
 ```
 ## Rate Limiting
 
-The template includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.
+The application includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.
 
-Rate limiting is registered through the template service extension:
+Rate limiting is registered through the application service extension:
 
 ```csharp
-builder.Services.AddTemplateRateLimiting(builder.Configuration, builder.Environment);
+builder.Services.AddApplicationRateLimiting(builder.Configuration, builder.Environment);
 ```
-The middleware is applied in the standard template pipeline:
+The middleware is applied in the standard application pipeline:
 ```csharp
 app.UseRateLimiter();
 ```
@@ -517,7 +517,7 @@ app.UseRateLimiter();
 
 ### Default Behavior
 
-The template supports:
+The application supports:
 
 - A global fixed-window limiter for baseline request protection.
 - A named fixed-window policy for endpoint-specific use.
@@ -537,7 +537,7 @@ Configuration
 
 Rate limiting values can be configured from `appsettings.json`:
 ```json
-"Template": {
+"ProjectTemplate": {
   "RateLimiting": {
     "Enabled": true,
     "GlobalFixedWindow": {
@@ -584,7 +584,7 @@ public class ReportsController : Controller
 ```
 ### Middleware Order
 
-The template pipeline applies rate limiting after routing:
+The application pipeline applies rate limiting after routing:
 ```csharp
 app.UseRouting();
 
@@ -596,9 +596,9 @@ If a future policy depends on the authenticated user identity, rate limiting may
 
 ### Automated Test Strategy
 
-Rate limiting behavior is covered by integration tests under `tests/Template.Web.Tests`.
+Rate limiting behavior is covered by integration tests under `tests/ProjectTemplate.Web.Tests`.
 
-The tests use `WebApplicationFactory<Program>` to boot the real `Template.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
+The tests use `WebApplicationFactory<Program>` to boot the real `ProjectTemplate.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.
 
 This keeps production endpoints unchanged while allowing the tests to verify:
 
@@ -607,23 +607,23 @@ This keeps production endpoints unchanged while allowing the tests to verify:
 - Named concurrency policy behavior.
 - JSON `429 Too Many Requests` rejection responses.
 - Disabled rate limiting behavior.
-- Configuration binding for template rate limiting options.
+- Configuration binding for application rate limiting options.
 
 ## OpenTelemetry
 
-The template includes baseline OpenTelemetry support for tracing and metrics.
+The application includes baseline OpenTelemetry support for tracing and metrics.
 
 OpenTelemetry is registered through:
 
 ```csharp
-builder.Services.AddTemplateOpenTelemetry(builder.Configuration, builder.Environment);
+builder.Services.AddApplicationOpenTelemetry(builder.Configuration, builder.Environment);
 ```
 Configuration is controlled through `appsettings.json`:
 ```json
-"Template": {
+"ProjectTemplate": {
   "OpenTelemetry": {
     "Enabled": true,
-    "ServiceName": "Template.Web",
+    "ServiceName": "ProjectTemplate.Web",
     "ServiceVersion": "0.1.3",
     "EnableTracing": true,
     "EnableMetrics": true,
@@ -637,7 +637,7 @@ Configuration is controlled through `appsettings.json`:
   }
 }
 ```
-By default, the template collects local tracing and metrics instrumentation but does not export telemetry to an external collector. To enable OTLP export, configure an OTLP endpoint and set `Template:OpenTelemetry:Otlp:Enabled` to `true`.
+By default, the application collects local tracing and metrics instrumentation but does not export telemetry to an external collector. To enable OTLP export, configure an OTLP endpoint and set `ProjectTemplate:OpenTelemetry:Otlp:Enabled` to `true`.
 
 Common local OTLP collector endpoints:
 ```text
@@ -650,26 +650,26 @@ The OTLP exporter can also be configured through standard OpenTelemetry environm
 
 ### Default Authentication Posture
 
-The base template enables the template authentication module and local cookie authentication by default.
+The base application enables the application authentication module and local cookie authentication by default.
 
 By default:
 
-- `Template:Authentication:Enabled` is `true`.
+- `ProjectTemplate:Authentication:Enabled` is `true`.
 - The default authenticate, challenge, and sign-in schemes use `Cookies`.
 - Local cookie authentication is enabled.
 - External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are disabled.
 
 This gives applications a working local authentication baseline while keeping external identity provider integration opt-in.
 
-To enable an external provider, keep template authentication enabled and set only the required provider configuration to enabled. For example, OIDC requires `Template:Authentication:Providers:OpenIdConnect:Enabled` to be set to `true` along with valid authority, client ID, and client secret values.
+To enable an external provider, keep application authentication enabled and set only the required provider configuration to enabled. For example, OIDC requires `ProjectTemplate:Authentication:Providers:OpenIdConnect:Enabled` to be set to `true` along with valid authority, client ID, and client secret values.
 
 ### OpenID Connect
 
-The template includes standards-based OpenID Connect authentication support.
-External OIDC provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
+The application includes standards-based OpenID Connect authentication support.
+External OIDC provider integration is disabled by default. To enable it, configure the `ProjectTemplate:Authentication` section and set both authentication and the OpenID Connect provider to enabled.
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authentication": {
     "Enabled": true,
     "DefaultScheme": "Cookies",
@@ -700,10 +700,10 @@ _Do not commit real client secrets to source control. Use user secrets, environm
 
 ### SAML2
 
-The template includes standards-based SAML2 authentication support.
-External SAML2 provider integration is disabled by default. To enable it, configure the `Template:Authentication` section and set both authentication and the Saml2 provider to enabled.
+The application includes standards-based SAML2 authentication support.
+External SAML2 provider integration is disabled by default. To enable it, configure the `ProjectTemplate:Authentication` section and set both authentication and the Saml2 provider to enabled.
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authentication": {
     "Enabled": true,
     "DefaultScheme": "Cookies",
@@ -729,16 +729,16 @@ _Do not commit real certificates, private keys, or real IdP metadata to source c
 
 ### Microsoft External Provider
 
-The template includes Microsoft external authentication support through `Microsoft.AspNetCore.Authentication.MicrosoftAccount`.
+The application includes Microsoft external authentication support through `Microsoft.AspNetCore.Authentication.MicrosoftAccount`.
 
 The Microsoft provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:Microsoft:Enabled`
+`ProjectTemplate:Authentication:Providers:Microsoft:Enabled`
 
 is set to `true`.
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authentication": {
     "Enabled": true,
     "DefaultScheme": "Cookies",
@@ -761,16 +761,16 @@ is set to `true`.
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 ### Google External Provider
 
-The template includes Google external authentication support through `Microsoft.AspNetCore.Authentication.Google`.
+The application includes Google external authentication support through `Microsoft.AspNetCore.Authentication.Google`.
 
 The Google provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:Google:Enabled`
+`ProjectTemplate:Authentication:Providers:Google:Enabled`
 
 is set to `true`.
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authentication": {
     "Enabled": true,
     "DefaultScheme": "Cookies",
@@ -796,16 +796,16 @@ is set to `true`.
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
 ### GitHub External Provider
-The template includes Google external authentication support through `AspNet.Security.OAuth.GitHub`.
+The application includes Google external authentication support through `AspNet.Security.OAuth.GitHub`.
 
 The GitHub provider is disabled by default and only registers when:
 
-`Template:Authentication:Providers:GitHub:Enabled`
+`ProjectTemplate:Authentication:Providers:GitHub:Enabled`
 
 is set to `true`.
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authentication": {
     "Enabled": true,
     "DefaultScheme": "Cookies",
@@ -834,7 +834,7 @@ _Do not commit real client IDs, client secrets, certificates, tokens, or provide
 
 Authentication provider configuration is validated during application startup.
 
-Provider-specific values are only required when that provider is enabled. Disabled providers may keep placeholder or empty values so the base template remains safe to run without external identity-provider setup.
+Provider-specific values are only required when that provider is enabled. Disabled providers may keep placeholder or empty values so the base application remains safe to run without external identity-provider setup.
 
 When a provider is enabled, startup validation fails fast if required values are missing. Validation messages identify the missing configuration key, but do not log configured secret values.
 
@@ -850,7 +850,7 @@ This prevents partially configured authentication providers from failing later d
 
 ### Baseline Authentication Endpoints
 
-The template provides minimal account and external authentication endpoints:
+The application provides minimal account and external authentication endpoints:
 
 | Endpoint | Purpose |
 |---|---|
@@ -865,14 +865,14 @@ Return URLs are validated as local URLs before redirecting to avoid open redirec
 
 ### External Social Provider Strategy and OpenIddict Client Evaluation
 
-The template currently uses provider-specific ASP.NET Core authentication handlers for Microsoft, Google, and GitHub. This keeps the implementation simple, scheme-based, and consistent with the existing authentication module structure.
+The application currently uses provider-specific ASP.NET Core authentication handlers for Microsoft, Google, and GitHub. This keeps the implementation simple, scheme-based, and consistent with the existing authentication module structure.
 
-Current provider-specific packages remain supported and are the active implementation path for this template. They are disabled by default, registered only when enabled, validated during startup, and configured through:
+Current provider-specific packages remain supported and are the active implementation path for this application. They are disabled by default, registered only when enabled, validated during startup, and configured through:
 
 ```text
-Template:Authentication:Providers:Microsoft
-Template:Authentication:Providers:Google
-Template:Authentication:Providers:GitHub
+ProjectTemplate:Authentication:Providers:Microsoft
+ProjectTemplate:Authentication:Providers:Google
+ProjectTemplate:Authentication:Providers:GitHub
 ```
 OpenIddict Client was evaluated as a future external social provider architecture. OpenIddict Client provides a broader OAuth 2.0/OpenID Connect client stack with web-provider integrations for many external providers, including GitHub, Microsoft, and Google. It also provides stronger long-term capabilities such as OpenID Connect support, stateful client behavior, replay protections, discovery support, token introspection/revocation support, and resilient backchannel behavior.
 
@@ -886,51 +886,51 @@ However, adopting OpenIddict Client would be an architectural migration rather t
 - Existing tests and documentation.
 - Compatibility with Microsoft, Google, GitHub, and future providers.
 
-OpenIddict Client may be implemented as the preferred candidate for a future broader social-provider architecture if the template later needs a unified OAuth/OIDC client model across many providers or advanced token-handling features.
+OpenIddict Client may be implemented as the preferred candidate for a future broader social-provider architecture if the application later needs a unified OAuth/OIDC client model across many providers or advanced token-handling features.
 
 Any future migration would be handled through a dedicated implementation issue and should preserve the existing working Microsoft, Google, and GitHub behavior until a replacement path is fully tested.
 
 ### Claims Transformation and Normalization
 
-The template includes an optional claims transformation layer that normalizes provider-specific claims into template-owned claim names.
+The application includes an optional claims transformation layer that normalizes provider-specific claims into application-owned claim names.
 
 External identity providers often use different claim names for the same concept. For example, one provider may emit `sub`, another may emit `nameidentifier`, and another may use a SAML claim URI. The claims transformation layer allows these inputs to be mapped into consistent application claim names such as:
 
-- `template:subject`
-- `template:name`
-- `template:email`
-- `template:role`
-- `template:group`
-- `template:permission`
+- `application:subject`
+- `application:name`
+- `application:email`
+- `application:role`
+- `application:group`
+- `application:permission`
 
-Original provider claims are preserved by default. They are only removed when `Template:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
+Original provider claims are preserved by default. They are only removed when `ProjectTemplate:Authentication:ClaimsTransformation:RemoveOriginalClaims` is explicitly set to `true`.
 
 ### Role and Permission Authorization Policies
 
-The template includes baseline authorization policy patterns for authenticated users, role-based access, and permission-based access.
+The application includes baseline authorization policy patterns for authenticated users, role-based access, and permission-based access.
 
 Default policy names:
 
 | Policy | Purpose |
 |---|---|
-| `Template.AuthenticatedUser` | Requires an authenticated user. |
-| `Template.Role.Administrator` | Requires a normalized role claim. |
-| `Template.Permission.ManageApplication` | Requires a normalized permission claim. |
+| `ProjectTemplate.AuthenticatedUser` | Requires an authenticated user. |
+| `ProjectTemplate.Role.Administrator` | Requires a normalized role claim. |
+| `ProjectTemplate.Permission.ManageApplication` | Requires a normalized permission claim. |
 
 Default normalized claim types:
 
 | Claim Type | Purpose |
 |---|---|
-| `template:role` | Role claim used by role-based policies. |
-| `template:permission` | Permission claim used by permission-based policies. |
+| `application:role` | Role claim used by role-based policies. |
+| `application:permission` | Permission claim used by permission-based policies. |
 
 Configuration example:
 
 ```json
-"Template": {
+"ProjectTemplate": {
   "Authorization": {
-    "RoleClaimType": "template:role",
-    "PermissionClaimType": "template:permission",
+    "RoleClaimType": "application:role",
+    "PermissionClaimType": "application:permission",
     "AdministratorRoles": [
       "Administrator"
     ],
@@ -942,7 +942,7 @@ Configuration example:
 ```
 Example usage:
 ```csharp
-[Authorize(Policy = TemplateAuthorizationPolicyNames.AdministratorRole)]
+[Authorize(Policy = ApplicationAuthorizationPolicyNames.AdministratorRole)]
 public IActionResult AdminOnly()
 {
     return View();
@@ -953,24 +953,24 @@ public IActionResult AdminOnly()
 
 ### EF Core, SQLite, and Database Updates
 
-The template includes an initial EF Core data access foundation using SQLite as the default local development provider.
+The application includes an initial EF Core data access foundation using SQLite as the default local development provider.
 
 SQLite is used as the default development provider because it is lightweight, file-based, and does not require a separate database server.
 
 The SQLite connection string is configured in:
 
 ```text
-src/Template.Web/appsettings.json
+src/ProjectTemplate.Web/appsettings.json
 ```
 The default connection string uses a local SQLite database file:
 ```json
 "ConnectionStrings": {
-  "TemplateDatabase": "Data Source=template-dev.db"
+  "ApplicationDatabase": "Data Source=application-dev.db"
 }
 ```
 SQLite is used as the default development provider because it is lightweight, file-based, and does not require a separate database server.
 
-EF Core migrations are stored in the infrastructure project because `Template.Infrastructure` owns the `TemplateDbContext`, entities, and EF Core configuration.
+EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `ApplicationDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
 
@@ -994,73 +994,73 @@ dotnet tool update --global dotnet-ef
 Create a new migration from the repository root:
 ```bash
 dotnet ef migrations add MigrationName `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext `
   --output-dir Data/Migrations
 ```
 Replace `MigrationName` with a descriptive name, such as:
 ```bash
 dotnet ef migrations add AddExternalLoginAccounts `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext `
   --output-dir Data/Migrations
 ```
 ### Update the Local Database
 Apply pending migrations to the configured local SQLite database:
 ```bash
 dotnet ef database update `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext
 ```
-This creates or updates the local SQLite database using the `TemplateDatabase` connection string resolved by the startup project.
+This creates or updates the local SQLite database using the `ApplicationDatabase` connection string resolved by the startup project.
 
 ### Verify Pending Migrations
 List available migrations:
 ```bash
 dotnet ef migrations list `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext
 ```
 Generate a SQL script for review:
 ```bash
 dotnet ef migrations script `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext
   --output migration.sql
 ```
 ### Connection String Resolution
 Migration commands use the startup project to resolve configuration.
 
-For this template, that means the connection string comes from:
+For this application, that means the connection string comes from:
 ```bash
-src/Template.Web/appsettings.json
-src/Template.Web/appsettings.{Environment}.json
+src/ProjectTemplate.Web/appsettings.json
+src/ProjectTemplate.Web/appsettings.{Environment}.json
 user secrets
 environment variables
 other configured providers
 ```
-By default, the template resolves:
+By default, the application resolves:
 ```bash
-ConnectionStrings:TemplateDatabase
+ConnectionStrings:ProjectTemplateDatabase
 ```
 For local development, the default SQLite value is:
 ```bash
-Data Source=template-dev.db
+Data Source=application-dev.db
 ```
 Applications can override this value through normal ASP.NET Core configuration sources.
 
 For example, an environment variable can override the connection string:
 ```bash
-ConnectionStrings__TemplateDatabase=Data Source=custom-template-dev.db
+ConnectionStrings__ApplicationDatabase=Data Source=custom-application-dev.db
 ```
 ### Automatic Startup Migrations
 
-The template does not automatically run EF Core migrations during application startup.
+The application does not automatically run EF Core migrations during application startup.
 
 This is intentional.
 
@@ -1091,9 +1091,9 @@ __5.__ Confirm the application version and database schema are compatible.
 Example script generation command:
 ```bash
 dotnet ef migrations script `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext `
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext `
   --idempotent `
   --output migration.sql
 ```
@@ -1105,9 +1105,9 @@ A common local development flow is:
 dotnet restore
 dotnet build --configuration Release
 dotnet ef database update `
-  --project src/Template.Infrastructure `
-  --startup-project src/Template.Web `
-  --context TemplateDbContext
+  --project src/ProjectTemplate.Infrastructure `
+  --startup-project src/ProjectTemplate.Web `
+  --context ApplicationDbContext
 dotnet test --configuration Release
 ```
 To recreate the local SQLite database from scratch, stop the application, delete the local `.db` file, and run `dotnet ef database update` again.
@@ -1123,22 +1123,22 @@ If the startup project cannot be built, run:
 ```bash
 dotnet build --configuration Release
 ```
-If the connection string cannot be found, confirm that `ConnectionStrings:TemplateDatabase` exists in the startup project configuration.
+If the connection string cannot be found, confirm that `ConnectionStrings:ApplicationDatabase` exists in the startup project configuration.
 
 If migrations are not discovered, confirm that the command uses:
 ```bash
---project src/Template.Infrastructure
---startup-project src/Template.Web
---context TemplateDbContext
+--project src/ProjectTemplate.Infrastructure
+--startup-project src/ProjectTemplate.Web
+--context ApplicationDbContext
 ```
-If SQLite provider configuration fails, confirm that the infrastructure project references the SQLite provider package and that the data access registration uses the configured TemplateDatabase connection string.
+If SQLite provider configuration fails, confirm that the infrastructure project references the SQLite provider package and that the data access registration uses the configured ApplicationDatabase connection string.
 
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 SQLite remains the default development provider. SQL Server can be selected through configuration. Because EF Core migrations are provider-specific, production SQL Server deployments should generate and maintain SQL Server-compatible migrations before applying database updates.
 
 ### External Login Account Linking Persistence
 
-The template includes an optional EF Core persistence model for applications that need to link external provider identities to local application users.
+The application includes an optional EF Core persistence model for applications that need to link external provider identities to local application users.
 
 This is different from claims-only sign-in.
 
@@ -1175,17 +1175,17 @@ Planned areas:
 
 ## Configuration Validation
 
-The template uses strongly typed options classes for template-owned configuration under the `Template` section.
+The application uses strongly typed options classes for application-owned configuration under the `ProjectTemplate` section.
 
 Validated configuration areas include:
 
-- `Template:SecurityHeaders`
-- `Template:ForwardedHeaders`
-- `Template:RateLimiting`
+- `ProjectTemplate:SecurityHeaders`
+- `ProjectTemplate:ForwardedHeaders`
+- `ProjectTemplate:RateLimiting`
 
 Invalid startup-sensitive values fail application startup rather than being silently corrected. This helps catch unsafe or malformed production configuration before the application begins serving requests.
 
-## Template Packaging
+## Application Packaging
 
 This section will document how the project will eventually be packaged as a reusable template.
 
@@ -1198,7 +1198,7 @@ Planned areas:
 - Authentication provider variants.
 - Database provider variants.
 - Local installation.
-- Template testing.
+- Application testing.
 - Publishing strategy.
 
 ## Development Environment
@@ -1229,9 +1229,9 @@ Planned setup steps:
 
 ## Testing
 
-The repository includes automated tests under `tests/Template.Web.Tests`.
+The repository includes automated tests under `tests/ProjectTemplate.Web.Tests`.
 
-The test project uses `WebApplicationFactory<Program>` to start the real `Template.Web`
+The test project uses `WebApplicationFactory<Program>` to start the real `ProjectTemplate.Web`
 application pipeline in memory. Tests can override configuration through in-memory
 settings and can register test-only MVC controllers from the test assembly.
 
@@ -1268,7 +1268,7 @@ The initial line coverage threshold is:
 ```text
 60%
 ```
-This threshold is intentionally modest while the template is still growing. It should be raised over time as additional modules, data access features, authentication providers, and template packaging tests are added.
+This threshold is intentionally modest while the application is still growing. It should be raised over time as additional modules, data access features, authentication providers, and application packaging tests are added.
 
 
 ## Git Workflow
@@ -1290,7 +1290,7 @@ Recommended commit style:
 
 ```
 Add initial repository attributes #<issue-number>
-Add template README scaffold #<issue-number>
+Add application README scaffold #<issue-number>
 Implement security header middleware #<issue-number>
 Configure Serilog request logging #<issue-number>
 Add EF Core SQLite provider #<issue-number>
@@ -1344,7 +1344,7 @@ Initial planned milestones:
 - [x]  Add OIDC support.
 - [x]  Add SAML2 support.
 - [x]  Add external provider support.
-- [ ]  Add template packaging.
+- [x]  Add template packaging.
 - [x]  Add GitHub workflows.
 - [x]  Add documentation.
 

@@ -23,9 +23,9 @@ The template is designed as a production-oriented starting point for ASP.NET Cor
 Use this documentation as the detailed reference. The root `README.md` provides the project summary and quick-start information.
 ## Documentation Areas
 
-- [__Getting Started__](articles/getting-started.md)
-- [__Project Structure__](articles/project-structure.md)
-- [__Configuration__](articles/configuration.md)
+- [Getting Started](articles/getting-started.md)
+- [Project Structure](articles/project-structure.md)
+- [Configuration](articles/configuration.md)
 - __Middleware__
   - [Middleware Pipeline](articles/middleware.md)
   - [Error Handling](articles/error-handling.md)
@@ -39,6 +39,6 @@ Use this documentation as the detailed reference. The root `README.md` provides 
 - __Authentication and Authorization__
   - [Authentication](articles/authentication.md)
   - [Authorization](articles/authorization.md)
-- [__Data Access__](articles/data-access.md)
-- [__GitHub Workflow__](articles/github-workflow.md)
-- [__Template Packaging__](articles/template-packaging.md)
+- [Data Access](articles/data-access.md)
+- [GitHub Workflow](articles/github-workflow.md)
+- [Template Packaging](articles/template-packaging.md)

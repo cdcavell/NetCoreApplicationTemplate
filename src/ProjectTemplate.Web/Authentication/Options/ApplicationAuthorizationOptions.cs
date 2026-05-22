@@ -23,7 +23,7 @@ public sealed class ApplicationAuthorizationOptions
     /// <summary>
     /// Gets or sets the role values that satisfy the administrator authorization policy.
     /// </summary>
-    public string[] AdministratorRoles { get; set; } = ["Administrator"];
+    public string[] AdministratorRoles { get; set; } = ["administrator"];
 
     /// <summary>
     /// Gets or sets the permission values that satisfy the manage application authorization policy.

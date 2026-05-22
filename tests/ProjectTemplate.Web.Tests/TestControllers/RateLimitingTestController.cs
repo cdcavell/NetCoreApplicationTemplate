@@ -20,7 +20,7 @@ public sealed class RateLimitingTestController : ControllerBase
     /// Handles HTTP GET requests for the 'fixed' endpoint and returns a fixed result response.
     /// </summary>
     /// <remarks>This endpoint is rate-limited according to the 'Fixed' policy defined in <see
-    /// cref="RateLimitingPolicyNames.Fixed"/>.</remarks>
+    /// cref="ApplicationRateLimitingPolicyNames.Fixed"/>.</remarks>
     /// <returns>An <see cref="IActionResult"/> containing a JSON object with a 'result' property set to "fixed".</returns>
     [HttpGet("fixed")]
     [EnableRateLimiting(ApplicationRateLimitingPolicyNames.Fixed)]

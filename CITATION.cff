@@ -1,0 +1,18 @@
+cff-version: 0.4.0
+message: "If you use this software, please cite it using the metadata below."
+title: "NetCoreApplicationTemplate"
+authors:
+  - family-names: "Cavell"
+    given-names: "Christopher D."
+    orcid: "https://orcid.org/0009-0002-2113-0245"
+abstract: "A reusable ASP.NET Core application template for secure, maintainable, production-oriented .NET applications."
+type: software
+license: MIT
+repository-code: "https://github.com/cdcavell/NetCoreApplicationTemplate"
+url: "https://cdcavell.github.io/NetCoreApplicationTemplate/"
+keywords:
+  - aspnetcore
+  - dotnet
+  - application-template
+  - security
+  - software-architecture

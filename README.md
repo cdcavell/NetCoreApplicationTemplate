@@ -64,7 +64,7 @@ dotnet run --project src/ProjectTemplate.Web
 Detailed documentation is maintained in the `docs` folder and published with DocFX.
 - [Documentation source](docs/index.md)
 - [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-- [API reference](https://cdcavell.github.io/NetCoreApplicationTemplate/api/ProjectTemplate.Infrastructure.Data.html)
+- Generated API reference is available through the published documentation navigation.
 
 Documentation areas include:
 - [Getting Started](docs/articles/getting-started.md)
@@ -83,7 +83,7 @@ Documentation areas include:
 - [Data Access](docs/articles/data-access.md)
 - [GitHub Workflow](docs/articles/github-workflow.md)
 - [Template Packaging](docs/articles/template-packaging.md)
-- 
+
 ## Repository Structure
 ```text
 /
@@ -134,7 +134,7 @@ The repository includes GitHub Actions workflows for:
 - Generating coverage reports
 - Running CodeQL analysis
 - Building and publishing DocFX documentation
-See [GitHub Workflow](docs/github-workflow.md) for details.
+See [GitHub Workflow](docs/articles/github-workflow.md) for details.
 
 ## Versioning
 This project follows Semantic Versioning using the format:
@@ -146,7 +146,7 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Roadmap
 The project is being developed toward a reusable .NET application template. Future work may include additional provider modules, stronger packaging support, template parameterization, expanded examples, and release-ready template distribution.
 
-See [Template Packaging](docs/template-packaging.md) for the current packaging direction.
+See [Template Packaging](docs/articles/template-packaging.md) for the current packaging direction.
 
 ## License
 

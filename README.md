@@ -67,23 +67,23 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 - [API reference](https://cdcavell.github.io/NetCoreApplicationTemplate/api/ProjectTemplate.Infrastructure.Data.html)
 
 Documentation areas include:
-- [Getting Started](docs/getting-started.md)
-- [Project Structure](docs/project-structure.md)
-- [Configuration](docs/configuration.md)
-- [Middleware Pipeline](docs/middleware-pipeline.md)
-- [Logging](docs/logging.md)
-- [Error Handling](docs/error-handling.md)
-- [Security Headers](docs/security-headers.md)
-- [Forwarded Headers](docs/forwarded-headers.md)
-- [Rate Limiting](docs/rate-limiting.md)
-- [Health Checks](docs/health-checks.md)
-- [Telemetry](docs/telemetry.md)
-- [Authentication](docs/authentication.md)
-- [Authorization](docs/authorization.md)
-- [Data Access](docs/data-access.md)
-- [GitHub Workflow](docs/github-workflow.md)
-- [Template Packaging](docs/template-packaging.md)
-
+- [Getting Started](docs/articles/getting-started.md)
+- [Project Structure](docs/articles/project-structure.md)
+- [Configuration](docs/articles/configuration.md)
+- [Middleware Pipeline](docs/articles/middleware-pipeline.md)
+- [Logging](docs/articles/logging.md)
+- [Error Handling](docs/articles/error-handling.md)
+- [Security Headers](docs/articles/security-headers.md)
+- [Forwarded Headers](docs/articles/forwarded-headers.md)
+- [Rate Limiting](docs/articles/rate-limiting.md)
+- [Health Checks](docs/articles/health-checks.md)
+- [Telemetry](docs/articles/telemetry.md)
+- [Authentication](docs/articles/authentication.md)
+- [Authorization](docs/articles/authorization.md)
+- [Data Access](docs/articles/data-access.md)
+- [GitHub Workflow](docs/articles/github-workflow.md)
+- [Template Packaging](docs/articles/template-packaging.md)
+- 
 ## Repository Structure
 ```text
 /

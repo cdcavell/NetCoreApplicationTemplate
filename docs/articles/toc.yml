@@ -1,0 +1,49 @@
+- name: Documentation Home
+  href: index.md
+
+- name: Getting Started
+  href: getting-started.md
+
+- name: Project Structure
+  href: project-structure.md
+
+- name: Configuration
+  href: configuration.md
+
+- name: Middleware
+  items:
+    - name: Middleware Pipeline
+      href: middleware.md
+    - name: Error Handling
+      href: error-handling.md
+    - name: Security Headers
+      href: security-headers.md
+    - name: Forwarded Headers
+      href: forwarded-headers.md
+    - name: Rate Limiting
+      href: rate-limiting.md
+    - name: Health Checks
+      href: health-checks.md
+
+- name: Observability
+  items:
+    - name: Logging
+      href: logging.md
+    - name: Telemetry
+      href: telemetry.md
+
+- name: Authentication and Authorization
+  items:
+    - name: Authentication
+      href: authentication.md
+    - name: Authorization
+      href: authorization.md
+
+- name: Data Access
+  href: data-access.md
+
+- name: GitHub Workflow
+  href: github-workflow.md
+
+- name: Template Packaging
+  href: template-packaging.md

@@ -16,10 +16,10 @@ The application logs a startup message when the web application begins initializ
 Log.Information("Starting ProjectTemplate.Web application");
 ```
 
-## Pipline Logging 
+## Pipeline Logging 
 The application logs a startup message when the web application begins configuring the middleware pipeline:
 ```csharp
-Log.Information("Configuring pipline for ProjectTemplate.Web application");
+Log.Information("Configuring pipeline for ProjectTemplate.Web application");
 ```
 
 ## Runtime Logging

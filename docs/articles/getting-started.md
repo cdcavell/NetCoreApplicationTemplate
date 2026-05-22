@@ -38,7 +38,8 @@ dotnet build --configuration Release
 ```bash
 dotnet test
 ```
-Run the Web Application
+
+## Run the Web Application
 ```bash
 dotnet run --project src/ProjectTemplate.Web
 ```

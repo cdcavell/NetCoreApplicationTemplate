@@ -27,7 +27,7 @@ Configuration example:
     "RoleClaimType": "application:role",
     "PermissionClaimType": "application:permission",
     "AdministratorRoles": [
-      "administrator"
+      "Administrator"
     ],
     "ManageApplicationPermissions": [
       "application.manage"

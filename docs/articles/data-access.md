@@ -17,8 +17,6 @@ The default connection string uses a local SQLite database file:
   "ApplicationDatabase": "Data Source=application-dev.db"
 }
 ```
-SQLite is used as the default development provider because it is lightweight, file-based, and does not require a separate database server.
-
 EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `ApplicationDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
@@ -27,21 +25,21 @@ The web project is used as the startup project because it provides application c
 The dotnet ef command requires the EF Core command-line tool.
 
 Check whether the tool is available:
-```bash
+```powershell
 dotnet ef --version
 ```
 If the command is not found, install or update the tool:
-```bash
+```powershell
 dotnet tool install --global dotnet-ef
 ```
 Or update an existing global installation:
-```bash
+```powershell
 dotnet tool update --global dotnet-ef
 ```
 
 ## Add a Migration
 Create a new migration from the repository root:
-```bash
+```powershell
 dotnet ef migrations add MigrationName `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
@@ -49,7 +47,7 @@ dotnet ef migrations add MigrationName `
   --output-dir Data/Migrations
 ```
 Replace `MigrationName` with a descriptive name, such as:
-```bash
+```powershell
 dotnet ef migrations add AddExternalLoginAccounts `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
@@ -58,7 +56,7 @@ dotnet ef migrations add AddExternalLoginAccounts `
 ```
 ## Update the Local Database
 Apply pending migrations to the configured local SQLite database:
-```bash
+```powershell
 dotnet ef database update `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
@@ -68,14 +66,14 @@ This creates or updates the local SQLite database using the `ApplicationDatabase
 
 ## Verify Pending Migrations
 List available migrations:
-```bash
+```powershell
 dotnet ef migrations list `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
   --context ApplicationDbContext
 ```
 Generate a SQL script for review:
-```bash
+```powershell
 dotnet ef migrations script `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
@@ -86,7 +84,7 @@ dotnet ef migrations script `
 Migration commands use the startup project to resolve configuration.
 
 For this application, that means the connection string comes from:
-```bash
+```powershell
 src/ProjectTemplate.Web/appsettings.json
 src/ProjectTemplate.Web/appsettings.{Environment}.json
 user secrets
@@ -94,17 +92,17 @@ environment variables
 other configured providers
 ```
 By default, the application resolves:
-```bash
+```powershell
 ConnectionStrings:ApplicationDatabase
 ```
 For local development, the default SQLite value is:
-```bash
+```powershell
 Data Source=application-dev.db
 ```
 Applications can override this value through normal ASP.NET Core configuration sources.
 
 For example, an environment variable can override the connection string:
-```bash
+```powershell
 ConnectionStrings__ApplicationDatabase=Data Source=custom-application-dev.db
 ```
 ## Automatic Startup Migrations
@@ -138,7 +136,7 @@ __4.__ Apply the migration through a controlled deployment process.
 __5.__ Confirm the application version and database schema are compatible.
 
 Example script generation command:
-```bash
+```powershell
 dotnet ef migrations script `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
@@ -150,7 +148,7 @@ The `--idempotent` option is useful for deployment scenarios where the target da
 
 ## SQLite Development Flow
 A common local development flow is:
-```bash
+```powershell
 dotnet restore
 dotnet build --configuration Release
 dotnet ef database update `
@@ -165,17 +163,17 @@ Only do this for disposable local development databases.
 
 ## Troubleshooting
 If dotnet ef is not recognized, install or update the EF Core CLI tool:
-```bash
+```powershell
 dotnet tool install --global dotnet-ef
 ```
 If the startup project cannot be built, run:
-```bash
+```powershell
 dotnet build --configuration Release
 ```
 If the connection string cannot be found, confirm that `ConnectionStrings:ApplicationDatabase` exists in the startup project configuration.
 
 If migrations are not discovered, confirm that the command uses:
-```bash
+```powershell
 --project src/ProjectTemplate.Infrastructure
 --startup-project src/ProjectTemplate.Web
 --context ApplicationDbContext

@@ -1,5 +1,4 @@
 # Rate Limiting
-
 The application includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.
 
 Rate limiting is registered through the application service extension:
@@ -14,7 +13,6 @@ app.UseRateLimiter();
 `UseRateLimiter()` is intentionally placed after routing so endpoint-specific rate limiting policies can be applied, and before endpoint execution so requests can be rejected before reaching controllers, Razor Pages, or minimal API handlers.
 
 ## Default Behavior
-
 The application supports:
 
 - A global fixed-window limiter for baseline request protection.
@@ -31,13 +29,14 @@ Rejected requests return a response similar to:
   "statusCode": 429
 }
 ```
-Configuration
 
+## Configuration
 Rate limiting values can be configured from `appsettings.json`:
 ```json
 "ProjectTemplate": {
   "RateLimiting": {
     "Enabled": true,
+    "UseGlobalLimiter": true,
     "GlobalFixedWindow": {
       "PermitLimit": 60,
       "WindowSeconds": 60,
@@ -58,7 +57,6 @@ Rate limiting values can be configured from `appsettings.json`:
 These defaults are intentionally conservative and should be reviewed before production use.
 
 ## Endpoint-Specific Policies
-
 Named policies can be applied to specific endpoints when stricter or specialized protection is needed.
 
 Minimal API example:
@@ -93,7 +91,6 @@ app.UseRateLimiter();
 If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
 
 ## Automated Test Strategy
-
 Rate limiting behavior is covered by integration tests under `tests/ProjectTemplate.Web.Tests`.
 
 The tests use `WebApplicationFactory<Program>` to boot the real `ProjectTemplate.Web` pipeline in memory, override rate limiting configuration with in-memory settings, and register a test-only MVC controller from the test assembly.

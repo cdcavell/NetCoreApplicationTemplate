@@ -36,3 +36,9 @@ Required classic PAT scopes:
 - `public_repo` may be sufficient if the repository is public
 
 _A fine-grained PAT may not work for user-owned GitHub Projects._
+
+## Pull Request Expectations
+## Branch Protection
+## CI Validation
+## Documentation Publishing
+## Issue Tracking

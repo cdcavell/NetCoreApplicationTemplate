@@ -13,7 +13,7 @@ Configuration is controlled through `appsettings.json`:
   "OpenTelemetry": {
     "Enabled": true,
     "ServiceName": "ProjectTemplate.Web",
-    "ServiceVersion": "0.1.3",
+    "ServiceVersion": "0.4.0",
     "EnableTracing": true,
     "EnableMetrics": true,
     "EnableAspNetCoreInstrumentation": true,

@@ -21,6 +21,7 @@ The template is designed as a production-oriented starting point for ASP.NET Cor
 - Future packaging as a reusable .NET template
 
 Use this documentation as the detailed reference. The root `README.md` provides the project summary and quick-start information.
+
 ## Documentation Areas
 
 - [Getting Started](articles/getting-started.md)

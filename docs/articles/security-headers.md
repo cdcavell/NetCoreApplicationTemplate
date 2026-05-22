@@ -1,4 +1,4 @@
-## Security Headers
+# Security Headers
 
 The application includes configurable security header middleware that applies common HTTP response headers to help reduce browser-based attack surface. The middleware is registered through the application extension pattern so `Program.cs` can remain clean and minimal.
 
@@ -15,7 +15,7 @@ The pipeline calls:
 ```csharp
 app.UseApplicationSecurityHeaders();
 ```
-### Default Headers
+## Default Headers
 
 By default, the middleware applies the following headers when enabled:
 
@@ -32,7 +32,7 @@ By default, the middleware applies the following headers when enabled:
 
 The middleware intentionally does not add `X-XSS-Protection` because that header is obsolete and can create inconsistent behavior in modern browsers.
 
-### Configuration
+## Configuration
 
 Security headers can be configured from `appsettings.json`:
 ```json
@@ -52,7 +52,7 @@ Security headers can be configured from `appsettings.json`:
 }
 ```
 
-### Configuration Options
+## Configuration Options
 
 |Option|Purpose|
 |:-----|:------|
@@ -64,7 +64,7 @@ Security headers can be configured from `appsettings.json`:
 |`PermissionsPolicy`|Defines the Permissions Policy value.|
 |`ExcludedPathPrefixes`|Skips security header application for matching request path prefixes.|
 
-Environment-Specific Behavior
+## Environment-Specific Behavior
 
 The default configuration is intentionally conservative. Applications created from this application can loosen or override headers in environment-specific settings files such as `appsettings.Development.json`.
 
@@ -78,7 +78,7 @@ For example, a local development configuration may temporarily disable CSP while
 ```
 Production applications should use the strongest policy possible for the deployed application. In particular, production deployments should avoid broad CSP allowances such as `unsafe-inline` where practical and should only allow trusted script, style, image, frame, and connection sources.
 
-### Excluded Paths
+## Excluded Paths
 
 The default excluded paths are:
 ```json
@@ -89,7 +89,7 @@ The default excluded paths are:
 ```
 These paths are commonly used by infrastructure, monitoring tools, or container orchestration systems. Additional paths can be excluded if needed.
 
-### Testing Response Headers
+## Testing Response Headers
 
 Run the application and inspect the response headers from the root endpoint:
 ```bash

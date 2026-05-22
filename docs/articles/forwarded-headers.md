@@ -1,4 +1,4 @@
-## Forwarded Headers and Proxy Support
+# Forwarded Headers and Proxy Support
 
 The application includes optional forwarded headers support for deployments behind reverse proxies,
 load balancers, ingress controllers, and hosted infrastructure.

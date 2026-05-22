@@ -1,4 +1,4 @@
-## Configuration
+# Configuration
 
 This section will document application configuration strategy.
 

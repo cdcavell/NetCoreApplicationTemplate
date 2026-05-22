@@ -1,4 +1,4 @@
-## Rate Limiting
+# Rate Limiting
 
 The application includes baseline ASP.NET Core rate limiting support to help protect applications from accidental request floods, scraping, repeated automated requests, and concurrency-heavy operations.
 
@@ -13,7 +13,7 @@ app.UseRateLimiter();
 ```
 `UseRateLimiter()` is intentionally placed after routing so endpoint-specific rate limiting policies can be applied, and before endpoint execution so requests can be rejected before reaching controllers, Razor Pages, or minimal API handlers.
 
-### Default Behavior
+## Default Behavior
 
 The application supports:
 
@@ -57,7 +57,7 @@ Rate limiting values can be configured from `appsettings.json`:
 ```
 These defaults are intentionally conservative and should be reviewed before production use.
 
-### Endpoint-Specific Policies
+## Endpoint-Specific Policies
 
 Named policies can be applied to specific endpoints when stricter or specialized protection is needed.
 
@@ -80,7 +80,7 @@ public class ReportsController : Controller
 {
 }
 ```
-### Middleware Order
+## Middleware Order
 
 The application pipeline applies rate limiting after routing:
 ```csharp
@@ -92,7 +92,7 @@ app.UseRateLimiter();
 ```
 If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
 
-### Automated Test Strategy
+## Automated Test Strategy
 
 Rate limiting behavior is covered by integration tests under `tests/ProjectTemplate.Web.Tests`.
 

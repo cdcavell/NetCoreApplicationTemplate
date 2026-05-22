@@ -1,34 +1,34 @@
-## Logging
+# Logging
 
 This application uses Serilog for structured application logging.
 
 Serilog is configured as the primary logging provider so that application events, startup events, errors, and HTTP request activity are written using a consistent structured format.
 
-#### Bootstrap Logging
+## Bootstrap Logging
 The application logs a bootstrap message when the web application begins provider configuration:
 ```csharp
 Log.Information("Bootstrapping ProjectTemplate.Web application");
 ```
 
-#### Startup Logging
+## Startup Logging
 The application logs a startup message when the web application begins initialization:
 ```csharp
 Log.Information("Starting ProjectTemplate.Web application");
 ```
 
-#### Pipline Logging 
+## Pipline Logging 
 The application logs a startup message when the web application begins configuring the middleware pipeline:
 ```csharp
 Log.Information("Configuring pipline for ProjectTemplate.Web application");
 ```
 
-#### Runtime Logging
+## Runtime Logging
 The application logs a startup message when the web application begins running:
 ```csharp
 Log.Information("Running ProjectTemplate.Web application");
 ```
 
-#### Ongoing Application Logging
+## Ongoing Application Logging
 While the application is running, structured logs are written for normal application activity, warnings, errors, and HTTP request processing. These logs help provide visibility into the current behavior of the application without requiring a debugger to be attached.
 
 Runtime logging may include:
@@ -44,12 +44,12 @@ The default logging configuration is intended to capture useful operational info
 
 Additional logging can be added throughout the application by injecting ILogger<T> into services, controllers, middleware, or other application components.
 
-#### Bootstrap Exception Logging
+## Bootstrap Exception Logging
 The application logs any exceptions that occur during the bootstrapping process or while configuring the middleware pipeline:
 ```csharp
 Log.Fatal(ex, "ProjectTemplate.Web application terminated unexpectedly");
 ```
-### Structured Request Logging
+## Structured Request Logging
 
 The application includes structured HTTP request logging through Serilog.
 

@@ -1,8 +1,8 @@
-## OpenTelemetry
+# Telemetry
 
-The application includes baseline OpenTelemetry support for tracing and metrics.
+The application includes baseline [OpenTelemetry](https://opentelemetry.io/) support for tracing and metrics.
 
-OpenTelemetry is registered through:
+[OpenTelemetry](https://opentelemetry.io/) is registered through:
 
 ```csharp
 builder.Services.AddApplicationOpenTelemetry(builder.Configuration, builder.Environment);

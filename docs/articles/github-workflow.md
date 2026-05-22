@@ -1,4 +1,4 @@
-## Git Workflow
+# Git Workflow
 
 This project uses Git for local source control with a remote repository hosted on GitHub.
 
@@ -23,7 +23,7 @@ Configure Serilog request logging #<issue-number>
 Add EF Core SQLite provider #<issue-number>
 ```
 
-#### Required Secret
+## Required Secret
 
 This workflow requires a classic GitHub personal access token stored as:
 

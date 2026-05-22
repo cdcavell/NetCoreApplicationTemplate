@@ -1,6 +1,6 @@
-## Authentication
+# Authentication
 
-### Default Authentication Posture
+## Default Authentication Posture
 
 The base application enables the application authentication module and local cookie authentication by default.
 
@@ -50,7 +50,7 @@ External OIDC provider integration is disabled by default. To enable it, configu
 ```
 _Do not commit real client secrets to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
-### SAML2
+## SAML2
 
 The application includes standards-based SAML2 authentication support.
 External SAML2 provider integration is disabled by default. To enable it, configure the `ProjectTemplate:Authentication` section and set both authentication and the Saml2 provider to enabled.
@@ -79,7 +79,7 @@ External SAML2 provider integration is disabled by default. To enable it, config
 ```
 _Do not commit real certificates, private keys, or real IdP metadata to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
-### Microsoft External Provider
+## Microsoft External Provider
 
 The application includes Microsoft external authentication support through `Microsoft.AspNetCore.Authentication.MicrosoftAccount`.
 
@@ -111,7 +111,8 @@ is set to `true`.
 }
 ```
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
-### Google External Provider
+
+## Google External Provider
 
 The application includes Google external authentication support through `Microsoft.AspNetCore.Authentication.Google`.
 
@@ -147,8 +148,8 @@ is set to `true`.
 ```
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
-### GitHub External Provider
-The application includes Google external authentication support through `AspNet.Security.OAuth.GitHub`.
+## GitHub External Provider
+The application includes GitHub external authentication support through `AspNet.Security.OAuth.GitHub`.
 
 The GitHub provider is disabled by default and only registers when:
 
@@ -182,7 +183,7 @@ is set to `true`.
 ```
 _Do not commit real client IDs, client secrets, certificates, tokens, or provider credentials to source control. Use user secrets, environment variables, deployment secrets, or a secure secret store._
 
-### Authentication Provider Startup Validation
+## Authentication Provider Startup Validation
 
 Authentication provider configuration is validated during application startup.
 
@@ -200,7 +201,7 @@ Validated providers include:
 
 This prevents partially configured authentication providers from failing later during runtime login flows.
 
-### Baseline Authentication Endpoints
+## Baseline Authentication Endpoints
 
 The application provides minimal account and external authentication endpoints:
 
@@ -215,7 +216,7 @@ The application provides minimal account and external authentication endpoints:
 
 Return URLs are validated as local URLs before redirecting to avoid open redirect vulnerabilities. Unknown provider schemes are rejected safely. Provider secrets, tokens, cookies, and sensitive query-string values should not be logged.
 
-### External Social Provider Strategy and OpenIddict Client Evaluation
+## External Social Provider Strategy and OpenIddict Client Evaluation
 
 The application currently uses provider-specific ASP.NET Core authentication handlers for Microsoft, Google, and GitHub. This keeps the implementation simple, scheme-based, and consistent with the existing authentication module structure.
 
@@ -242,7 +243,7 @@ OpenIddict Client may be implemented as the preferred candidate for a future bro
 
 Any future migration would be handled through a dedicated implementation issue and should preserve the existing working Microsoft, Google, and GitHub behavior until a replacement path is fully tested.
 
-### Claims Transformation and Normalization
+## Claims Transformation and Normalization
 
 The application includes an optional claims transformation layer that normalizes provider-specific claims into application-owned claim names.
 

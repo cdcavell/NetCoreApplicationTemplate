@@ -1,6 +1,6 @@
-## Data Access
+# Data Access
 
-### EF Core, SQLite, and Database Updates
+## EF Core, SQLite, and Database Updates
 
 The application includes an initial EF Core data access foundation using SQLite as the default local development provider.
 
@@ -23,7 +23,7 @@ EF Core migrations are stored in the infrastructure project because `ProjectTemp
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
 
-### EF Core CLI Tool
+## EF Core CLI Tool
 The dotnet ef command requires the EF Core command-line tool.
 
 Check whether the tool is available:
@@ -39,7 +39,7 @@ Or update an existing global installation:
 dotnet tool update --global dotnet-ef
 ```
 
-### Add a Migration
+## Add a Migration
 Create a new migration from the repository root:
 ```bash
 dotnet ef migrations add MigrationName `
@@ -56,7 +56,7 @@ dotnet ef migrations add AddExternalLoginAccounts `
   --context ApplicationDbContext `
   --output-dir Data/Migrations
 ```
-### Update the Local Database
+## Update the Local Database
 Apply pending migrations to the configured local SQLite database:
 ```bash
 dotnet ef database update `
@@ -66,7 +66,7 @@ dotnet ef database update `
 ```
 This creates or updates the local SQLite database using the `ApplicationDatabase` connection string resolved by the startup project.
 
-### Verify Pending Migrations
+## Verify Pending Migrations
 List available migrations:
 ```bash
 dotnet ef migrations list `
@@ -82,7 +82,7 @@ dotnet ef migrations script `
   --context ApplicationDbContext
   --output migration.sql
 ```
-### Connection String Resolution
+## Connection String Resolution
 Migration commands use the startup project to resolve configuration.
 
 For this application, that means the connection string comes from:
@@ -95,7 +95,7 @@ other configured providers
 ```
 By default, the application resolves:
 ```bash
-ConnectionStrings:ProjectTemplateDatabase
+ConnectionStrings:ApplicationDatabase
 ```
 For local development, the default SQLite value is:
 ```bash
@@ -107,7 +107,7 @@ For example, an environment variable can override the connection string:
 ```bash
 ConnectionStrings__ApplicationDatabase=Data Source=custom-application-dev.db
 ```
-### Automatic Startup Migrations
+## Automatic Startup Migrations
 
 The application does not automatically run EF Core migrations during application startup.
 
@@ -119,7 +119,7 @@ For now, database migration execution should remain an explicit developer or dep
 
 A future issue may add an opt-in startup migration feature for development-only or controlled hosting scenarios, but it should include clear safeguards before being used.
 
-### Recommended Production Posture
+## Recommended Production Posture
 
 Production database updates should be handled outside normal application startup.
 
@@ -148,7 +148,7 @@ dotnet ef migrations script `
 ```
 The `--idempotent` option is useful for deployment scenarios where the target database may already have some migrations applied.
 
-### SQLite Development Flow
+## SQLite Development Flow
 A common local development flow is:
 ```bash
 dotnet restore
@@ -163,7 +163,7 @@ To recreate the local SQLite database from scratch, stop the application, delete
 
 Only do this for disposable local development databases.
 
-### Troubleshooting
+## Troubleshooting
 If dotnet ef is not recognized, install or update the EF Core CLI tool:
 ```bash
 dotnet tool install --global dotnet-ef
@@ -185,7 +185,7 @@ If SQLite provider configuration fails, confirm that the infrastructure project 
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 SQLite remains the default development provider. SQL Server can be selected through configuration. Because EF Core migrations are provider-specific, production SQL Server deployments should generate and maintain SQL Server-compatible migrations before applying database updates.
 
-### External Login Account Linking Persistence
+## External Login Account Linking Persistence
 
 The application includes an optional EF Core persistence model for applications that need to link external provider identities to local application users.
 

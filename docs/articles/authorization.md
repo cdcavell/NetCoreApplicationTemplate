@@ -1,6 +1,6 @@
-## Authorization
+# Authorization
 
-### Role and Permission Authorization Policies
+## Role and Permission Authorization Policies
 
 The application includes baseline authorization policy patterns for authenticated users, role-based access, and permission-based access.
 
@@ -27,7 +27,7 @@ Configuration example:
     "RoleClaimType": "application:role",
     "PermissionClaimType": "application:permission",
     "AdministratorRoles": [
-      "Administrator"
+      "administrator"
     ],
     "ManageApplicationPermissions": [
       "application.manage"

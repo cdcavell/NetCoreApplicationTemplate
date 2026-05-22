@@ -1,4 +1,4 @@
-## Middleware Pipeline
+# Middleware Pipeline
 
 This section will document the standard middleware order used by the application.
 

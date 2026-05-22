@@ -70,7 +70,7 @@ Documentation areas include:
 - [Getting Started](docs/articles/getting-started.md)
 - [Project Structure](docs/articles/project-structure.md)
 - [Configuration](docs/articles/configuration.md)
-- [Middleware Pipeline](docs/articles/middleware-pipeline.md)
+- [Middleware Pipeline](docs/articles/middleware.md)
 - [Logging](docs/articles/logging.md)
 - [Error Handling](docs/articles/error-handling.md)
 - [Security Headers](docs/articles/security-headers.md)

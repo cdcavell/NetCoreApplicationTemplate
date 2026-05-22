@@ -1,0 +1,38 @@
+@model ProjectTemplate.Web.Models.AccountLoginViewModel
+
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<h1>Sign In</h1>
+
+<p>
+    Select an external authentication provider to continue.
+</p>
+
+@if (Model.ExternalProviders.Count == 0)
+{
+    <p>
+        No external authentication providers are currently configured.
+    </p>
+}
+else
+{
+    <ul>
+        @foreach (ProjectTemplate.Web.Models.ExternalAuthenticationProviderViewModel provider in Model.ExternalProviders)
+        {
+            <li>
+                <a href="@Url.Action(
+                    "Challenge",
+                    "External",
+                    new
+                    {
+                        provider = provider.Scheme,
+                        returnUrl = Model.ReturnUrl
+                    })">
+                    Sign in with @provider.DisplayName
+                </a>
+            </li>
+        }
+    </ul>
+}

@@ -64,7 +64,7 @@ dotnet run --project src/ProjectTemplate.Web
 Detailed documentation is maintained in the `docs` folder and published with DocFX.
 - [Documentation source](docs/index.md)
 - [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-- [API reference](https://cdcavell.github.io/NetCoreApplicationTemplate/api/)
+- [API reference](https://cdcavell.github.io/NetCoreApplicationTemplate/api/ProjectTemplate.Infrastructure.Data.html)
 
 Documentation areas include:
 - [Getting Started](docs/getting-started.md)

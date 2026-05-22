@@ -14,33 +14,33 @@ Install the following tools before working with the repository:
 
 ## Clone the Repository
 
-```bash
+```powershell
 git clone https://github.com/cdcavell/NetCoreApplicationTemplate.git
 cd NetCoreApplicationTemplate
 ```
 
 ## Restore Dependencies
-```bash
+```powershell
 dotnet restore
 ```
 
 ## Build the Solution
-```bash
+```powershell
 dotnet build
 ```
 
 For the same configuration used by CI:
-```bash
+```powershell
 dotnet build --configuration Release
 ```
 
 ## Run Tests
-```bash
+```powershell
 dotnet test
 ```
 
 ## Run the Web Application
-```bash
+```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
 The application uses the configuration from `src/ProjectTemplate.Web/appsettings.json` and environment-specific configuration when present.
@@ -57,19 +57,19 @@ Database migrations are handled explicitly through EF Core CLI commands. The app
 
 ## Build Documentation Locally
 Restore local tools:
-```bash
+```powershell
 dotnet tool restore
 ```
 Build the DocFX site:
-```bash
+```powershell
 dotnet tool run docfx -- docs/docfx.json
 ```
 Serve the generated site locally:
-```bash
+```powershell
 dotnet tool run docfx -- serve docs/_site
 ```
 The local documentation site is usually available at:
-```bash
+```powershell
 http://localhost:8080
 ```
 

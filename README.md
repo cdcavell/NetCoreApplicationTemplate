@@ -40,49 +40,52 @@ The template focuses on:
 
 Clone the repository:
 
-```bash
+```powershell
 git clone https://github.com/cdcavell/NetCoreApplicationTemplate.git
 cd NetCoreApplicationTemplate
 ```
 Restore dependencies:
-```bash
+```powershell
 dotnet restore
 ```
 Build the solution:
-```bash
+```powershell
 dotnet build
 ```
 Run tests:
-```bash
+```powershell
 dotnet test
 ```
 Run the web application:
-```bash
+```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
 ## Documentation
+
 Detailed documentation is maintained in the `docs` folder and published with DocFX.
+
 - [Documentation source](docs/index.md)
 - [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 - Generated API reference is available through the published documentation navigation.
 
 Documentation areas include:
-- [Getting Started](docs/articles/getting-started.md)
-- [Project Structure](docs/articles/project-structure.md)
-- [Configuration](docs/articles/configuration.md)
-- [Middleware Pipeline](docs/articles/middleware.md)
-- [Logging](docs/articles/logging.md)
-- [Error Handling](docs/articles/error-handling.md)
-- [Security Headers](docs/articles/security-headers.md)
-- [Forwarded Headers](docs/articles/forwarded-headers.md)
-- [Rate Limiting](docs/articles/rate-limiting.md)
-- [Health Checks](docs/articles/health-checks.md)
-- [Telemetry](docs/articles/telemetry.md)
-- [Authentication](docs/articles/authentication.md)
-- [Authorization](docs/articles/authorization.md)
-- [Data Access](docs/articles/data-access.md)
-- [GitHub Workflow](docs/articles/github-workflow.md)
-- [Template Packaging](docs/articles/template-packaging.md)
+
+- [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
+- [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
+- [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
+- [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
+- [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
+- [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
+- [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)
+- [Forwarded Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/forwarded-headers.html)
+- [Rate Limiting](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/rate-limiting.html)
+- [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
+- [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
+- [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+- [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
+- [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
+- [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
+- [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 
 ## Repository Structure
 ```text
@@ -113,15 +116,15 @@ Documentation areas include:
 ```
 ## Local Documentation Build
 Restore local tools:
-```bash
+```powershell
 dotnet tool restore
 ```
 Build the DocFX site:
-```bash
+```powershell
 dotnet tool run docfx -- docs/docfx.json
 ```
 Serve the generated site locally:
-```bash
+```powershell
 dotnet tool run docfx -- serve docs/_site
 ```
 
@@ -134,7 +137,7 @@ The repository includes GitHub Actions workflows for:
 - Generating coverage reports
 - Running CodeQL analysis
 - Building and publishing DocFX documentation
-See [GitHub Workflow](docs/articles/github-workflow.md) for details.
+See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html) for details.
 
 ## Versioning
 This project follows Semantic Versioning using the format:
@@ -146,7 +149,7 @@ Version numbers are centrally managed through project build metadata so assembli
 ## Roadmap
 The project is being developed toward a reusable .NET application template. Future work may include additional provider modules, stronger packaging support, template parameterization, expanded examples, and release-ready template distribution.
 
-See [Template Packaging](docs/articles/template-packaging.md) for the current packaging direction.
+See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
 
 ## License
 

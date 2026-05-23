@@ -36,6 +36,54 @@ The template focuses on:
 - Automated build, test, coverage, and documentation workflows.
 - Future packaging as a reusable .NET project template.
 
+## Who This Template Is For
+
+This template is intended for developers and teams who want a production-oriented ASP.NET Core starting point with common infrastructure concerns already organized.
+
+It is best suited for:
+
+- Small-to-medium internal applications.
+- Line-of-business web applications.
+- Prototypes that may grow into production systems.
+- Teams that want consistent startup, configuration, logging, security, error handling, and data access patterns.
+- Developers who want a practical baseline without adopting a large application framework.
+
+The template is especially useful when an application needs more structure than the default `dotnet new webapp` output but does not yet need a full enterprise framework.
+
+## When This Template May Not Be the Right Fit
+
+This template may not be the best fit for:
+
+- Very small throwaway applications.
+- Static sites or applications with no server-side infrastructure needs.
+- Highly specialized microservice frameworks.
+- Teams that already standardize on a larger opinionated platform or internal enterprise template.
+- Applications that need domain-driven layering from the first commit.
+
+The project intentionally provides a secure and maintainable baseline. It does not try to replace every architectural style or framework.
+
+## How This Differs From `dotnet new webapp`
+
+The default ASP.NET Core templates are intentionally minimal. This repository starts further along the production-readiness path by organizing concerns that many real applications eventually need:
+
+- Centralized middleware ordering.
+- Structured Serilog request and application logging.
+- Forwarded header support for reverse proxy deployments.
+- Security header configuration.
+- Rate limiting setup.
+- Centralized exception and status code handling.
+- Problem Details responses.
+- Authentication and authorization foundations.
+- EF Core provider structure.
+- CI validation and documentation publishing.
+- Repository governance files for public review and release readiness.
+
+## Application Preview
+
+The starter application currently exposes a minimal landing endpoint while the repository focuses on infrastructure, documentation, and template readiness.
+
+![Application preview](docs/images/application-preview.svg)
+
 ## Quick Start
 
 Clone the repository:
@@ -89,9 +137,14 @@ Documentation areas include:
 - [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
 - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 
-## Contributing
+## Repository Governance
 
-Contributor guidance is available in [CONTRIBUTING.md](CONTRIBUTING.md).
+Repository-level guidance is maintained in root-level files:
+
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Third-Party Asset Notices](ASSETS-LICENSES.md)
 
 ## Repository Structure
 ```text
@@ -117,7 +170,11 @@ Contributor guidance is available in [CONTRIBUTING.md](CONTRIBUTING.md).
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
+├── CHANGELOG.md
+├── CITATION.cff
+├── CONTRIBUTING.md
 ├── LICENSE.txt
+├── SECURITY.md
 └── ASSETS-LICENSES.md
 ```
 ## Local Documentation Build
@@ -151,6 +208,16 @@ This project follows Semantic Versioning using the format:
 MAJOR.MINOR.PATCH
 ```
 Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
+
+## Citation
+
+Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use this file to generate citation formats from the repository sidebar.
+
+Suggested plain-text citation:
+
+```text
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.4.1. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
+```
 
 ## Roadmap
 The project is being developed toward a reusable .NET application template. Future work may include additional provider modules, stronger packaging support, template parameterization, expanded examples, and release-ready template distribution.

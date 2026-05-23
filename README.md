@@ -66,6 +66,7 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 
 - [Documentation source](docs/index.md)
 - [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
+- [Architecture Decision Records](https://cdcavell.github.io/NetCoreApplicationTemplate/adr/)
 - Generated API reference is available through the published documentation navigation.
 
 Documentation areas include:

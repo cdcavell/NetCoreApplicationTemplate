@@ -23,6 +23,7 @@
           "index.md",
           "**/toc.yml",
           "articles/**/*.md",
+          "adr/**/*.md",
           "api/**/*.yml"
         ]
       }

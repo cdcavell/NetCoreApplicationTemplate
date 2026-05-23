@@ -80,7 +80,7 @@ The default ASP.NET Core templates are intentionally minimal. This repository st
 
 ## Application Preview
 
-The starter application currently exposes a minimal landing endpoint while the repository focuses on infrastructure, documentation, and template readiness.
+The starter application includes a simple default Razor Pages landing page that highlights the template's production-oriented infrastructure focus.
 
 ![Application preview](docs/images/application-preview.svg)
 

@@ -1,21 +1,32 @@
-# Git Workflow
+# GitHub Workflow
 
 This project uses Git for local source control with a remote repository hosted on GitHub.
 
+## Branch Naming
+
 Recommended branch naming:
 
-```
+```text
 main
 feature/issue-<issue-number>
 fix/issue-<issue-number>
 docs/issue-<issue-number>
 refactor/issue-<issue-number>
+test/issue-<issue-number>
+chore/issue-<issue-number>
 ```
-_example: feature/issue-42 will cause Issue #42 status to change to `In Progress` when branch is created._
+
+Example:
+
+```text
+feature/issue-42
+```
+
+## Commit Style
 
 Recommended commit style:
 
-```
+```text
 Add initial repository attributes #<issue-number>
 Add application README scaffold #<issue-number>
 Implement security header middleware #<issue-number>
@@ -23,11 +34,120 @@ Configure Serilog request logging #<issue-number>
 Add EF Core SQLite provider #<issue-number>
 ```
 
+Automated dependency update commits should use the Dependabot-generated format with the `chore(deps)` prefix.
+
+## Pull Request Expectations
+
+Pull requests should include:
+
+- A short summary of the change.
+- A validation or testing section.
+- A closing issue reference when applicable, such as `Closes #42`.
+- Notes about behavior changes, migration steps, or deployment impact when relevant.
+
+Prefer small, focused pull requests. Documentation-only, dependency-only, and runtime behavior changes should usually be kept separate.
+
+## Branch Protection
+
+The `main` branch is treated as the stable integration branch. Changes should be made through pull requests rather than direct pushes.
+
+Before merging, review that:
+
+- The branch is current enough to merge cleanly.
+- Required validation checks have passed.
+- The pull request scope matches the issue or stated goal.
+- Documentation has been updated when behavior or workflow expectations change.
+
+## CI Validation
+
+The CI workflow validates pull requests and relevant branch pushes.
+
+Current validation includes:
+
+- Dependency restore.
+- Release build.
+- Formatting verification.
+- Test execution.
+- Coverage report generation.
+- Initial coverage threshold enforcement.
+- CodeQL analysis.
+
+Dependency update pull requests should be reviewed with the same CI expectations as manually authored pull requests.
+
+## Documentation Publishing
+
+Documentation is built with DocFX and published to GitHub Pages from `main`.
+
+Documentation updates should be validated by checking:
+
+- Navigation entries are present.
+- New markdown files are included in `docs/docfx.json` when needed.
+- Resource files such as images or examples are included as DocFX resources when needed.
+- Links are relative and work in the published site.
+
+## Dependency Update Automation
+
+The repository uses Dependabot to monitor supported dependency ecosystems.
+
+Dependabot is configured in `.github/dependabot.yml` for:
+
+- NuGet packages used by project files.
+- GitHub Actions used by workflow files.
+
+Dependabot runs weekly on Monday morning in the `America/Chicago` timezone.
+
+## Dependency Grouping
+
+NuGet updates are grouped by related package families where practical:
+
+- Microsoft ASP.NET Core packages.
+- Microsoft Entity Framework Core packages.
+- Serilog packages.
+- OpenTelemetry packages.
+- Test dependencies.
+- External authentication dependencies.
+
+GitHub Actions updates are grouped together so workflow action updates can be reviewed as a focused maintenance pull request.
+
+Grouping helps reduce pull request noise while keeping related packages aligned.
+
+## Dependency Update Review Expectations
+
+When reviewing dependency update pull requests:
+
+- Confirm CI passes before merging.
+- Read release notes for major version updates.
+- Review security updates promptly.
+- Be cautious with authentication, data access, middleware, and telemetry dependencies because they can affect runtime behavior.
+- Prefer merging grouped patch and minor updates after validation.
+- Consider separating or manually testing major updates that affect startup, authentication, EF Core, logging, or GitHub Actions behavior.
+- Watch for generated changes that modify lock files, project files, workflow files, or transitive dependency expectations.
+
+Dependency updates should not be treated as automatic merges. They are maintenance pull requests that still require review.
+
+## Issue Tracking
+
+Issues should describe the intended change clearly enough that a future maintainer can understand why the work was done.
+
+Pull requests should reference their issue with a closing keyword when the work completes the issue:
+
+```text
+Closes #42
+```
+
+For exploratory or partial work, use a non-closing reference instead:
+
+```text
+Related to #42
+```
+
 ## Required Secret
 
-This workflow requires a classic GitHub personal access token stored as:
+Some workflow automation may require a classic GitHub personal access token stored as:
 
-`PROJECT_TOKEN`
+```text
+PROJECT_TOKEN
+```
 
 Required classic PAT scopes:
 
@@ -35,10 +155,4 @@ Required classic PAT scopes:
 - `repo` if the repository is private
 - `public_repo` may be sufficient if the repository is public
 
-_A fine-grained PAT may not work for user-owned GitHub Projects._
-
-## Pull Request Expectations
-## Branch Protection
-## CI Validation
-## Documentation Publishing
-## Issue Tracking
+A fine-grained PAT may not work for user-owned GitHub Projects.

@@ -1,0 +1,11 @@
+- name: ADR Home
+  href: index.md
+
+- name: ADR Template
+  href: template.md
+
+- name: Use Structured Serilog Logging
+  href: 0001-use-structured-serilog-logging.md
+
+- name: Use Centralized Application Middleware Pipeline
+  href: 0002-use-centralized-application-middleware-pipeline.md

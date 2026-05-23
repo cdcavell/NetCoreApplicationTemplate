@@ -1,6 +1,9 @@
 - name: Documentation
   href: articles/
 
+- name: Architecture Decisions
+  href: adr/
+
 - name: API Reference
   href: api/
 

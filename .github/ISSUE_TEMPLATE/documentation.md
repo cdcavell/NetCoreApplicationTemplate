@@ -1,6 +1,6 @@
 ---
 name: Documentation
-a bout: Request a documentation update or clarification
+about: Request a documentation update or clarification
 title: "Docs: "
 labels: documentation
 assignees: ''

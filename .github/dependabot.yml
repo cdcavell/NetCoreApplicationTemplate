@@ -1,0 +1,52 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      microsoft-aspnetcore:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+      microsoft-entity-framework-core:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+      serilog:
+        patterns:
+          - "Serilog*"
+      opentelemetry:
+        patterns:
+          - "OpenTelemetry*"
+      test-dependencies:
+        patterns:
+          - "Microsoft.NET.Test.Sdk"
+          - "xunit*"
+          - "coverlet*"
+          - "System.Drawing.Common"
+      external-authentication:
+        patterns:
+          - "AspNet.Security.OAuth.GitHub"
+          - "Sustainsys.Saml2.AspNetCore2"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+      timezone: "America/Chicago"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

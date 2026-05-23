@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using ProjectTemplate.Web.Tests.Extensions;
 using ProjectTemplate.Web.Tests.Infrastructure;
 

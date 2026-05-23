@@ -1,3 +1,6 @@
+# Assets and Licenses
+
+### [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) License
 The following asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +40,7 @@ _OpenTelemetry is a collection of tools, APIs, and SDKs that can be used to inst
 _This package contains the GitHub authentication middleware for ASP.NET Core. It enables an application to support authentication using GitHub accounts, allowing users to sign in with their GitHub credentials. This middleware allows applications to authenticate users by redirecting them to the GitHub login page and handling the authentication response._
 
 <br /><br />
+### [MIT](https://licenses.nuget.org/MIT) License
 The following asset(s) are under the [MIT](https://licenses.nuget.org/MIT) license:
 ```text
 MIT License
@@ -82,3 +86,5 @@ _Entity Framework Core (EF Core) is a modern object-database mapper for .NET. It
 - [Microsoft.EntityFrameworkCore.Tools](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Tools) 
 - [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite)
 - [Microsoft.EntityFrameworkCore.SqlServer](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer)
+## [System.Drawing.Common](https://www.nuget.org/packages/System.Drawing.Common)
+_System.Drawing.Common provides access to GDI+ graphics functionality. It includes types for working with images, colors, fonts, and drawing operations. This package is cross-platform and can be used in .NET applications running on Windows, Linux, and macOS._

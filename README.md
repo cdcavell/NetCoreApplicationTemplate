@@ -13,9 +13,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.4.1](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.4.1)__
+Current release: __[Release 0.4.2](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.4.2)__
 
-Tag: `v0.4.1`
+Tag: `v0.4.2`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals

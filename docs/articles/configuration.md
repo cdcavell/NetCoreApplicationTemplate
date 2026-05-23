@@ -1,18 +1,183 @@
 # Configuration
 
-This section will document application configuration strategy.
+This section documents the application configuration strategy used by the .NET Core Application Template.
 
-Planned areas:
+The template uses ASP.NET Core configuration conventions and groups application-owned options under the `ProjectTemplate` configuration section. Shared defaults live in `appsettings.json`, while environment-specific files, environment variables, user secrets, or deployment secret stores can override values for a specific environment.
 
-- appsettings.json.
-- appsettings.Development.json.
-- User secrets.
-- Environment variables.
-- Provider-specific configuration.
-- Options pattern.
-- Strongly typed settings.
-- Validation on startup.
-- Sensitive configuration handling.
+## Configuration Sources
+
+Common configuration sources include:
+
+- `appsettings.json` for shared defaults.
+- `appsettings.Development.json` for local development overrides.
+- `appsettings.Production.json` or platform-provided configuration for production overrides.
+- Environment variables for deployment-specific values.
+- User secrets for local-only sensitive development values.
+- External secret stores or hosting platform secret managers for production secrets.
+
+The repository includes safe example files under `docs/examples`:
+
+- [`appsettings.Development.example.json`](../examples/appsettings.Development.example.json)
+- [`appsettings.Production.example.json`](../examples/appsettings.Production.example.json)
+
+These files are examples only. They should be copied and adapted by consuming applications, not treated as production-ready configuration.
+
+## Configuration Precedence
+
+ASP.NET Core configuration is layered. Later configuration providers can override earlier providers.
+
+A typical application order is:
+
+```text
+1. appsettings.json
+2. appsettings.{Environment}.json
+3. User secrets, usually Development only
+4. Environment variables
+5. Command-line arguments
+```
+
+This means a value from an environment variable can override the same value from `appsettings.json` or `appsettings.Production.json`.
+
+For example, this JSON value:
+
+```json
+{
+  "ProjectTemplate": {
+    "RateLimiting": {
+      "GlobalFixedWindow": {
+        "PermitLimit": 60
+      }
+    }
+  }
+}
+```
+
+Can be overridden by this environment variable:
+
+```powershell
+$env:ProjectTemplate__RateLimiting__GlobalFixedWindow__PermitLimit = "120"
+```
+
+Double underscores map to nested configuration keys. This is useful for containers, cloud hosting platforms, CI/CD systems, and deployment pipelines.
+
+## Development Configuration Example
+
+Development configuration should favor local productivity while avoiding real production secrets.
+
+Common development overrides include:
+
+- Local SQLite database connection strings.
+- LocalDB SQL Server examples.
+- Debug-level logging.
+- Shorter log retention.
+- Disabled or relaxed CSP while debugging local assets.
+- Disabled external authentication providers unless actively testing them.
+- Local-only provider client IDs and secrets stored with user secrets.
+
+See [`appsettings.Development.example.json`](../examples/appsettings.Development.example.json) for a safe development-oriented example.
+
+## Production Configuration Example
+
+Production configuration should be explicit, conservative, and environment-specific.
+
+Common production overrides include:
+
+- Real allowed host names.
+- Trusted forwarded header proxy addresses or networks.
+- Strong Content Security Policy values.
+- Production logging retention expectations.
+- Production rate limit values.
+- SQL Server or other production data provider settings.
+- External authentication provider settings.
+- Secret values supplied from the environment or secret store instead of committed JSON.
+
+See [`appsettings.Production.example.json`](../examples/appsettings.Production.example.json) for a safe production-oriented example. The example intentionally leaves secrets and connection strings blank.
+
+## Environment Variable Overrides
+
+Environment variables are useful when configuration must vary by deployment slot, container, host, or pipeline.
+
+Examples:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+$env:AllowedHosts = "example.com"
+$env:ConnectionStrings__ApplicationSqlServer = "Server=tcp:sql.example.com,1433;Database=Application;Encrypt=True;TrustServerCertificate=False;"
+$env:ProjectTemplate__DataAccess__Provider = "SqlServer"
+$env:ProjectTemplate__DataAccess__ConnectionStringName = "ApplicationSqlServer"
+$env:ProjectTemplate__SecurityHeaders__EnableContentSecurityPolicy = "true"
+$env:ProjectTemplate__RateLimiting__GlobalFixedWindow__PermitLimit = "120"
+```
+
+For Linux shells or container environments, the same keys are usually set without `$env:`:
+
+```bash
+export ASPNETCORE_ENVIRONMENT="Production"
+export ProjectTemplate__DataAccess__Provider="SqlServer"
+export ProjectTemplate__RateLimiting__GlobalFixedWindow__PermitLimit="120"
+```
+
+## Secret Management Guidance
+
+Do not commit production secrets to the repository.
+
+Sensitive values include:
+
+- Production database connection strings.
+- External authentication client secrets.
+- API keys.
+- Signing certificates or certificate passwords.
+- Access tokens.
+- SMTP credentials.
+- Any organization-specific private endpoint values.
+
+For local development, prefer user secrets:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:ApplicationSqlServer" "Server=(localdb)\MSSQLLocalDB;Database=Application;Trusted_Connection=True;TrustServerCertificate=True" --project src/ProjectTemplate.Web
+
+dotnet user-secrets set "ProjectTemplate:Authentication:Providers:GitHub:ClientSecret" "local-development-secret" --project src/ProjectTemplate.Web
+```
+
+For production, prefer the hosting platform secret manager, environment-protected variables, or an approved external secret store. Production secret values should be injected at deployment time rather than stored in committed JSON files.
+
+## Provider-Specific Configuration
+
+The template supports configurable data access provider selection through `ProjectTemplate:DataAccess`.
+
+SQLite development example:
+
+```json
+{
+  "ConnectionStrings": {
+    "ApplicationDatabase": "Data Source=application-dev.db"
+  },
+  "ProjectTemplate": {
+    "DataAccess": {
+      "Provider": "Sqlite",
+      "ConnectionStringName": "ApplicationDatabase"
+    }
+  }
+}
+```
+
+SQL Server production-style example:
+
+```json
+{
+  "ConnectionStrings": {
+    "ApplicationSqlServer": ""
+  },
+  "ProjectTemplate": {
+    "DataAccess": {
+      "Provider": "SqlServer",
+      "ConnectionStringName": "ApplicationSqlServer"
+    }
+  }
+}
+```
+
+In production, the actual `ApplicationSqlServer` connection string should come from the environment or secret store.
 
 ## Configuration Validation
 
@@ -25,3 +190,19 @@ Validated configuration areas include:
 - `ProjectTemplate:RateLimiting`
 
 Invalid startup-sensitive values fail application startup rather than being silently corrected. This helps catch unsafe or malformed production configuration before the application begins serving requests.
+
+## Production Review Checklist
+
+Before production release, review:
+
+```text
+[ ] ASPNETCORE_ENVIRONMENT is set correctly.
+[ ] AllowedHosts matches the public host names.
+[ ] Forwarded header settings match the proxy or load balancer topology.
+[ ] Production connection strings come from environment or secret storage.
+[ ] External authentication provider secrets are not committed.
+[ ] Content Security Policy values are tested against deployed assets and auth flows.
+[ ] Rate limit values are tuned for expected traffic.
+[ ] Logging destinations, retention, and sensitive-data exposure are reviewed.
+[ ] Database provider and migration strategy are documented for the environment.
+```

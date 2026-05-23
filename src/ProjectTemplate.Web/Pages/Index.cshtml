@@ -1,0 +1,48 @@
+@page
+@{
+    ViewData["Title"] = ".NET Core Application Template";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="/css/landing.css" />
+</head>
+<body>
+    <main class="landing-shell">
+        <section class="hero-card" aria-labelledby="landing-title">
+            <p class="eyebrow">ASP.NET Core Baseline</p>
+            <h1 id="landing-title">.NET Core Application Template</h1>
+            <p class="hero-text">
+                A reusable, production-oriented starting point for secure, maintainable,
+                and extensible ASP.NET Core applications.
+            </p>
+
+            <div class="feature-grid" aria-label="Template focus areas">
+                <article class="feature-card">
+                    <h2>Secure defaults</h2>
+                    <p>Security headers, forwarded headers, rate limiting, and authentication-ready structure.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h2>Operational clarity</h2>
+                    <p>Structured logging, health checks, telemetry, centralized errors, and Problem Details.</p>
+                </article>
+
+                <article class="feature-card">
+                    <h2>Template ready</h2>
+                    <p>Documented architecture, CI validation, EF Core patterns, and a path to template packaging.</p>
+                </article>
+            </div>
+
+            <div class="action-row" aria-label="Project links">
+                <a class="primary-link" href="https://github.com/cdcavell/NetCoreApplicationTemplate">View Repository</a>
+                <a class="secondary-link" href="https://cdcavell.github.io/NetCoreApplicationTemplate/">Read Documentation</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

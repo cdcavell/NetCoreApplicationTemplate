@@ -36,7 +36,6 @@ try
     Log.Information("Configuring pipeline for ProjectTemplate.Web application");
     app.UseApplicationPipeline();
     app.MapApplicationHealthChecks();
-    app.MapGet("/", () => "Hello World!");
 
     Log.Information("Running ProjectTemplate.Web application");
     app.Run();

@@ -18,6 +18,7 @@ try
     builder.AddApplicationSerilog();
     Log.Information("Bootstrapping Template.Web application");
     builder.Services.AddControllersWithViews();
+    builder.Services.AddApplicationApiVersioning(builder.Configuration);
     builder.Services.AddRazorPages();
     builder.Services.AddApplicationHealthChecks();
     builder.Services.AddApplicationForwardedHeaders(builder.Configuration);

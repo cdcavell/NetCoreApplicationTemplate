@@ -28,6 +28,9 @@
     - name: Health Checks
       href: health-checks.md
 
+- name: API Versioning
+  href: api-versioning.md
+
 - name: Observability
   items:
     - name: Logging

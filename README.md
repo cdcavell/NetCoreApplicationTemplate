@@ -124,6 +124,7 @@ Documentation areas include:
 - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
 - [Deployment](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
 - [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
+- [API Versioning](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/api-versioning.html)
 - [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
 - [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
 - [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)

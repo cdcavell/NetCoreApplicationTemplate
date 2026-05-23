@@ -88,3 +88,5 @@ _Entity Framework Core (EF Core) is a modern object-database mapper for .NET. It
 - [Microsoft.EntityFrameworkCore.SqlServer](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer)
 ## [System.Drawing.Common](https://www.nuget.org/packages/System.Drawing.Common)
 _System.Drawing.Common provides access to GDI+ graphics functionality. It includes types for working with images, colors, fonts, and drawing operations. This package is cross-platform and can be used in .NET applications running on Windows, Linux, and macOS._
+## [Asp.Versioning.Mvc](https://www.nuget.org/packages/Asp.Versioning.Mvc)
+_This package contains the ASP.NET MVC integration for API versioning. It provides support for versioning ASP.NET MVC applications, allowing developers to manage and evolve their APIs over time while maintaining backward compatibility._

@@ -108,6 +108,15 @@ Run the web application:
 ```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
+Run with Docker Compose:
+```powershell
+docker compose up --build
+```
+The application is available at:
+```powershell
+http://localhost:5000
+```
+
 ## Documentation
 
 Detailed documentation is maintained in the `docs` folder and published with DocFX.
@@ -120,6 +129,7 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 Documentation areas include:
 
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
+- [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
 - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
 - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
 - [Deployment](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)

@@ -1,0 +1,32 @@
+services:
+  projecttemplate.web:
+    image: projecttemplate-web:dev
+    container_name: projecttemplate-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_RUNNING_IN_CONTAINER: "true"
+
+      ConnectionStrings__ApplicationDatabase: Data Source=/app/data/application-dev.db
+
+      ProjectTemplate__ForwardedHeaders__Enabled: "true"
+      ProjectTemplate__ForwardedHeaders__Headers__0: XForwardedFor
+      ProjectTemplate__ForwardedHeaders__Headers__1: XForwardedProto
+      ProjectTemplate__ForwardedHeaders__ForwardLimit: "1"
+      ProjectTemplate__ForwardedHeaders__RequireHeaderSymmetry: "false"
+
+      # Local Docker development only.
+      # Production deployments should prefer explicit KnownProxies or KnownNetworks.
+      ProjectTemplate__ForwardedHeaders__ClearKnownNetworksAndProxies: "true"
+    volumes:
+      - projecttemplate-data:/app/data
+      - projecttemplate-logs:/app/Logs
+
+volumes:
+  projecttemplate-data:
+  projecttemplate-logs:

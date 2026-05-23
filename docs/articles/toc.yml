@@ -4,6 +4,9 @@
 - name: Getting Started
   href: getting-started.md
 
+- name: Docker Development
+  href: docker.md
+
 - name: Project Structure
   href: project-structure.md
 

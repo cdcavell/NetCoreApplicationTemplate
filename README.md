@@ -89,6 +89,10 @@ Documentation areas include:
 - [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
 - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 
+## Contributing
+
+Contributor guidance is available in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Repository Structure
 ```text
 /

@@ -73,6 +73,7 @@ Documentation areas include:
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
 - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
 - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
+- [Deployment](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
 - [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
 - [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
 - [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
@@ -158,4 +159,3 @@ This project is licensed under the MIT License.
 See [LICENSE.txt](LICENSE.txt) for full license details.
 
 Third-party assets, libraries, templates, icons, fonts, images, or other externally sourced materials used by this project are documented in [ASSETS-LICENSES.md](ASSETS-LICENSES.md).
-

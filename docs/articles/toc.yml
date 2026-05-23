@@ -10,6 +10,9 @@
 - name: Configuration
   href: configuration.md
 
+- name: Deployment
+  href: deployment.md
+
 - name: Middleware
   items:
     - name: Middleware Pipeline

@@ -1,24 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
   <title id="title">NetCoreApplicationTemplate application preview</title>
-  <desc id="desc">A simple browser-style preview showing the template landing endpoint and infrastructure focus areas.</desc>
-  <rect width="960" height="540" rx="24" fill="#f6f8fa"/>
-  <rect x="64" y="64" width="832" height="412" rx="18" fill="#ffffff" stroke="#d0d7de"/>
-  <rect x="64" y="64" width="832" height="52" rx="18" fill="#24292f"/>
-  <circle cx="96" cy="90" r="7" fill="#ff5f56"/>
-  <circle cx="120" cy="90" r="7" fill="#ffbd2e"/>
-  <circle cx="144" cy="90" r="7" fill="#27c93f"/>
-  <rect x="184" y="78" width="520" height="24" rx="12" fill="#57606a"/>
-  <text x="204" y="95" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#f6f8fa">https://localhost:5001/</text>
-  <text x="112" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="700" fill="#24292f">Hello World!</text>
-  <text x="112" y="218" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#57606a">Reusable ASP.NET Core application template baseline</text>
-  <rect x="112" y="264" width="216" height="86" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
-  <text x="136" y="298" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#24292f">Secure defaults</text>
-  <text x="136" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#57606a">Headers, auth, rate limits</text>
-  <rect x="372" y="264" width="216" height="86" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
-  <text x="396" y="298" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#24292f">Operational clarity</text>
-  <text x="396" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#57606a">Logging, errors, health</text>
-  <rect x="632" y="264" width="216" height="86" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
-  <text x="656" y="298" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#24292f">Template ready</text>
-  <text x="656" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#57606a">Docs, CI, packaging path</text>
-  <text x="112" y="414" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#57606a">Preview image for repository documentation; the starter endpoint is intentionally minimal.</text>
+  <desc id="desc">Sharp vector preview of the default Razor Pages landing page for the .NET Core Application Template.</desc>
+  <defs>
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#1f2328" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="pageBackground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6f8fa"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <radialGradient id="blueGlow" cx="0" cy="0" r="1">
+      <stop offset="0" stop-color="#0969da" stop-opacity="0.14"/>
+      <stop offset="0.62" stop-color="#0969da" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#0969da" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="760" fill="url(#pageBackground)"/>
+  <circle cx="60" cy="30" r="420" fill="url(#blueGlow)"/>
+
+  <rect x="16" y="10" width="1168" height="724" rx="23" fill="#ffffff" stroke="#d0d7de" filter="url(#cardShadow)"/>
+
+  <text x="88" y="97" fill="#0969da" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="4">ASP.NET CORE BASELINE</text>
+
+  <text x="88" y="184" fill="#24292f" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-5">.NET Core Application</text>
+  <text x="88" y="260" fill="#24292f" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="-5">Template</text>
+
+  <text x="88" y="317" fill="#57606a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="23">
+    <tspan x="88" dy="0">A reusable, production-oriented starting point for secure, maintainable, and</tspan>
+    <tspan x="88" dy="36">extensible ASP.NET Core applications.</tspan>
+  </text>
+
+  <g>
+    <rect x="88" y="400" width="325" height="175" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="113" y="444" fill="#0b1020" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Secure defaults</text>
+    <text x="113" y="479" fill="#57606a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">
+      <tspan x="113" dy="0">Security headers, forwarded headers,</tspan>
+      <tspan x="113" dy="25">rate limiting, and authentication-ready</tspan>
+      <tspan x="113" dy="25">structure.</tspan>
+    </text>
+  </g>
+
+  <g>
+    <rect x="429" y="400" width="325" height="175" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="454" y="444" fill="#0b1020" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Operational clarity</text>
+    <text x="454" y="479" fill="#57606a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">
+      <tspan x="454" dy="0">Structured logging, health checks,</tspan>
+      <tspan x="454" dy="25">telemetry, centralized errors, and</tspan>
+      <tspan x="454" dy="25">Problem Details.</tspan>
+    </text>
+  </g>
+
+  <g>
+    <rect x="769" y="400" width="325" height="175" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="794" y="444" fill="#0b1020" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Template ready</text>
+    <text x="794" y="479" fill="#57606a" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">
+      <tspan x="794" dy="0">Documented architecture, CI</tspan>
+      <tspan x="794" dy="25">validation, EF Core patterns, and a</tspan>
+      <tspan x="794" dy="25">path to template packaging.</tspan>
+    </text>
+  </g>
+
+  <g>
+    <rect x="88" y="616" width="158" height="46" rx="23" fill="#0969da"/>
+    <text x="167" y="645" text-anchor="middle" fill="#ffffff" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">View Repository</text>
+  </g>
+
+  <g>
+    <rect x="260" y="616" width="195" height="46" rx="23" fill="#ffffff" stroke="#d0d7de"/>
+    <text x="358" y="645" text-anchor="middle" fill="#0b1020" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Read Documentation</text>
+  </g>
 </svg>

@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.4.2 - 2026-05-23
+
+### Added
+
+- Added repository governance files and issue / pull request templates.
+- Added a default Razor Pages landing page.
+- Added an application preview image for the README.
+
+### Changed
+
+- Expanded the Project Structure documentation into a fuller architecture overview.
+- Strengthened README positioning, repository governance, and citation guidance.
+- Updated project version metadata for `0.4.2`.
+
 ## 0.4.1 - 2026-05-23
 
 ### Changed

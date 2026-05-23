@@ -216,7 +216,7 @@ Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use t
 Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.4.1. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.4.2. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
 ```
 
 ## Roadmap

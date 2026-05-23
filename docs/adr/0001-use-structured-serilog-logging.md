@@ -53,4 +53,4 @@ Trade-offs and risks:
 
 - [`docs/articles/logging.md`](../articles/logging.md)
 - [`docs/articles/configuration.md`](../articles/configuration.md)
-- [`src/ProjectTemplate.Web/appsettings.json`](../../src/ProjectTemplate.Web/appsettings.json)
+- `src/ProjectTemplate.Web/appsettings.json` repository source file

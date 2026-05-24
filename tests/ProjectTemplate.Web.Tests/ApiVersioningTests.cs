@@ -24,6 +24,7 @@ public sealed class ApiVersioningTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.True(response.Headers.Contains("api-supported-versions"));
+        Assert.True(response.Headers.Contains("api-deprecated-versions"));
 
         ApplicationInformationResponse? body =
             await response.Content.ReadFromJsonAsync<ApplicationInformationResponse>(
@@ -47,6 +48,29 @@ public sealed class ApiVersioningTests
             await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeprecatedUrlSegmentVersion_ReturnsDeprecationHeaders()
+    {
+        using ApplicationWebApplicationFactory factory = CreateFactory();
+        using HttpClient client = factory.CreateHttpsClient();
+
+        using HttpResponseMessage response =
+            await client.GetAsync("/api/v0.9/application-information", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.Contains("api-deprecated-versions"));
+        Assert.True(response.Headers.Contains("Deprecation"));
+        Assert.True(response.Headers.Contains("Sunset"));
+        Assert.True(response.Headers.Contains("Link"));
+
+        ApplicationInformationResponse? body =
+            await response.Content.ReadFromJsonAsync<ApplicationInformationResponse>(
+                cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(body);
+        Assert.Equal("0.9", body.ApiVersion);
     }
 
     [Fact]

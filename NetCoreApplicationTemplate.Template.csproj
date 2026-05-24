@@ -12,6 +12,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
+    <PackageIconUrl>https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/docs/images/application-preview.svg</PackageIconUrl>
     <PackageReleaseNotes>Preview release-readiness package metadata. Production publication requires the protected NuGet publish workflow, NuGet package identity ownership, and release checklist validation.</PackageReleaseNotes>
     <VersionPrefix>0.4.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>

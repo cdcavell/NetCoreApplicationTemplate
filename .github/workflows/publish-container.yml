@@ -11,6 +11,7 @@ permissions:
 env:
   IMAGE_NAME: ghcr.io/cdcavell/netcoreapplicationtemplate
   LOCAL_IMAGE_NAME: netcoreapplicationtemplate-release
+  TRIVY_IMAGE: aquasec/trivy:0.58.2
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -70,17 +71,21 @@ jobs:
             .
 
       - name: Prepare release evidence directory
-        run: mkdir -p artifacts/container-release
+        run: mkdir -p artifacts/container-release .trivy-cache
 
       - name: Generate vulnerability scan SARIF
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          image-ref: ${{ steps.version.outputs.local_image }}
-          format: sarif
-          output: artifacts/container-release/trivy-results.sarif
-          severity: HIGH,CRITICAL
-          ignore-unfixed: 'false'
-          exit-code: '0'
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "${{ github.workspace }}/artifacts/container-release:/reports" \
+            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
+            "${{ env.TRIVY_IMAGE }}" image \
+            --format sarif \
+            --output /reports/trivy-results.sarif \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed=false \
+            --exit-code 0 \
+            "${{ steps.version.outputs.local_image }}"
 
       - name: Upload vulnerability SARIF
         if: always()
@@ -90,12 +95,16 @@ jobs:
           category: container-image
 
       - name: Generate SPDX SBOM
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          image-ref: ${{ steps.version.outputs.local_image }}
-          format: spdx-json
-          output: artifacts/container-release/netcoreapplicationtemplate-${{ steps.version.outputs.version }}.spdx.json
-          exit-code: '0'
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "${{ github.workspace }}/artifacts/container-release:/reports" \
+            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
+            "${{ env.TRIVY_IMAGE }}" image \
+            --format spdx-json \
+            --output /reports/netcoreapplicationtemplate-${{ steps.version.outputs.version }}.spdx.json \
+            --exit-code 0 \
+            "${{ steps.version.outputs.local_image }}"
 
       - name: Upload release evidence artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -106,13 +115,16 @@ jobs:
           retention-days: 30
 
       - name: Enforce container vulnerability threshold
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          image-ref: ${{ steps.version.outputs.local_image }}
-          format: table
-          severity: HIGH,CRITICAL
-          ignore-unfixed: 'false'
-          exit-code: '1'
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
+            "${{ env.TRIVY_IMAGE }}" image \
+            --format table \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed=false \
+            --exit-code 1 \
+            "${{ steps.version.outputs.local_image }}"
 
       - name: Save scanned image
         run: docker save "${{ steps.version.outputs.local_image }}" --output artifacts/container-image.tar

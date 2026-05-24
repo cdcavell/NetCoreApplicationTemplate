@@ -49,6 +49,7 @@
       "include": [
         ".dockerignore",
         ".editorconfig",
+        ".env.example",
         ".gitattributes",
         ".gitignore",
         "ASSETS-LICENSES.md",

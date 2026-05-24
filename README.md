@@ -8,7 +8,7 @@
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
-This repository provides a working application baseline with common infrastructure concerns already organized, including middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, GitHub Actions validation, DocFX documentation, and future .NET template packaging support.
+This repository provides a working application baseline with common infrastructure concerns already organized, including middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, GitHub Actions validation, DocFX documentation, and local dotnet new template scaffold support, with NuGet package publishing planned for a future release.
 
 ## Current Release
 
@@ -34,7 +34,8 @@ The template focuses on:
 - Authentication-ready and authorization-ready structure.
 - EF Core data access patterns.
 - Automated build, test, coverage, and documentation workflows.
-- Future packaging as a reusable .NET project template.
+- Local `dotnet new` template scaffold support, with NuGet package publishing planned for a future release.
+
 
 ## Who This Template Is For
 
@@ -104,7 +105,7 @@ Run tests:
 ```powershell
 dotnet test
 ```
-Run the web application:
+Run the web application from source:
 ```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
@@ -112,10 +113,37 @@ Run with Docker Compose:
 ```powershell
 docker compose up --build
 ```
-The application is available at:
+The Docker-hosted application is available at:
 ```powershell
-http://localhost:5000
+http://localhost:8080
 ```
+Docker health endpoints are available at:
+```powershell
+http://localhost:8080/health
+http://localhost:8080/health/ready
+http://localhost:8080/health/live
+```
+
+## Template Scaffold Status
+
+This repository currently includes a local `dotnet new` template scaffold through `.template.config/template.json`.
+
+Current supported local workflow:
+
+```powershell
+dotnet new install .\
+dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+```
+
+The repository is not yet published as a NuGet template package. Future stable distribution is expected to use a published package install path such as:
+
+```powershell
+dotnet new install <published-template-package-id>
+dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+```
+
+Until a package is published, local installation from the repository root should be treated as the supported preview/scaffold validation path.
+
 
 ## Documentation
 
@@ -160,33 +188,50 @@ Repository-level guidance is maintained in root-level files:
 ## Repository Structure
 ```text
 /
-├── src/
-│   └── Application source projects
+├── .github/
+│   ├── workflows/
+│   │   └── GitHub Actions CI and documentation publishing workflows
+│   ├── ISSUE_TEMPLATE/
+│   │   └── Issue templates
+│   ├── dependabot.yml
+│   └── pull_request_template.md
 │
-├── tests/
-│   └── Automated tests
+├── .template.config/
+│   └── dotnet new template metadata
 │
 ├── docs/
-│   └── Project documentation
-│
-├── templates/
-│   └── Future .NET template packaging files
+│   ├── adr/
+│   │   └── Architecture decision records
+│   ├── articles/
+│   │   └── DocFX conceptual documentation
+│   ├── images/
+│   │   └── Documentation and README images
+│   └── docfx.json
 │
 ├── scripts/
 │   └── Utility scripts for setup, build, or maintenance
 │
-├── .github/
-│   └── GitHub workflows, issue templates, and repository metadata
+├── src/
+│   ├── ProjectTemplate.Infrastructure/
+│   └── ProjectTemplate.Web/
 │
+├── tests/
+│   └── ProjectTemplate.Web.Tests/
+│
+├── .dockerignore
+├── .editorconfig
 ├── .gitattributes
 ├── .gitignore
-├── README.md
+├── ASSETS-LICENSES.md
 ├── CHANGELOG.md
 ├── CITATION.cff
 ├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
 ├── LICENSE.txt
-├── SECURITY.md
-└── ASSETS-LICENSES.md
+├── NetCoreApplicationTemplate.slnx
+├── README.md
+└── SECURITY.md
 ```
 ## Local Documentation Build
 Restore local tools:
@@ -203,15 +248,21 @@ dotnet tool run docfx -- serve docs/_site
 ```
 
 ## GitHub Actions
-The repository includes GitHub Actions workflows for:
-- Restoring dependencies
-- Building the solution
-- Verifying formatting
-- Running tests
-- Generating coverage reports
-- Running CodeQL analysis
-- Building and publishing DocFX documentation
-See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html) for details.
+
+The repository currently includes workflows for:
+
+- Restoring dependencies.
+- Building the solution in Release configuration.
+- Verifying formatting.
+- Running tests.
+- Generating test result and coverage artifacts.
+- Enforcing the initial coverage threshold.
+- Running CodeQL analysis.
+- Building and publishing DocFX documentation to GitHub Pages.
+
+The repository does not yet include an automated NuGet template package publishing workflow. Release publishing and package distribution remain part of the v1.0.0 readiness work.
+
+See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html), [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html), and [ADR-0003](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for details.
 
 ## Versioning
 This project follows Semantic Versioning using the format:
@@ -220,7 +271,7 @@ MAJOR.MINOR.PATCH
 ```
 Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
 
-See [ADR-0003: Record Release Surface and Distribution Strategy](0003-record-release-surface-and-distribution-strategy.md), for the current versioning and release strategy.
+See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
 
 ## Citation
 

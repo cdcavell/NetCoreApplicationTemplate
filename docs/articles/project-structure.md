@@ -18,22 +18,40 @@ The .NET Core Application Template is organized as a compact, production-oriente
 │       └── Automated tests for startup, configuration, middleware, auth, and runtime behavior
 │
 ├── docs/
-│   └── DocFX articles, API documentation, examples, and architecture decision records
+│   ├── adr/
+│   │   └── Architecture decision records
+│   ├── articles/
+│   │   └── DocFX conceptual documentation
+│   ├── images/
+│   │   └── Documentation and README images
+│   └── docfx.json
 │
-├── templates/
-│   └── Future .NET template packaging files
+├── .template.config/
+│   └── dotnet new template metadata
 │
 ├── scripts/
 │   └── Utility scripts for setup, build, migration, or maintenance work
 │
 ├── .github/
-│   └── GitHub Actions workflows, issue templates, and repository metadata
+│   ├── workflows/
+│   │   └── GitHub Actions CI and documentation publishing workflows
+│   ├── ISSUE_TEMPLATE/
+│   │   └── Issue templates
+│   ├── dependabot.yml
+│   └── pull_request_template.md
 │
+├── .dockerignore
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
 ├── ASSETS-LICENSES.md
 ├── CHANGELOG.md
 ├── CITATION.cff
 ├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
 ├── LICENSE.txt
+├── NetCoreApplicationTemplate.slnx
 ├── README.md
 └── SECURITY.md
 ```

@@ -32,8 +32,11 @@
     <Content Include=".template.config/**/*" Pack="true" PackagePath="content/.template.config/%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Include=".template.content/**/*" Pack="true" PackagePath="content/.template.content/%(RecursiveDir)%(Filename)%(Extension)" />
     <Content Include="ASSETS-LICENSES.md" Pack="true" PackagePath="content/" />
+    <Content Include="Directory.Build.props" Pack="true" PackagePath="content/" />
+    <Content Include="Directory.Packages.props" Pack="true" PackagePath="content/" />
     <Content Include="Dockerfile" Pack="true" PackagePath="content/" />
     <Content Include="docker-compose.yml" Pack="true" PackagePath="content/" />
+    <Content Include="global.json" Pack="true" PackagePath="content/" />
     <Content Include="LICENSE.txt" Pack="true" PackagePath="content/" />
     <Content Include="LICENSE.txt" Pack="true" PackagePath="" />
     <Content Include="NetCoreApplicationTemplate.slnx" Pack="true" PackagePath="content/" />

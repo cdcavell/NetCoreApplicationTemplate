@@ -9,40 +9,41 @@ namespace ProjectTemplate.Infrastructure.Data.Configurations;
 /// </summary>
 public sealed class ExternalLoginAccountConfiguration : IEntityTypeConfiguration<ExternalLoginAccount>
 {
-    public void Configure(EntityTypeBuilder<ExternalLoginAccount> entity)
+    /// <inheritdoc />
+    public void Configure(EntityTypeBuilder<ExternalLoginAccount> builder)
     {
-        entity.ToTable("ExternalLoginAccounts");
+        builder.ToTable("ExternalLoginAccounts");
 
-        entity.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
+        builder.Property(x => x.Id)
             .ValueGeneratedNever();
 
-        entity.Property(x => x.LocalUserId)
+        builder.Property(x => x.LocalUserId)
             .IsRequired();
 
-        entity.Property(x => x.ProviderName)
+        builder.Property(x => x.ProviderName)
             .HasMaxLength(100)
             .IsRequired();
 
-        entity.Property(x => x.ProviderUserId)
+        builder.Property(x => x.ProviderUserId)
             .HasMaxLength(256)
             .IsRequired();
 
-        entity.Property(x => x.DisplayName)
+        builder.Property(x => x.DisplayName)
             .HasMaxLength(200);
 
-        entity.Property(x => x.Email)
+        builder.Property(x => x.Email)
             .HasMaxLength(320);
 
-        entity.Property(x => x.CreatedOnUtc)
+        builder.Property(x => x.CreatedOnUtc)
             .IsRequired();
 
-        entity.HasIndex(x => new { x.ProviderName, x.ProviderUserId })
+        builder.HasIndex(x => new { x.ProviderName, x.ProviderUserId })
             .IsUnique();
 
-        entity.HasIndex(x => x.LocalUserId);
+        builder.HasIndex(x => x.LocalUserId);
 
-        entity.HasIndex(x => x.Email);
+        builder.HasIndex(x => x.Email);
     }
 }

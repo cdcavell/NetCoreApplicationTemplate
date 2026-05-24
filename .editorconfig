@@ -229,6 +229,14 @@ csharp_style_unused_value_expression_statement_preference = discard_variable:sug
 dotnet_diagnostic.IDE0058.severity = suggestion
 
 ########################################
+# Test code
+########################################
+
+[tests/**/*.cs]
+# xUnit test names intentionally use readable scenario-style underscores.
+dotnet_diagnostic.CA1707.severity = none
+
+########################################
 # Generated code
 ########################################
 

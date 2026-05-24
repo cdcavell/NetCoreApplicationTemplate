@@ -4,6 +4,12 @@ Thank you for helping improve the .NET Core Application Template.
 
 This project is intended to remain a clean, reusable, production-oriented ASP.NET Core baseline. Contributions should preserve that goal by keeping changes focused, documented, and easy to review.
 
+## Community Standards
+
+Participation in this repository is governed by [COMMUNITY_STANDARDS.md](COMMUNITY_STANDARDS.md).
+
+Contributors should keep discussions respectful, focused on the project scope, and safe for public review.
+
 ## Contribution Principles
 
 Contributions should favor:
@@ -42,6 +48,20 @@ Recommended flow:
 
 If work is exploratory or only partially addresses an issue, use `Related to #<issue-number>` instead of a closing keyword.
 
+## Issue Triage Expectations
+
+Issues are triaged on a best-effort basis by the maintainer.
+
+Triage considers:
+
+- Whether the issue is reproducible from the repository or generated template output.
+- Whether the issue is a security, release, packaging, documentation, or runtime concern.
+- Whether the behavior belongs in the reusable template rather than in a downstream application.
+- Whether the report includes enough details to act on.
+- Whether the proposed change can be validated by CI, tests, documentation review, or release checklist review.
+
+Issues may be closed when they are duplicated, stale, unreproducible, out of scope, missing required information, or specific to a consuming application's custom deployment.
+
 ## Branch Naming
 
 Use short branch names that include the issue number and the type of work.
@@ -57,40 +77,9 @@ test/issue-<issue-number>-short-description
 chore/issue-<issue-number>-short-description
 ```
 
-Examples:
-
-```text
-feature/issue-42-add-sample-endpoint
-fix/issue-43-correct-header-order
-docs/issue-44-update-data-access-docs
-refactor/issue-45-simplify-options-validation
-test/issue-46-add-rate-limit-tests
-chore/issue-47-update-dependencies
-```
-
-Use `docs/` for documentation-only changes and `chore/` for maintenance work such as dependency or workflow updates.
-
 ## Commit Messages
 
-Use concise imperative commit messages.
-
-Recommended examples:
-
-```text
-Add application README scaffold #12
-Configure Serilog request logging #3
-Implement security header middleware #7
-Add EF Core SQLite provider #19
-Document deployment guidance #38
-Add Dependabot configuration #56
-```
-
-Guidelines:
-
-- Start with a verb such as `Add`, `Fix`, `Update`, `Document`, `Configure`, or `Refactor`.
-- Include the issue number when practical.
-- Keep the subject line focused on the actual change.
-- Avoid vague messages such as `misc fixes` or `updates`.
+Use concise imperative commit messages. Start with a verb such as `Add`, `Fix`, `Update`, `Document`, `Configure`, or `Refactor`, and include the issue number when practical.
 
 ## Pull Request Expectations
 
@@ -101,31 +90,22 @@ Pull requests should include:
 - A closing issue reference when the work completes an issue.
 - Notes about behavior changes, migration steps, or deployment impact when relevant.
 
-Recommended pull request structure:
+Documentation-only changes may use a lighter validation note that states the change was documentation-only and links were reviewed.
 
-```markdown
-## Summary
+## Pull Request Triage Expectations
 
-- Added ...
-- Updated ...
-- Documented ...
+Pull requests are reviewed for scope, CI health, maintainability, and release impact.
 
-## Validation
+Before merge, the maintainer reviews whether:
 
-- Ran `dotnet build --configuration Release`.
-- Ran `dotnet test --configuration Release`.
+- The pull request matches the linked issue or stated purpose.
+- Required checks pass.
+- Documentation is updated when behavior, packaging, governance, or workflow expectations change.
+- Security-sensitive changes preserve safe defaults.
+- Template packaging changes preserve expected scaffolded output.
+- Release, workflow, security, and governance changes receive deliberate maintainer review.
 
-Closes #<issue-number>
-```
-
-Documentation-only changes may use a lighter validation note:
-
-```markdown
-## Validation
-
-- Documentation-only change.
-- Reviewed links and DocFX navigation scope.
-```
+Pull requests may be returned for revision when they are too broad, mix unrelated changes, lack validation, bypass documented release expectations, or create unclear downstream behavior.
 
 ## Validation Expectations
 
@@ -143,39 +123,17 @@ For formatting-sensitive changes, run:
 dotnet format --verify-no-changes --verbosity minimal
 ```
 
-For documentation changes, validate that:
-
-- New pages are included in DocFX navigation when needed.
-- Links work in the published documentation structure.
-- Examples do not include production secrets.
-- Runtime behavior is not changed unintentionally.
+For documentation changes, validate that new pages are included in navigation when needed, links work, examples are safe for public use, and runtime behavior is not changed unintentionally.
 
 ## Documentation Expectations
 
-Update documentation when a change affects:
-
-- Configuration behavior.
-- Middleware ordering.
-- Security defaults.
-- Authentication or authorization behavior.
-- Data access setup.
-- Deployment expectations.
-- GitHub workflow or release process.
-- Template packaging behavior.
+Update documentation when a change affects configuration behavior, middleware ordering, security defaults, authentication, authorization, data access, deployment, GitHub workflow, release process, or template packaging behavior.
 
 Long-term architectural decisions should be captured in an Architecture Decision Record under `docs/adr`.
 
 ## Dependency Update Expectations
 
-Dependency update pull requests should be reviewed like other pull requests.
-
-Before merging dependency updates:
-
-- Confirm CI passes.
-- Review release notes for major updates.
-- Treat security updates as higher priority.
-- Be careful with authentication, EF Core, middleware, logging, telemetry, and GitHub Actions updates.
-- Prefer separate review for major updates that may affect runtime behavior.
+Dependency update pull requests should be reviewed like other pull requests. Confirm CI passes, review release notes for major updates, treat security updates as higher priority, and be careful with authentication, EF Core, middleware, logging, telemetry, and GitHub Actions updates.
 
 ## Branch Cleanup
 
@@ -188,20 +146,9 @@ git fetch --prune
 git branch --merged
 ```
 
-Delete stale local branches only after confirming the work has been merged or is no longer needed.
-
 ## Security Notes
 
-Do not commit:
-
-- Production connection strings.
-- Client secrets.
-- API keys.
-- Signing keys or certificates.
-- Private endpoint values.
-- Generated secrets or tokens.
-
-Use environment variables, user secrets, or approved secret stores for sensitive values.
+Do not commit private operational values or credentials. Use environment variables, user secrets, or approved secret stores for sensitive configuration.
 
 ## Solo-Maintainer Hardening Profile
 
@@ -217,30 +164,18 @@ The following controls should be enabled before merging the first external pull 
 - Review of branch protection settings for `main` and any long-lived development branch.
 - Review of repository secrets, environment secrets, and package publishing permissions.
 
-Trigger conditions for moving beyond the solo-maintainer profile include:
-
-- First external pull request.
-- First repository collaborator.
-- First automated package publishing workflow.
-- First automated container image publishing workflow.
-- A confirmed credential exposure.
-- Repeated high-risk Dependabot, CodeQL, or Dependency Review findings.
+Trigger conditions for moving beyond the solo-maintainer profile include the first external pull request, first repository collaborator, first automated package publishing workflow, first automated container image publishing workflow, a confirmed credential exposure, or repeated high-risk dependency/security findings.
 
 ## GitHub Actions Supply-Chain Policy
 
-GitHub Actions workflows should follow these rules:
-
-- Use explicit workflow or job-level `permissions`.
-- Default to `contents: read` unless a job requires additional permissions.
-- Do not place plaintext credentials in workflow files.
-- Use repository or environment secrets for publish credentials.
-- Pin third-party and first-party actions to full commit SHAs when practical.
-- Preserve a version comment beside each pinned action SHA for maintainability.
-- Let Dependabot monitor GitHub Actions updates.
-- Review action updates before merging, especially actions with write permissions, release permissions, package publishing permissions, or identity-token permissions.
+GitHub Actions workflows should use explicit workflow or job-level permissions, default to read-only access unless more is required, use repository or environment secrets for publish credentials, pin actions to full commit SHAs when practical, and review action updates before merging.
 
 ## Related Documentation
 
+- [Community Standards](COMMUNITY_STANDARDS.md)
+- [Support Policy](SUPPORT.md)
+- [Maintainers](MAINTAINERS.md)
+- [Security Policy](SECURITY.md)
 - [GitHub Workflow](docs/articles/github-workflow.md)
 - [Configuration](docs/articles/configuration.md)
 - [Deployment Notes](docs/articles/deployment.md)

@@ -1,0 +1,47 @@
+{
+  "title": "NetCoreApplicationTemplate",
+  "upload_type": "software",
+  "description": "A reusable ASP.NET Core application template for secure, maintainable, production-oriented .NET applications. It organizes startup composition, middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, CI validation, template packaging, and DocFX documentation.",
+  "creators": [
+    {
+      "name": "Cavell, Christopher D.",
+      "orcid": "0009-0002-2113-0245"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "aspnetcore",
+    "dotnet",
+    "application-template",
+    "security",
+    "software-architecture",
+    "dotnet-new-template"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/cdcavell/NetCoreApplicationTemplate",
+      "relation": "isIdenticalTo",
+      "scheme": "url",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5879563",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "publication-workingpaper"
+    },
+    {
+      "identifier": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6321278",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "publication-workingpaper"
+    },
+    {
+      "identifier": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6678418",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "publication-workingpaper"
+    }
+  ]
+}

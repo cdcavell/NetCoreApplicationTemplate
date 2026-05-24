@@ -164,5 +164,5 @@ Trade-offs and risks:
 - [`docs/articles/api-versioning.md`](../articles/api-versioning.md)
 - [`docs/articles/docker.md`](../articles/docker.md)
 - [`docs/articles/deployment.md`](../articles/deployment.md)
-- [`README.md`](../../README.md)
-- [`CITATION.cff`](../../CITATION.cff)
+- [`README.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/README.md)
+- [`CITATION.cff`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CITATION.cff)

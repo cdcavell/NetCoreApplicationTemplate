@@ -38,9 +38,9 @@ public sealed class ApplicationInformationController : ControllerBase
 
     private void AppendDeprecationHeaders()
     {
-        Response.Headers.Deprecation = "true";
-        Response.Headers.Sunset = DeprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
-        Response.Headers.Link = "</api/v1/application-information>; rel=\"successor-version\"";
+        Response.Headers["Deprecation"] = "true";
+        Response.Headers["Sunset"] = DeprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+        Response.Headers["Link"] = "</api/v1/application-information>; rel=\"successor-version\"";
     }
 }
 

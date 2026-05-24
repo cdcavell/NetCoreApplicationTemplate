@@ -10,41 +10,41 @@ namespace ProjectTemplate.Infrastructure.Data.Configurations;
 public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRecord>
 {
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<AuditRecord> entity)
+    public void Configure(EntityTypeBuilder<AuditRecord> builder)
     {
-        entity.ToTable("AuditRecords");
+        builder.ToTable("AuditRecords");
 
-        entity.HasKey(x => x.Id);
+        builder.HasKey(x => x.Id);
 
-        entity.Property(x => x.Id)
+        builder.Property(x => x.Id)
             .ValueGeneratedNever();
 
-        entity.Property(x => x.ModifiedBy)
+        builder.Property(x => x.ModifiedBy)
             .HasMaxLength(200)
             .IsRequired();
 
-        entity.Property(x => x.ModifiedOnUtc)
+        builder.Property(x => x.ModifiedOnUtc)
             .IsRequired();
 
-        entity.Property(x => x.Application)
+        builder.Property(x => x.Application)
             .HasMaxLength(200)
             .IsRequired();
 
-        entity.Property(x => x.Entity)
+        builder.Property(x => x.Entity)
             .HasMaxLength(200)
             .IsRequired();
 
-        entity.Property(x => x.State)
+        builder.Property(x => x.State)
             .HasMaxLength(100)
             .IsRequired();
 
-        entity.Property(x => x.KeyValues)
+        builder.Property(x => x.KeyValues)
             .IsRequired();
 
-        entity.Property(x => x.OriginalValues)
+        builder.Property(x => x.OriginalValues)
             .IsRequired();
 
-        entity.Property(x => x.CurrentValues)
+        builder.Property(x => x.CurrentValues)
             .IsRequired();
     }
 }

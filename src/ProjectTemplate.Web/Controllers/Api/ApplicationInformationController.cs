@@ -43,9 +43,11 @@ public sealed class ApplicationInformationController : ControllerBase
 
     private static string FormatApiVersion(ApiVersion version)
     {
+        int minorVersion = version.MinorVersion ?? 0;
+
         return string.Create(
             System.Globalization.CultureInfo.InvariantCulture,
-            $"{version.MajorVersion}.{version.MinorVersion}");
+            $"{version.MajorVersion}.{minorVersion}");
     }
 
     private void AppendDeprecationHeaders()

@@ -13,7 +13,7 @@ namespace ProjectTemplate.Web.Controllers.Api;
 [Route("api/application-information")]
 public sealed class ApplicationInformationController : ControllerBase
 {
-    private static readonly DateTimeOffset DeprecatedVersionSunsetDate =
+    private static readonly DateTimeOffset _deprecatedVersionSunsetDate =
         new(2026, 12, 31, 23, 59, 59, TimeSpan.Zero);
 
     /// <summary>
@@ -23,7 +23,9 @@ public sealed class ApplicationInformationController : ControllerBase
     [HttpGet]
     public ActionResult<ApplicationInformationResponse> Get()
     {
-        ApiVersion requestedVersion = HttpContext.GetRequestedApiVersion() ?? new ApiVersion(1, 0);
+        ApiVersion requestedVersion = HttpContext.Features
+            .Get<IApiVersioningFeature>()
+            ?.RequestedApiVersion ?? new ApiVersion(1, 0);
 
         if (requestedVersion.MajorVersion == 0 && requestedVersion.MinorVersion == 9)
         {
@@ -38,9 +40,9 @@ public sealed class ApplicationInformationController : ControllerBase
 
     private void AppendDeprecationHeaders()
     {
-        Response.Headers["Deprecation"] = "true";
-        Response.Headers["Sunset"] = DeprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
-        Response.Headers["Link"] = "</api/v1/application-information>; rel=\"successor-version\"";
+        Response.Headers.Deprecation = "true";
+        Response.Headers.Sunset = _deprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+        Response.Headers.Link = "</api/v1/application-information>; rel=\"successor-version\"";
     }
 }
 

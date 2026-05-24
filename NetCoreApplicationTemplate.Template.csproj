@@ -26,6 +26,7 @@
   <ItemGroup>
     <Content Include=".dockerignore" Pack="true" PackagePath="content/" />
     <Content Include=".editorconfig" Pack="true" PackagePath="content/" />
+    <Content Include=".env.example" Pack="true" PackagePath="content/" />
     <Content Include=".gitattributes" Pack="true" PackagePath="content/" />
     <Content Include=".gitignore" Pack="true" PackagePath="content/" />
     <Content Include=".template.config/**/*" Pack="true" PackagePath="content/.template.config/%(RecursiveDir)%(Filename)%(Extension)" />

@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/build/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
   <Folder Name="/documentation/">
     <File Path="ASSETS-LICENSES.md" />
     <File Path="CITATION.cff" />

@@ -56,3 +56,4 @@ When an ADR is superseded, keep the original file and add a link to the replacin
 |:---|:---|:---|
 | [0001](0001-use-structured-serilog-logging.md) | Use structured Serilog logging | Accepted |
 | [0002](0002-use-centralized-application-middleware-pipeline.md) | Use centralized application middleware pipeline | Accepted |
+| [0003](0003-record-release-surface-and-distribution-strategy.md) | Record Release Surface and Distribution Strategy | Accepted |

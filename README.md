@@ -220,6 +220,8 @@ MAJOR.MINOR.PATCH
 ```
 Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
 
+See [ADR-0003: Record Release Surface and Distribution Strategy](0003-record-release-surface-and-distribution-strategy.md), for the current versioning and release strategy.
+
 ## Citation
 
 Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use this file to generate citation formats from the repository sidebar.

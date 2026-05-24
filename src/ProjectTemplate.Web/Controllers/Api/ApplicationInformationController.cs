@@ -13,8 +13,8 @@ namespace ProjectTemplate.Web.Controllers.Api;
 [Route("api/application-information")]
 public sealed class ApplicationInformationController : ControllerBase
 {
-    private const string DeprecationHeaderName = "Deprecation";
-    private const string SunsetHeaderName = "Sunset";
+    private const string _deprecationHeaderName = "Deprecation";
+    private const string _sunsetHeaderName = "Sunset";
 
     private static readonly DateTimeOffset _deprecatedVersionSunsetDate =
         new(2026, 12, 31, 23, 59, 59, TimeSpan.Zero);
@@ -43,8 +43,8 @@ public sealed class ApplicationInformationController : ControllerBase
 
     private void AppendDeprecationHeaders()
     {
-        Response.Headers[DeprecationHeaderName] = "true";
-        Response.Headers[SunsetHeaderName] = _deprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+        Response.Headers[_deprecationHeaderName] = "true";
+        Response.Headers[_sunsetHeaderName] = _deprecatedVersionSunsetDate.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
         Response.Headers.Link = "</api/v1/application-information>; rel=\"successor-version\"";
     }
 }

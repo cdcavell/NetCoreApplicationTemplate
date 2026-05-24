@@ -7,22 +7,31 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - path: ./.env
+        required: false
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
       DOTNET_RUNNING_IN_CONTAINER: "true"
 
-      ConnectionStrings__ApplicationDatabase: Data Source=/app/data/application-dev.db
+      ConnectionStrings__ApplicationDatabase: ${CONNECTIONSTRINGS_APPLICATIONDATABASE:-Data Source=/app/data/application-dev.db}
 
-      ProjectTemplate__ForwardedHeaders__Enabled: "true"
+      ProjectTemplate__ForwardedHeaders__Enabled: ${PROJECTTEMPLATE_FORWARDEDHEADERS_ENABLED:-true}
       ProjectTemplate__ForwardedHeaders__Headers__0: XForwardedFor
       ProjectTemplate__ForwardedHeaders__Headers__1: XForwardedProto
-      ProjectTemplate__ForwardedHeaders__ForwardLimit: "1"
-      ProjectTemplate__ForwardedHeaders__RequireHeaderSymmetry: "false"
+      ProjectTemplate__ForwardedHeaders__ForwardLimit: ${PROJECTTEMPLATE_FORWARDEDHEADERS_FORWARDLIMIT:-1}
+      ProjectTemplate__ForwardedHeaders__RequireHeaderSymmetry: ${PROJECTTEMPLATE_FORWARDEDHEADERS_REQUIREHEADERSYMMETRY:-false}
 
       # Local Docker development only.
       # Production deployments should prefer explicit KnownProxies or KnownNetworks.
-      ProjectTemplate__ForwardedHeaders__ClearKnownNetworksAndProxies: "true"
+      ProjectTemplate__ForwardedHeaders__ClearKnownNetworksAndProxies: ${PROJECTTEMPLATE_FORWARDEDHEADERS_CLEARKNOWNNETWORKSANDPROXIES:-true}
+    healthcheck:
+      test: ["CMD-SHELL", "dotnet --info >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     volumes:
       - projecttemplate-data:/app/data
       - projecttemplate-logs:/app/Logs

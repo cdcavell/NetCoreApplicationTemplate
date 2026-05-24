@@ -1,5 +1,6 @@
 # .NET Core Application Template 
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
+[![Coverage Gate](https://img.shields.io/badge/coverage%20gate-60%25-brightgreen)](#github-actions)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 [![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
@@ -8,7 +9,7 @@
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
-This repository provides a working application baseline with common infrastructure concerns already organized, including middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, GitHub Actions validation, DocFX documentation, and local dotnet new template scaffold support, with NuGet package publishing planned for a future release.
+This repository provides a working application baseline with common infrastructure concerns already organized, including middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, GitHub Actions validation, DocFX documentation, and local dotnet new template scaffold support.
 
 ## Current Release
 
@@ -33,9 +34,8 @@ The template focuses on:
 - Baseline rate limiting and health checks.
 - Authentication-ready and authorization-ready structure.
 - EF Core data access patterns.
-- Automated build, test, coverage, and documentation workflows.
-- Local `dotnet new` template scaffold support, with NuGet package publishing planned for a future release.
-
+- Automated build, test, coverage, template smoke-test, and documentation workflows.
+- Local and package-based `dotnet new` template scaffold support.
 
 ## Who This Template Is For
 
@@ -76,7 +76,7 @@ The default ASP.NET Core templates are intentionally minimal. This repository st
 - Problem Details responses.
 - Authentication and authorization foundations.
 - EF Core provider structure.
-- CI validation and documentation publishing.
+- CI validation, template package smoke testing, and documentation publishing.
 - Repository governance files for public review and release readiness.
 
 ## Application Preview
@@ -85,7 +85,7 @@ The starter application includes a simple default Razor Pages landing page that 
 
 ![Application preview](docs/images/application-preview.svg)
 
-## Quick Start
+## Quick Start from Source
 
 Clone the repository:
 
@@ -93,31 +93,45 @@ Clone the repository:
 git clone https://github.com/cdcavell/NetCoreApplicationTemplate.git
 cd NetCoreApplicationTemplate
 ```
+
 Restore dependencies:
+
 ```powershell
 dotnet restore
 ```
+
 Build the solution:
+
 ```powershell
-dotnet build
+dotnet build --configuration Release
 ```
+
 Run tests:
+
 ```powershell
-dotnet test
+dotnet test --configuration Release
 ```
+
 Run the web application from source:
+
 ```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
+
 Run with Docker Compose:
+
 ```powershell
 docker compose up --build
 ```
+
 The Docker-hosted application is available at:
+
 ```powershell
 http://localhost:8080
 ```
+
 Docker health endpoints are available at:
+
 ```powershell
 http://localhost:8080/health
 http://localhost:8080/health/ready
@@ -126,24 +140,70 @@ http://localhost:8080/health/live
 
 ## Template Scaffold Status
 
-This repository currently includes a local `dotnet new` template scaffold through `.template.config/template.json`.
+This repository includes a `dotnet new` template scaffold through `.template.config/template.json` and a package project at `NetCoreApplicationTemplate.Template.csproj`.
 
-Current supported local workflow:
+The scaffolded consumer output intentionally includes:
+
+- Source projects under `src/`.
+- Baseline tests under `tests/`.
+- Docker support files.
+- `LICENSE.txt`.
+- `ASSETS-LICENSES.md`.
+- A consumer-oriented `README.md` generated from `.template.content/README.md`.
+
+The scaffolded consumer output intentionally excludes repository-maintainer content such as `.github/`, DocFX documentation source, ADRs, release-management files, citation metadata, contribution policy, security policy, and repository badges.
+
+### Pack and Install Locally
+
+Pack the template package:
+
+```powershell
+dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release --output ./artifacts/template-package
+```
+
+Install the generated package:
+
+```powershell
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.4.2.nupkg
+```
+
+Generate a consumer project:
+
+```powershell
+dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+```
+
+Build and test the generated output:
+
+```powershell
+cd ContosoSecurityPortal
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
+
+Update the installed template by installing a newer package version:
+
+```powershell
+dotnet new install <path-or-package-id-for-new-version>
+```
+
+Uninstall the template package:
+
+```powershell
+dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+```
+
+### Local Repository Install
+
+For local development, the template can also be installed from the repository root:
 
 ```powershell
 dotnet new install .\
 dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
 ```
 
-The repository is not yet published as a NuGet template package. Future stable distribution is expected to use a published package install path such as:
-
-```powershell
-dotnet new install <published-template-package-id>
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
-```
-
-Until a package is published, local installation from the repository root should be treated as the supported preview/scaffold validation path.
-
+Package-based install remains the preferred validation path because it more closely matches consumer distribution.
 
 ## Documentation
 
@@ -186,6 +246,7 @@ Repository-level guidance is maintained in root-level files:
 - [Third-Party Asset Notices](ASSETS-LICENSES.md)
 
 ## Repository Structure
+
 ```text
 /
 ├── .github/
@@ -198,6 +259,9 @@ Repository-level guidance is maintained in root-level files:
 │
 ├── .template.config/
 │   └── dotnet new template metadata
+│
+├── .template.content/
+│   └── consumer scaffold content
 │
 ├── docs/
 │   ├── adr/
@@ -230,19 +294,28 @@ Repository-level guidance is maintained in root-level files:
 ├── docker-compose.yml
 ├── LICENSE.txt
 ├── NetCoreApplicationTemplate.slnx
+├── NetCoreApplicationTemplate.Template.csproj
+├── PACKAGE-README.md
 ├── README.md
 └── SECURITY.md
 ```
+
 ## Local Documentation Build
+
 Restore local tools:
+
 ```powershell
 dotnet tool restore
 ```
+
 Build the DocFX site:
+
 ```powershell
 dotnet tool run docfx -- docs/docfx.json
 ```
+
 Serve the generated site locally:
+
 ```powershell
 dotnet tool run docfx -- serve docs/_site
 ```
@@ -256,19 +329,28 @@ The repository currently includes workflows for:
 - Verifying formatting.
 - Running tests.
 - Generating test result and coverage artifacts.
-- Enforcing the initial coverage threshold.
+- Enforcing a 60% minimum line coverage threshold in CI.
+- Failing CI when coverage regresses below the threshold.
+- Packing the template package.
+- Installing the generated `.nupkg` into a clean SDK environment.
+- Scaffolding a consumer project with `dotnet new cdcavell-netcoreapp`.
+- Validating expected consumer files and excluded maintainer files.
+- Building and testing scaffolded output on Linux, Windows, and macOS.
 - Running CodeQL analysis.
 - Building and publishing DocFX documentation to GitHub Pages.
 
-The repository does not yet include an automated NuGet template package publishing workflow. Release publishing and package distribution remain part of the v1.0.0 readiness work.
+Template smoke testing runs on pull requests, supported branch pushes, manual workflow dispatch, and release-style version tags matching `v*.*.*`.
 
 See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html), [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html), and [ADR-0003](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for details.
 
 ## Versioning
+
 This project follows Semantic Versioning using the format:
-```
+
+```text
 MAJOR.MINOR.PATCH
 ```
+
 Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
 
 See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
@@ -284,6 +366,7 @@ Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.4.2. MIT License. h
 ```
 
 ## Roadmap
+
 The project is being developed toward a reusable .NET application template. Future work may include additional provider modules, stronger packaging support, template parameterization, expanded examples, and release-ready template distribution.
 
 See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.

@@ -1,0 +1,243 @@
+name: Publish Container
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: ghcr.io/cdcavell/netcoreapplicationtemplate
+  LOCAL_IMAGE_NAME: netcoreapplicationtemplate-release
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-scan:
+    name: Build, scan, and package image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      major: ${{ steps.version.outputs.major }}
+      is_stable_release: ${{ steps.version.outputs.is_stable_release }}
+      local_image: ${{ steps.version.outputs.local_image }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        run: |
+          if (-not $env:GITHUB_REF_NAME.StartsWith('v')) {
+              Write-Error "Container publishing requires a semantic version tag matching v*.*.*."
+              exit 1
+          }
+
+          $version = $env:GITHUB_REF_NAME.Substring(1)
+          if ($version -notmatch '^\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$') {
+              Write-Error "Tag '$env:GITHUB_REF_NAME' is not a supported semantic version tag."
+              exit 1
+          }
+
+          $major = $version.Split('.')[0]
+          $isStableRelease = $version -match '^\d+\.\d+\.\d+$'
+          $localImage = "${env:LOCAL_IMAGE_NAME}:$version"
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "major=$major" >> $env:GITHUB_OUTPUT
+          "is_stable_release=$($isStableRelease.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "local_image=$localImage" >> $env:GITHUB_OUTPUT
+
+      - name: Build container image
+        run: |
+          docker build \
+            --pull \
+            --build-arg BUILD_CONFIGURATION=Release \
+            --tag "${{ steps.version.outputs.local_image }}" \
+            .
+
+      - name: Prepare release evidence directory
+        run: mkdir -p artifacts/container-release
+
+      - name: Generate vulnerability scan SARIF
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        with:
+          image-ref: ${{ steps.version.outputs.local_image }}
+          format: sarif
+          output: artifacts/container-release/trivy-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: 'false'
+          exit-code: '0'
+
+      - name: Upload vulnerability SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
+        with:
+          sarif_file: artifacts/container-release/trivy-results.sarif
+          category: container-image
+
+      - name: Generate SPDX SBOM
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        with:
+          image-ref: ${{ steps.version.outputs.local_image }}
+          format: spdx-json
+          output: artifacts/container-release/netcoreapplicationtemplate-${{ steps.version.outputs.version }}.spdx.json
+          exit-code: '0'
+
+      - name: Enforce container vulnerability threshold
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
+        with:
+          image-ref: ${{ steps.version.outputs.local_image }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: 'false'
+          exit-code: '1'
+
+      - name: Save scanned image
+        run: docker save "${{ steps.version.outputs.local_image }}" --output artifacts/container-image.tar
+
+      - name: Upload scanned image artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: container-image
+          path: artifacts/container-image.tar
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload release evidence artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: container-release-evidence
+          path: artifacts/container-release
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish signed container image
+    runs-on: ubuntu-latest
+    needs: build-scan
+
+    environment:
+      name: container-publish
+
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+      packages: write
+
+    steps:
+      - name: Download scanned image artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v5
+        with:
+          name: container-image
+          path: artifacts
+
+      - name: Download release evidence artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v5
+        with:
+          name: container-release-evidence
+          path: artifacts/container-release
+
+      - name: Load scanned image
+        run: docker load --input artifacts/container-image.tar
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push image
+        id: push
+        shell: pwsh
+        run: |
+          $version = '${{ needs.build-scan.outputs.version }}'
+          $major = '${{ needs.build-scan.outputs.major }}'
+          $isStableRelease = '${{ needs.build-scan.outputs.is_stable_release }}' -eq 'true'
+          $localImage = '${{ needs.build-scan.outputs.local_image }}'
+          $imageName = '${{ env.IMAGE_NAME }}'
+
+          $tags = [System.Collections.Generic.List[string]]::new()
+          $tags.Add("${imageName}:$version")
+
+          if ($isStableRelease) {
+              $tags.Add("${imageName}:$major")
+              $tags.Add("${imageName}:latest")
+          }
+
+          foreach ($tag in $tags) {
+              docker tag $localImage $tag
+              docker push $tag
+          }
+
+          $digest = docker buildx imagetools inspect "${imageName}:$version" --format '{{.Manifest.Digest}}'
+          if ([string]::IsNullOrWhiteSpace($digest)) {
+              Write-Error "Unable to resolve pushed image digest."
+              exit 1
+          }
+
+          $digestRef = "${imageName}@$digest"
+          "digest=$digest" >> $env:GITHUB_OUTPUT
+          "digest_ref=$digestRef" >> $env:GITHUB_OUTPUT
+          "tags=$($tags -join ', ')" >> $env:GITHUB_OUTPUT
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
+
+      - name: Sign image digest
+        run: cosign sign --yes "${{ steps.push.outputs.digest_ref }}"
+
+      - name: Generate build provenance attestation
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v3
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+      - name: Publish release evidence
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $version = '${{ needs.build-scan.outputs.version }}'
+          $digestRef = '${{ steps.push.outputs.digest_ref }}'
+          $tags = '${{ steps.push.outputs.tags }}'
+          $notesPath = 'artifacts/container-release/release-notes.md'
+
+          @"
+          Container release evidence for `$tag`.
+
+          Published image: `${digestRef}`
+
+          Published tags: `${tags}`
+
+          Attached evidence:
+
+          - Trivy vulnerability scan SARIF.
+          - SPDX JSON SBOM.
+          - GitHub artifact provenance attestation.
+          - Cosign keyless image signature for the pushed digest.
+          "@ | Set-Content -Path $notesPath -Encoding UTF8
+
+          if (gh release view $tag *> $null) {
+              gh release upload $tag artifacts/container-release/* --clobber
+          }
+          else {
+              gh release create $tag artifacts/container-release/* --title "Release $tag" --notes-file $notesPath
+          }

@@ -203,6 +203,42 @@ Do not commit:
 
 Use environment variables, user secrets, or approved secret stores for sensitive values.
 
+## Solo-Maintainer Hardening Profile
+
+This repository operates a solo-maintainer hardening profile through v1.x.
+
+While the project has a single maintainer and no external contributors, the repository relies on protected branches, pull requests, CI validation, CodeQL, Dependency Review, Dependabot, explicit workflow permissions, and documented release/security procedures.
+
+The following controls should be enabled before merging the first external pull request or before adding any repository collaborator:
+
+- Signed commit requirement on protected branches.
+- Required pull request reviewer approval.
+- Code Owners review for governance files, workflow files, release files, security policy files, and template packaging files.
+- Review of branch protection settings for `main` and any long-lived development branch.
+- Review of repository secrets, environment secrets, and package publishing permissions.
+
+Trigger conditions for moving beyond the solo-maintainer profile include:
+
+- First external pull request.
+- First repository collaborator.
+- First automated package publishing workflow.
+- First automated container image publishing workflow.
+- A confirmed credential exposure.
+- Repeated high-risk Dependabot, CodeQL, or Dependency Review findings.
+
+## GitHub Actions Supply-Chain Policy
+
+GitHub Actions workflows should follow these rules:
+
+- Use explicit workflow or job-level `permissions`.
+- Default to `contents: read` unless a job requires additional permissions.
+- Do not place plaintext credentials in workflow files.
+- Use repository or environment secrets for publish credentials.
+- Pin third-party and first-party actions to full commit SHAs when practical.
+- Preserve a version comment beside each pinned action SHA for maintainability.
+- Let Dependabot monitor GitHub Actions updates.
+- Review action updates before merging, especially actions with write permissions, release permissions, package publishing permissions, or identity-token permissions.
+
 ## Related Documentation
 
 - [GitHub Workflow](docs/articles/github-workflow.md)

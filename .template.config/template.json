@@ -20,6 +20,25 @@
     "language": "C#",
     "type": "project"
   },
+  "symbols": {
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Skips the post-create NuGet restore action when set to true."
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "ProjectTemplate.slnx"
+    },
+    {
+      "path": "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj"
+    },
+    {
+      "path": "tests/ProjectTemplate.Web.Tests/ProjectTemplate.Web.Tests.csproj"
+    }
+  ],
   "guids": [
     "1e92d402-e410-4f7f-8483-de6af17d61a2"
   ],
@@ -28,32 +47,65 @@
       "source": "./",
       "target": "./",
       "include": [
+        ".dockerignore",
         ".editorconfig",
         ".gitattributes",
         ".gitignore",
-        "LICENSE.txt",
         "ASSETS-LICENSES.md",
+        "Dockerfile",
+        "docker-compose.yml",
+        "LICENSE.txt",
         "NetCoreApplicationTemplate.slnx",
-        "src/**/*",
-        "tests/**/*",
-        "docs/**/*",
         "scripts/**/*",
-        ".github/**/*"
+        "src/**/*",
+        "tests/**/*"
       ],
       "exclude": [
         "**/[Bb]in/**",
         "**/[Oo]bj/**",
-        ".template.config/**/*",
+        ".git/**",
+        ".github/**",
+        ".template.config/**",
+        ".template.content/**",
+        "artifacts/**",
+        "docs/**",
         "**/*.filelist",
         "**/*.user",
         "**/*.suo",
         "**/*.lock.json",
         "**/Logs/**",
-        "**/*.log"
+        "**/*.log",
+        "CHANGELOG.md",
+        "CITATION.cff",
+        "CODE_OF_CONDUCT.md",
+        "CONTRIBUTING.md",
+        "NetCoreApplicationTemplate.Template.csproj",
+        "PACKAGE-README.md",
+        "SECURITY.md"
       ],
       "rename": {
         "NetCoreApplicationTemplate.slnx": "ProjectTemplate.slnx"
       }
+    },
+    {
+      "source": "./.template.content/",
+      "target": "./",
+      "include": [
+        "README.md"
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by the generated project.",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore' from the generated solution directory."
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
     }
   ]
 }

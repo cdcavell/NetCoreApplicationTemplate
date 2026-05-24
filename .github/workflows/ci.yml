@@ -14,6 +14,8 @@ on:
       - 'refactor/**'
       - 'test/**'
       - 'chore/**'
+    tags:
+      - 'v*.*.*'
 
   workflow_dispatch:
 
@@ -23,6 +25,8 @@ permissions:
 env:
   DOTNET_VERSION: '10.0.x'
   CONFIGURATION: Release
+  COVERAGE_THRESHOLD: '60'
+  SOLUTION_FILE: './NetCoreApplicationTemplate.slnx'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
@@ -67,14 +71,13 @@ jobs:
         run: dotnet --info
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build solution
-        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      # Optional: enable later once formatting/analyzer noise is cleaned up.
       - name: Verify formatting
-        run: dotnet format --verify-no-changes --verbosity minimal
+        run: dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity minimal
 
       - name: Run tests
         shell: pwsh
@@ -120,16 +123,16 @@ jobs:
           if-no-files-found: warn
 
       - name: Publish coverage report artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: coverage-report
           path: ./artifacts/coverage-report
           if-no-files-found: warn
 
-      - name: Enforce initial coverage threshold
+      - name: Enforce coverage threshold
         shell: pwsh
         run: |
-          $threshold = 60
+          $threshold = [double]$env:COVERAGE_THRESHOLD
           $coverageFile = Get-ChildItem -Path "./artifacts/coverage-report" -Recurse -Filter "*.xml" |
             Where-Object { $_.Name -match "Cobertura|coverage" } |
             Select-Object -First 1
@@ -144,10 +147,131 @@ jobs:
           $percentage = [math]::Round($lineRate * 100, 2)
 
           Write-Host "Line coverage: $percentage%"
+          Write-Host "Required line coverage threshold: $threshold%"
 
           if ($percentage -lt $threshold) {
               Write-Error "Coverage $percentage% is below required threshold of $threshold%."
               exit 1
+          }
+
+  template-smoke-test:
+    name: Template smoke test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Pack template package
+        shell: pwsh
+        run: |
+          dotnet pack ./NetCoreApplicationTemplate.Template.csproj `
+            --configuration $env:CONFIGURATION `
+            --output ./artifacts/template-package
+
+      - name: Install template package
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem -Path ./artifacts/template-package -Filter *.nupkg | Select-Object -First 1
+
+          if (-not $package) {
+              Write-Error "Template package was not created."
+              exit 1
+          }
+
+          dotnet new install $package.FullName
+          dotnet new list cdcavell-netcoreapp
+
+      - name: Scaffold consumer project
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
+          dotnet new cdcavell-netcoreapp `
+            --name ContosoSecurityPortal `
+            --output ./artifacts/scaffold/ContosoSecurityPortal
+
+      - name: Validate scaffolded consumer output
+        shell: pwsh
+        run: |
+          $root = Resolve-Path ./artifacts/scaffold/ContosoSecurityPortal
+
+          $expected = @(
+            "README.md",
+            "LICENSE.txt",
+            "ASSETS-LICENSES.md",
+            "ContosoSecurityPortal.slnx",
+            "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
+            "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"
+          )
+
+          foreach ($path in $expected) {
+              $fullPath = Join-Path $root $path
+              if (-not (Test-Path $fullPath)) {
+                  Write-Error "Expected scaffolded path was missing: $path"
+                  exit 1
+              }
+          }
+
+          $forbidden = @(
+            ".github",
+            ".template.config",
+            ".template.content",
+            "docs",
+            "CHANGELOG.md",
+            "CITATION.cff",
+            "CONTRIBUTING.md",
+            "NetCoreApplicationTemplate.Template.csproj",
+            "PACKAGE-README.md",
+            "SECURITY.md"
+          )
+
+          foreach ($path in $forbidden) {
+              $fullPath = Join-Path $root $path
+              if (Test-Path $fullPath) {
+                  Write-Error "Maintainer-only path was scaffolded unexpectedly: $path"
+                  exit 1
+              }
+          }
+
+          $readme = Get-Content (Join-Path $root "README.md") -Raw
+          if ($readme -match "github.com/cdcavell/NetCoreApplicationTemplate/actions" -or $readme -match "Current release:") {
+              Write-Error "Generated README appears to contain repository maintainer content."
+              exit 1
+          }
+
+      - name: Build scaffolded output
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          dotnet restore ./ContosoSecurityPortal.slnx
+          dotnet build ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-restore
+
+      - name: Test scaffolded output
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: dotnet test ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal
+
+      - name: Uninstall template package
+        if: always()
+        shell: pwsh
+        run: |
+          dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+          if ($LASTEXITCODE -ne 0) {
+              Write-Host "Template package was not installed or was already removed. Continuing cleanup."
+              exit 0
           }
 
   codeql-analysis:
@@ -175,10 +299,10 @@ jobs:
           build-mode: none
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build solution for CodeQL
-        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4

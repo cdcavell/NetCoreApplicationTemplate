@@ -71,6 +71,8 @@ Current validation includes:
 - Coverage report generation.
 - Initial coverage threshold enforcement.
 - CodeQL analysis.
+- Template package smoke testing on Linux, Windows, and macOS.
+- Scaffolded Docker support file verification.
 
 Dependency update pull requests should be reviewed with the same CI expectations as manually authored pull requests.
 
@@ -84,6 +86,28 @@ Documentation updates should be validated by checking:
 - New markdown files are included in `docs/docfx.json` when needed.
 - Resource files such as images or examples are included as DocFX resources when needed.
 - Links are relative and work in the published site.
+
+## Container Publishing
+
+The Publish Container workflow runs on tag pushes matching:
+
+```text
+v*.*.*
+```
+
+The workflow builds the Docker image, scans it with Trivy, uploads SARIF results, generates an SPDX SBOM, publishes the image to GitHub Container Registry, signs the pushed digest with cosign keyless signing, and generates build provenance attestation metadata.
+
+The published image is:
+
+```text
+ghcr.io/cdcavell/netcoreapplicationtemplate
+```
+
+Stable tags publish the full version tag, the major tag, and `latest`. Prerelease tags publish only the full version tag.
+
+The publish job uses the `container-publish` GitHub environment. Configure that environment with required reviewers before the first production publish so the first GHCR publication has a manual approval gate.
+
+See [Container Release Publishing](container-publish.md) for details.
 
 ## Dependency Update Automation
 

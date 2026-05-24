@@ -54,6 +54,9 @@
 - name: Data Access
   href: data-access.md
 
+- name: Build Quality and Reproducibility
+  href: build-quality.md
+
 - name: GitHub Workflow
   href: github-workflow.md
 

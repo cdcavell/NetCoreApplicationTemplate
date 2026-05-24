@@ -26,6 +26,7 @@ env:
   DOTNET_VERSION: '10.0.x'
   CONFIGURATION: Release
   COVERAGE_THRESHOLD: '60'
+  SOLUTION_FILE: './NetCoreApplicationTemplate.slnx'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
@@ -70,13 +71,13 @@ jobs:
         run: dotnet --info
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build solution
-        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
       - name: Verify formatting
-        run: dotnet format --verify-no-changes --verbosity minimal
+        run: dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity minimal
 
       - name: Run tests
         shell: pwsh
@@ -255,13 +256,13 @@ jobs:
         shell: pwsh
         working-directory: ./artifacts/scaffold/ContosoSecurityPortal
         run: |
-          dotnet restore
-          dotnet build --configuration $env:CONFIGURATION --no-restore
+          dotnet restore ./ContosoSecurityPortal.slnx
+          dotnet build ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-restore
 
       - name: Test scaffolded output
         shell: pwsh
         working-directory: ./artifacts/scaffold/ContosoSecurityPortal
-        run: dotnet test --configuration $env:CONFIGURATION --no-build --verbosity normal
+        run: dotnet test ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal
 
       - name: Uninstall template package
         if: always()
@@ -293,10 +294,10 @@ jobs:
           build-mode: none
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build solution for CodeQL
-        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4

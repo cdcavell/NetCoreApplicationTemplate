@@ -30,4 +30,8 @@ RUN mkdir -p /app/Logs /app/data && chown -R $APP_UID:$APP_UID /app
 
 USER $APP_UID
 
+# Health probing is delegated to Docker Compose, Kubernetes, load balancers,
+# or hosting infrastructure. Use /health/live and /health/ready.
+HEALTHCHECK NONE
+
 ENTRYPOINT ["dotnet", "ProjectTemplate.Web.dll"]

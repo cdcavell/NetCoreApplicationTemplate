@@ -4,6 +4,8 @@ This article provides initial deployment guidance for applications created from 
 
 The template includes production-oriented defaults for middleware ordering, forwarded headers, security headers, rate limiting, health checks, structured logging, error handling, authentication foundations, and EF Core data access. These defaults are intended to provide a safe baseline, but every deployment environment should still be reviewed before production use.
 
+See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
+
 ## Deployment Review Areas
 
 Before deploying an application created from this template, review the following areas:

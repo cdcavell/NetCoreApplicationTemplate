@@ -105,5 +105,23 @@ docker compose logs projecttemplate.web
 ```
 The request should complete successfully, and forwarded header handling should not break normal local routing.
 
+## Container Image Strategy
+
+The application uses Microsoft .NET container images with a multi-stage Dockerfile. The SDK image is used for restore, build, and publish steps. The ASP.NET runtime image is used for the final application image.
+
+The local development image tag is:
+
+```text
+projecttemplate-web:dev
+```
+
+This tag is intended for local development and testing. It is not a published production image contract.
+
+Applications generated from the template may adapt the Dockerfile for production deployment. Production consumers may pin image digests, use organization-approved base images, or apply additional hardening based on their deployment requirements.
+
+After the `v1.0.0` release, changes to documented image names, tag conventions, exposed ports, or runtime image strategy should be reviewed as release-surface changes.
+
+See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
+
 ## Notes
 Do not commit generated SQLite databases, local logs, container volumes, secrets, or environment-specific credentials.

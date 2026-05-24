@@ -9,3 +9,6 @@
 
 - name: Use Centralized Application Middleware Pipeline
   href: 0002-use-centralized-application-middleware-pipeline.md
+
+- name: Record Release Surface and Distribution Strategy
+  href: 0003-record-release-surface-and-distribution-strategy.md

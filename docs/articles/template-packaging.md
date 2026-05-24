@@ -29,3 +29,22 @@ cd ContosoSecurityPortal
 dotnet build
 dotnet test
 ```
+
+## Distribution Direction
+
+The current scaffold supports local installation from the repository root. This is useful for development, validation, and preview use while the template is still being finalized.
+
+The intended stable distribution model is a published NuGet template package installable with `dotnet new install`.
+
+Future stable usage is expected to follow this pattern:
+
+```powershell
+dotnet new install <published-template-package-id>
+dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+```
+
+Clone-and-modify remains valid for source review, contribution, and direct customization. However, after package publishing is available, the NuGet template package should be treated as the primary stable distribution path for normal template consumers.
+
+After the `v1.0.0` release, changes to the template short name, package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
+
+See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.

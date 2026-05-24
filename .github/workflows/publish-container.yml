@@ -97,6 +97,14 @@ jobs:
           output: artifacts/container-release/netcoreapplicationtemplate-${{ steps.version.outputs.version }}.spdx.json
           exit-code: '0'
 
+      - name: Upload release evidence artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: container-release-evidence
+          path: artifacts/container-release
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Enforce container vulnerability threshold
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
         with:
@@ -116,14 +124,6 @@ jobs:
           path: artifacts/container-image.tar
           if-no-files-found: error
           retention-days: 7
-
-      - name: Upload release evidence artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: container-release-evidence
-          path: artifacts/container-release
-          if-no-files-found: error
-          retention-days: 30
 
   publish:
     name: Publish signed container image

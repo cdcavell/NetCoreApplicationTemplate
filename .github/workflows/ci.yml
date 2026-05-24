@@ -209,9 +209,13 @@ jobs:
           $root = Resolve-Path ./artifacts/scaffold/ContosoSecurityPortal
 
           $expected = @(
+            ".dockerignore",
+            ".env.example",
             "README.md",
             "LICENSE.txt",
             "ASSETS-LICENSES.md",
+            "Dockerfile",
+            "docker-compose.yml",
             "ContosoSecurityPortal.slnx",
             "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
             "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"

@@ -267,7 +267,12 @@ jobs:
       - name: Uninstall template package
         if: always()
         shell: pwsh
-        run: dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+        run: |
+          dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+          if ($LASTEXITCODE -ne 0) {
+              Write-Host "Template package was not installed or was already removed. Continuing cleanup."
+              exit 0
+          }
 
   codeql-analysis:
     name: CodeQL analysis

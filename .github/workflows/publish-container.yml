@@ -5,8 +5,6 @@ on:
     tags:
       - 'v*.*.*'
 
-  workflow_dispatch:
-
 permissions:
   contents: read
 
@@ -41,14 +39,16 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          if (-not $env:GITHUB_REF_NAME.StartsWith('v')) {
+          $refName = $env:GITHUB_REF_NAME
+
+          if (-not $refName.StartsWith('v', [System.StringComparison]::OrdinalIgnoreCase)) {
               Write-Error "Container publishing requires a semantic version tag matching v*.*.*."
               exit 1
           }
 
-          $version = $env:GITHUB_REF_NAME.Substring(1)
+          $version = $refName.Substring(1)
           if ($version -notmatch '^\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$') {
-              Write-Error "Tag '$env:GITHUB_REF_NAME' is not a supported semantic version tag."
+              Write-Error "Tag '$refName' is not a supported semantic version tag."
               exit 1
           }
 
@@ -134,6 +134,7 @@ jobs:
       name: container-publish
 
     permissions:
+      actions: read
       attestations: write
       contents: write
       id-token: write
@@ -215,7 +216,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $tag = '${{ github.ref_name }}'
-          $version = '${{ needs.build-scan.outputs.version }}'
           $digestRef = '${{ steps.push.outputs.digest_ref }}'
           $tags = '${{ steps.push.outputs.tags }}'
           $notesPath = 'artifacts/container-release/release-notes.md'

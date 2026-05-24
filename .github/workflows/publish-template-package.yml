@@ -1,0 +1,128 @@
+name: Publish Template Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+    inputs:
+      publish_source:
+        description: 'Package source URL used by dotnet nuget push.'
+        required: true
+        default: 'https://nuget.pkg.github.com/cdcavell/index.json'
+      skip_publish:
+        description: 'Pack only and skip dotnet nuget push.'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  CONFIGURATION: Release
+  PACKAGE_PROJECT: './NetCoreApplicationTemplate.Template.csproj'
+  PACKAGE_OUTPUT: './artifacts/template-package'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+concurrency:
+  group: publish-template-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pack-template:
+    name: Pack template package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx
+
+      - name: Build solution
+        run: dotnet build ./NetCoreApplicationTemplate.slnx --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Pack template package
+        run: |
+          dotnet pack ${{ env.PACKAGE_PROJECT }} \
+            --configuration ${{ env.CONFIGURATION }} \
+            --output ${{ env.PACKAGE_OUTPUT }} \
+            --no-build \
+            /p:ContinuousIntegrationBuild=true
+
+      - name: Upload template package artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: template-package
+          path: ${{ env.PACKAGE_OUTPUT }}/*.nupkg
+          if-no-files-found: error
+
+  publish-template:
+    name: Publish template package
+    needs: pack-template
+    runs-on: ubuntu-latest
+
+    environment:
+      name: template-package-publish
+
+    if: github.event_name == 'push' || inputs.skip_publish == false
+
+    steps:
+      - name: Download template package artifact
+        uses: actions/download-artifact@2acb014e84f7653fdc25869b3cb6aa3d10b3a7f4 # v6
+        with:
+          name: template-package
+          path: ./artifacts/template-package
+
+      - name: Resolve package source
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "url=${{ inputs.publish_source }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://api.nuget.org/v3/index.json" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish template package
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_SOURCE: ${{ steps.source.outputs.url }}
+        run: |
+          set -euo pipefail
+
+          package=$(find ./artifacts/template-package -maxdepth 1 -name '*.nupkg' | head -n 1)
+
+          if [ -z "$package" ]; then
+            echo "Template package artifact was not found."
+            exit 1
+          fi
+
+          api_key="$NUGET_API_KEY"
+          if [ "$PACKAGE_SOURCE" = "https://nuget.pkg.github.com/cdcavell/index.json" ]; then
+            api_key="$GITHUB_TOKEN"
+          fi
+
+          if [ -z "$api_key" ]; then
+            echo "Package source requires an API key. Configure NUGET_API_KEY or publish to GitHub Packages with GITHUB_TOKEN."
+            exit 1
+          fi
+
+          dotnet nuget push "$package" \
+            --api-key "$api_key" \
+            --source "$PACKAGE_SOURCE" \
+            --skip-duplicate

@@ -29,9 +29,13 @@ Recommended order:
 5. Review the generated `.nupkg` metadata before publishing to NuGet.org.
 6. Publish the first NuGet.org package only after manual approval.
 
-## 3. Package signing decision
+## 3. Package signing and contributor trust
 
-NuGet package signing is deferred for the initial release-readiness workflow unless a repository signing certificate or organization signing policy is added before `v1.0.0`.
+NuGet package signing is deferred for `v1.0.0` unless a repository signing certificate, signing owner, timestamping approach, and signing policy are added before release.
+
+External contributors are not expected to sign NuGet package artifacts. Official packages are produced only by the repository owner / maintainer-controlled release workflow. If package signing is introduced later, generated `.nupkg` artifacts should be signed by a project-controlled release certificate, not by individual contributors.
+
+External contributions must enter through pull requests, pass required CI checks, and receive maintainer review before merge. Verified signed commits are encouraged, but package publication remains restricted to the protected release workflow.
 
 The publish workflow keeps the manual approval gate in place so unsigned package publication remains intentional rather than automatic.
 
@@ -56,12 +60,13 @@ Recommended stable release order:
 1. Merge release-readiness work to `main`.
 2. Confirm CI, CodeQL, template smoke tests, documentation build, and package workflow dry-run pass.
 3. Confirm NuGet package identity reservation or documented registry decision.
-4. Confirm Zenodo integration is enabled.
-5. Create a dry-run release tag and verify NuGet/Zenodo outputs.
-6. Correct metadata if necessary.
-7. Tag `v1.0.0`.
-8. Approve protected publish environments only after reviewing generated artifacts.
-9. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
+4. Confirm package signing remains deferred or verify the configured signing certificate and signing policy.
+5. Confirm Zenodo integration is enabled.
+6. Create a dry-run release tag and verify NuGet/Zenodo outputs.
+7. Correct metadata if necessary.
+8. Tag `v1.0.0`.
+9. Approve protected publish environments only after reviewing generated artifacts.
+10. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
 
 ## 6. Rollback notes
 

@@ -7,12 +7,15 @@
 **/bin
 **/obj
 **/Logs
+**/logs
 **/TestResults
 **/coverage
 **/coverage.cobertura.xml
 
+docs
 docs/_site
 artifacts
+tests
 
 *.user
 *.suo
@@ -20,8 +23,17 @@ artifacts
 *.db
 *.db-shm
 *.db-wal
+*.mdf
+*.ldf
+*.ndf
+*.pfx
+*.snk
+*.publishsettings
+*.pubxml
+*.log
 
 Dockerfile*
 docker-compose*.yml
 .env
 .env.*
+!.env.example

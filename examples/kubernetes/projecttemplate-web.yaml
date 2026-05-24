@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projecttemplate-web
+  labels:
+    app.kubernetes.io/name: projecttemplate-web
+    app.kubernetes.io/part-of: netcoreapplicationtemplate
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: projecttemplate-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: projecttemplate-web
+        app.kubernetes.io/part-of: netcoreapplicationtemplate
+    spec:
+      containers:
+        - name: projecttemplate-web
+          image: ghcr.io/cdcavell/netcoreapplicationtemplate:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: DOTNET_RUNNING_IN_CONTAINER
+              value: "true"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+          volumeMounts:
+            - name: app-data
+              mountPath: /app/data
+            - name: app-logs
+              mountPath: /app/Logs
+      volumes:
+        - name: app-data
+          emptyDir: {}
+        - name: app-logs
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: projecttemplate-web
+  labels:
+    app.kubernetes.io/name: projecttemplate-web
+    app.kubernetes.io/part-of: netcoreapplicationtemplate
+spec:
+  selector:
+    app.kubernetes.io/name: projecttemplate-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

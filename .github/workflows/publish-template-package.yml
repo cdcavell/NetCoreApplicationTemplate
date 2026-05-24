@@ -59,7 +59,6 @@ jobs:
           dotnet pack ${{ env.PACKAGE_PROJECT }} \
             --configuration ${{ env.CONFIGURATION }} \
             --output ${{ env.PACKAGE_OUTPUT }} \
-            --no-build \
             /p:ContinuousIntegrationBuild=true
 
       - name: Upload template package artifact

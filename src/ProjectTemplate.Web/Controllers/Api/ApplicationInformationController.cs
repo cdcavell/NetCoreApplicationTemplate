@@ -37,8 +37,15 @@ public sealed class ApplicationInformationController : ControllerBase
 
         return Ok(new ApplicationInformationResponse(
             ApplicationName: "ProjectTemplate.Web",
-            ApiVersion: requestedVersion.ToString(),
+            ApiVersion: FormatApiVersion(requestedVersion),
             Message: "API versioning foundation active."));
+    }
+
+    private static string FormatApiVersion(ApiVersion version)
+    {
+        return string.Create(
+            System.Globalization.CultureInfo.InvariantCulture,
+            $"{version.MajorVersion}.{version.MinorVersion}");
     }
 
     private void AppendDeprecationHeaders()

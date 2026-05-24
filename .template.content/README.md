@@ -66,6 +66,24 @@ http://localhost:8080/health/ready
 http://localhost:8080/health/live
 ```
 
+## Docker Environment Overrides
+
+The generated scaffold includes `.env.example` for optional local Docker Compose overrides.
+
+To customize local Compose values:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Do not commit `.env` files that contain local secrets, production connection strings, or machine-specific values.
+
+## Health Probe Semantics
+
+Use `/health/live` for process liveness and `/health/ready` for dependency-aware deployment readiness.
+
+The baseline readiness endpoint intentionally includes only checks explicitly tagged for readiness. Add database, cache, or external dependency checks only when they should remove the instance from normal traffic rotation.
+
 ## Generated Content
 
 This scaffold intentionally includes source projects, baseline tests, Docker support, license files, and third-party asset notices.

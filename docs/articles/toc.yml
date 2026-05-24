@@ -7,6 +7,9 @@
 - name: Docker Development
   href: docker.md
 
+- name: Container Release Publishing
+  href: container-publish.md
+
 - name: Project Structure
   href: project-structure.md
 

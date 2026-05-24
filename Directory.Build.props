@@ -24,6 +24,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
 
     <RepositoryUrl>https://github.com/cdcavell/NetCoreApplicationTemplate</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

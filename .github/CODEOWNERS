@@ -4,6 +4,9 @@
 # Keep source, tests, documentation, workflows, template configuration, release,
 # and security/governance files owned by the repository maintainer until a
 # broader maintainer group is intentionally documented.
+#
+# Code Owner review is required by branch protection for pull requests targeting main.
+# Approvals are dismissed when new reviewable commits are pushed.
 
 * @cdcavell
 

@@ -245,6 +245,8 @@ Repository-level guidance is maintained in root-level files:
 - [Changelog](CHANGELOG.md)
 - [Third-Party Asset Notices](ASSETS-LICENSES.md)
 
+Pull requests targeting `main` require passing CI and Code Owner review for owned paths; stale approvals are dismissed when new reviewable commits are pushed.
+
 ## Repository Structure
 
 ```text

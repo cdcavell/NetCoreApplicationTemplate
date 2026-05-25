@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Entities;
+using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Infrastructure.Data;
 
@@ -11,12 +13,14 @@ namespace ProjectTemplate.Infrastructure.Data;
 public sealed partial class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     ILogger<ApplicationDbContext> logger,
-    ICurrentActorAccessor currentActorAccessor
+    ICurrentActorAccessor currentActorAccessor,
+    IOptions<DataAccessOptions> dataAccessOptions
 )
     : DbContext(options)
 {
     private readonly ILogger<ApplicationDbContext> _logger = logger;
     private readonly ICurrentActorAccessor _currentActorAccessor = currentActorAccessor;
+    private readonly bool _auditOptions = dataAccessOptions.Value.Auditing.Enabled;
 
     /// <summary>
     /// Gets the audit records for the application.
@@ -69,6 +73,11 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
+        if (!_auditOptions)
+        {
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
         int result = base.SaveChanges(acceptAllChangesOnSuccess);
         _ = OnAfterSaveChanges(auditEntries);
@@ -87,6 +96,11 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+        if (!_auditOptions)
+        {
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
 
         int result = await base.SaveChangesAsync(

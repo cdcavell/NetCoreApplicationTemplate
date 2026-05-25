@@ -17,6 +17,47 @@ The default connection string uses a local SQLite database file:
   "ApplicationDatabase": "Data Source=application-dev.db"
 }
 ```
+
+## Data Access Configuration
+
+Data access behavior is configured under `ProjectTemplate:DataAccess`:
+
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Provider": "Sqlite",
+    "ConnectionStringName": "ApplicationDatabase",
+    "Auditing": {
+      "Enabled": true
+    }
+  }
+}
+```
+
+The configuration values are:
+|Setting|Purpose|
+|:------|:------|
+|`Provider`|Selects the EF Core database provider used by the application. The default local development provider is `Sqlite`.
+|`ConnectionStringName`|Identifies which named connection string should be resolved from `ConnectionStrings`.
+|`Auditing:Enabled`|Enables or disables EF Core audit record creation during `SaveChanges` and `SaveChangesAsync`.
+
+By default, the application uses:
+
+```text
+ProjectTemplate:DataAccess:Provider = Sqlite
+ProjectTemplate:DataAccess:ConnectionStringName = ApplicationDatabase
+ProjectTemplate:DataAccess:Auditing:Enabled = true
+```
+
+With the default configuration, the application resolves:
+
+```text
+ConnectionStrings:ApplicationDatabase
+```
+
+
+
+
 EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `ApplicationDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
@@ -81,9 +122,11 @@ dotnet ef migrations script `
   --output migration.sql
 ```
 ## Connection String Resolution
+
 Migration commands use the startup project to resolve configuration.
 
-For this application, that means the connection string comes from:
+For this application, configuration may come from:
+
 ```powershell
 src/ProjectTemplate.Web/appsettings.json
 src/ProjectTemplate.Web/appsettings.{Environment}.json
@@ -91,20 +134,97 @@ user secrets
 environment variables
 other configured providers
 ```
-By default, the application resolves:
-```powershell
+
+The application reads the configured connection string name from:
+
+```text
+ProjectTemplate:DataAccess:ConnectionStringName
+```
+
+By default, this value is:
+
+```text
+ApplicationDatabase
+```
+
+The application then resolves the matching named connection string from:
+
+```text
 ConnectionStrings:ApplicationDatabase
 ```
+
 For local development, the default SQLite value is:
-```powershell
+```csharp
 Data Source=application-dev.db
 ```
-Applications can override this value through normal ASP.NET Core configuration sources.
 
-For example, an environment variable can override the connection string:
+Applications can override either the selected connection string name or the connection string value through normal ASP.NET Core configuration sources.
+
+For example, an environment variable can override the connection string value:
+
 ```powershell
 ConnectionStrings__ApplicationDatabase=Data Source=custom-application-dev.db
 ```
+
+An environment variable can also select a different configured connection string name:
+
+```powershell
+ProjectTemplate__DataAccess__ConnectionStringName=ApplicationSqlServer
+```
+
+When `ConnectionStringName` is set to `ApplicationSqlServer`, the application resolves:
+
+```text
+ConnectionStrings:ApplicationSqlServer
+```
+
+## EF Core Auditing
+
+The template includes a baseline EF Core audit trail.
+
+`ApplicationDbContext.SaveChanges` and `SaveChangesAsync` are overridden to generate audit records for tracked entity changes when auditing is enabled.
+
+Audit records may include:
+
+- Entity/table name
+- Entity state
+- Key values
+- Original values
+- Current values
+- Actor information
+- Application context
+- UTC timestamp
+
+Auditing is enabled by default:
+
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Auditing": {
+      "Enabled": true
+    }
+  }
+}
+```
+
+To disable audit record creation:
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Auditing": {
+      "Enabled": false
+    }
+  }
+}
+```
+
+When the application starts, the data access startup log records the configured provider, connection string name, and EF Core auditing status.
+
+When auditing is enabled, audit records are written to the application database. The template does not include automatic pruning, retention, archival, legal hold, masking, export, or purge behavior for audit records.
+
+Consuming applications are responsible for deciding how audit records are retained, archived, masked, purged, or moved to long-term storage. Before enabling auditing in production, review whether audited values may contain sensitive or regulated data.
+
+
 ## Automatic Startup Migrations
 
 The application does not automatically run EF Core migrations during application startup.
@@ -178,7 +298,8 @@ If migrations are not discovered, confirm that the command uses:
 --startup-project src/ProjectTemplate.Web
 --context ApplicationDbContext
 ```
-If SQLite provider configuration fails, confirm that the infrastructure project references the SQLite provider package and that the data access registration uses the configured ApplicationDatabase connection string.
+
+If data access provider configuration fails, confirm that `ProjectTemplate:DataAccess:Provider` is configured, that the selected provider package is referenced, and that `ProjectTemplate:DataAccess:ConnectionStringName` points to an existing named connection string under `ConnectionStrings`.
 
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 SQLite remains the default development provider. SQL Server can be selected through configuration. Because EF Core migrations are provider-specific, production SQL Server deployments should generate and maintain SQL Server-compatible migrations before applying database updates.

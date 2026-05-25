@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
+using ProjectTemplate.Infrastructure.Data.Options;
+using ProjectTemplate.Infrastructure.Data.Services;
 using ProjectTemplate.Web.Accessors;
 
 namespace ProjectTemplate.Web.Extensions;
@@ -20,12 +22,21 @@ public static class DataAccessServiceExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
+        services
+            .AddOptions<DataAccessOptions>()
+            .Bind(configuration.GetSection(DataAccessOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Provider),
+                "ProjectTemplate:DataAccess:Provider must not be empty.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionStringName),
+                "ProjectTemplate:DataAccess:ConnectionStringName must not be empty.")
+            .ValidateOnStart();
+
         DataAccessOptions dataAccessOptions = configuration
-            .GetSection("ProjectTemplate:DataAccess")
+            .GetSection(DataAccessOptions.SectionName)
             .Get<DataAccessOptions>() ?? new DataAccessOptions();
 
-        string provider = dataAccessOptions.Provider.Trim();
-        string connectionStringName = dataAccessOptions.ConnectionStringName.Trim();
+        string provider = dataAccessOptions.Provider?.Trim() ?? string.Empty;
+        string connectionStringName = dataAccessOptions.ConnectionStringName?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(provider))
         {
@@ -65,14 +76,8 @@ public static class DataAccessServiceExtensions
         });
 
         services.AddScoped<IExternalLoginAccountResolver, EfCoreExternalLoginAccountResolver>();
+        services.AddHostedService<DataAccessStartupLogger>();
 
         return services;
-    }
-
-    private sealed class DataAccessOptions
-    {
-        public string Provider { get; init; } = "Sqlite";
-
-        public string ConnectionStringName { get; init; } = "ApplicationDatabase";
     }
 }

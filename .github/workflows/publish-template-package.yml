@@ -61,6 +61,26 @@ jobs:
             --output ${{ env.PACKAGE_OUTPUT }} \
             /p:ContinuousIntegrationBuild=true
 
+      - name: Validate package version matches release tag
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        shell: bash
+        run: |
+          expected_version="${GITHUB_REF_NAME#v}"
+
+          echo "Expected package version: ${expected_version}"
+          echo "Generated packages:"
+          find "${{ env.PACKAGE_OUTPUT }}" -name "*.nupkg" -print
+
+          package_count=$(find "${{ env.PACKAGE_OUTPUT }}" -name "*.${expected_version}.nupkg" | wc -l)
+
+          echo "Matching package count: ${package_count}"
+
+          if [ "$package_count" -eq 0 ]; then
+            echo "No .nupkg found matching release tag version ${expected_version}."
+            echo "The package VersionPrefix may not match the Git tag."
+            exit 1
+          fi
+
       - name: Upload template package artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Entities;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
+using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Web.Tests;
 
@@ -298,16 +299,27 @@ public sealed class ExternalLoginAccountResolverTests
         return connection;
     }
 
-    private static ApplicationDbContext CreateContext(SqliteConnection connection)
+    private static ApplicationDbContext CreateContext(
+        SqliteConnection connection,
+        bool auditingEnabled = true)
     {
         DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlite(connection)
             .Options;
 
+        DataAccessOptions dataAccessOptions = new()
+        {
+            Auditing = new DataAuditingOptions
+            {
+                Enabled = auditingEnabled
+            }
+        };
+
         return new ApplicationDbContext(
             options,
             NullLogger<ApplicationDbContext>.Instance,
-            new TestCurrentActorAccessor());
+            new TestCurrentActorAccessor(),
+            Microsoft.Extensions.Options.Options.Create(dataAccessOptions));
     }
 
     private sealed class TestCurrentActorAccessor : ICurrentActorAccessor

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data;
+using ProjectTemplate.Infrastructure.Data.Options;
 using ProjectTemplate.Web.Extensions;
 
 namespace ProjectTemplate.Web.Tests;
@@ -190,6 +192,75 @@ public sealed class DataAccessServiceExtensionsTests
             "Connection string 'MissingDatabase' was not configured.",
             exception.Message,
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Verifies that EF Core audit record creation is enabled when configured.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_AuditingEnabled_BindsAuditOptions()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:",
+                ["ProjectTemplate:DataAccess:Provider"] = "Sqlite",
+                ["ProjectTemplate:DataAccess:ConnectionStringName"] = "ApplicationDatabase",
+                ["ProjectTemplate:DataAccess:Auditing:Enabled"] = "true"
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.True(options.Auditing.Enabled);
+    }
+
+    /// <summary>
+    /// Verifies that EF Core audit record creation can be disabled through configuration.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_AuditingDisabled_BindsAuditOptions()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:",
+                ["ProjectTemplate:DataAccess:Provider"] = "Sqlite",
+                ["ProjectTemplate:DataAccess:ConnectionStringName"] = "ApplicationDatabase",
+                ["ProjectTemplate:DataAccess:Auditing:Enabled"] = "false"
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.False(options.Auditing.Enabled);
+    }
+
+    /// <summary>
+    /// Verifies that EF Core audit record creation is enabled by default when not explicitly configured.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_AuditingNotConfigured_DefaultsToEnabled()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:"
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.True(options.Auditing.Enabled);
     }
 
     private static ServiceProvider CreateServiceProvider(IConfiguration configuration)

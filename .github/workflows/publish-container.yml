@@ -248,9 +248,19 @@ jobs:
           - Cosign keyless image signature for the pushed digest.
           "@ | Set-Content -Path $notesPath -Encoding UTF8
 
-          if (gh release view $tag *> $null) {
-              gh release upload $tag artifacts/container-release/* --clobber
+          gh release view $tag --repo $env:GH_REPO 1>$null 2>$null
+
+          if ($LASTEXITCODE -eq 0) {
+              gh release upload $tag artifacts/container-release/* --clobber --repo $env:GH_REPO
+
+              if ($LASTEXITCODE -ne 0) {
+                  exit $LASTEXITCODE
+              }
           }
           else {
-              gh release create $tag artifacts/container-release/* --title "Release $tag" --notes-file $notesPath
+              gh release create $tag artifacts/container-release/* --title "Release $tag" --notes-file $notesPath --repo $env:GH_REPO
+
+              if ($LASTEXITCODE -ne 0) {
+                  exit $LASTEXITCODE
+              }
           }

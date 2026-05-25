@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.4 - 2026-05-25
+
+### Fixed
+
+- Bumped the template package version metadata to `0.5.4`.
+- Added validation to ensure the generated `.nupkg` version matches the Git release tag.
+- Prevented stale package metadata from silently republishing an older NuGet package during a new release.
+
+### Changed
+
+- Continued release pipeline hardening for template package publishing, container publishing, image signing, SBOM generation, vulnerability scan evidence, and provenance attestation.
+
 ## 0.5.3 - 2026-05-25
 
 ### Fixed
@@ -12,10 +24,16 @@ This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 - Updated release evidence upload logic to use explicit GitHub CLI repository context and `$LASTEXITCODE` checks.
 - Preserved signed container image publishing, SBOM, vulnerability scan, and provenance attestation behavior.
 
+### Notes
+
+- No new NuGet package was published for this release because the template package metadata still resolved to `0.5.2`.
+- The latest NuGet package after this release remained `0.5.2`.
+
 ## 0.5.2 - 2026-05-25
 
 ### Fixed
 
+- Published the NuGet template package for the `0.5.x` release stream.
 - Added explicit GitHub repository context for container release evidence publishing.
 - Fixed release evidence publishing when GitHub CLI commands run outside a checked-out repository.
 
@@ -39,7 +57,7 @@ This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
 - Updated package and release metadata for `0.5.0`.
 - Prepared the repository for DOI-bearing archived releases and NuGet package distribution.
-- 
+
 ## 0.4.2 - 2026-05-23
 
 ### Added

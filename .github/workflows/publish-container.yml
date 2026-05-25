@@ -226,6 +226,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           $tag = '${{ github.ref_name }}'
           $digestRef = '${{ steps.push.outputs.digest_ref }}'

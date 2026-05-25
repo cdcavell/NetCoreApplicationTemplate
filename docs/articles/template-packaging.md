@@ -13,7 +13,7 @@ Package-based validation is preferred because it verifies the actual distributio
 | Template short name | `cdcavell-netcoreapp` |
 | Template package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
-| Current package version | `0.5.1` |
+| Current package version | `0.5.2` |
 
 ## Consumer Scaffold Boundaries
 
@@ -45,7 +45,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 ## Install the Template Package
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.1.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.2.nupkg
 ```
 
 ## Create a New Project from the Template

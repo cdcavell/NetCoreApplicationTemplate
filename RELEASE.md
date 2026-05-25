@@ -9,6 +9,8 @@ Use this checklist before publishing a stable template package or creating the f
 - Run the release build quality commands documented in `docs/articles/build-quality.md`.
 - Run the template smoke-test workflow on the release candidate branch or tag.
 - Confirm the template package ID is still `CDCavell.NetCoreApplicationTemplate`.
+- Confirm `docs/articles/public-surface-v1.md` reflects the final `v1.0.0` package identity, template symbols, generated structure, configuration keys, endpoint conventions, middleware ordering, and publishing conventions.
+- Confirm `docs/articles/v1-upgrade-notes.md` is current before tagging `v1.0.0`.
 
 ## 2. NuGet package identity and publish gate
 

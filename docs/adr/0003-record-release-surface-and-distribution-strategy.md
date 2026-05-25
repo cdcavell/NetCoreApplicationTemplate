@@ -21,6 +21,8 @@ This ADR records the release-readiness decisions needed before that stable relea
 
 Use this ADR as the release-readiness decision record for SemVer, template distribution, API versioning, container image strategy, and repository metadata cross-linking.
 
+The concrete `v1.0.0` consumer contract is defined in [`docs/articles/public-surface-v1.md`](../articles/public-surface-v1.md). This ADR records the governing decision; the public-surface article lists the committed identifiers, generated structure, configuration keys, endpoint conventions, middleware invariants, and publishing conventions.
+
 ### Semantic Versioning Public Surface
 
 The public SemVer surface includes template behavior that consumers are expected to rely on after `v1.0.0`:
@@ -166,3 +168,7 @@ Trade-offs and risks:
 - [`docs/articles/deployment.md`](../articles/deployment.md)
 - [`README.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/README.md)
 - [`CITATION.cff`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CITATION.cff)
+- [`docs/articles/public-surface-v1.md`](../articles/public-surface-v1.md)
+- [`docs/articles/v1-upgrade-notes.md`](../articles/v1-upgrade-notes.md)
+- [`RELEASE.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/RELEASE.md)
+- [`CHANGELOG.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CHANGELOG.md)

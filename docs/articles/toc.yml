@@ -19,6 +19,9 @@
 - name: Deployment
   href: deployment.md
 
+- name: Runtime Readiness
+  href: runtime-readiness.md
+
 - name: Middleware
   items:
     - name: Middleware Pipeline

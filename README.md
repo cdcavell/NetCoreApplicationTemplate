@@ -362,12 +362,14 @@ See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-r
 
 ## Citation
 
-Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use this file to generate citation formats from the repository sidebar.
+If you use this repository, please cite it using the metadata in [`CITATION.cff`](./CITATION.cff) or one of the following: 
 
-Suggested plain-text citation:
+- Author ORCID: [0009-0002-2113-0245](https://orcid.org/0009-0002-2113-0245)
+- Zenodo Concept DOI: [10.5281/zenodo.20373042](https://doi.org/10.5281/zenodo.20373042)
+- Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.4. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.4. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap

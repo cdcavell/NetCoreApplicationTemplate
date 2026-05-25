@@ -51,10 +51,18 @@ Prefer small, focused pull requests. Documentation-only, dependency-only, and ru
 
 The `main` branch is treated as the stable integration branch. Changes should be made through pull requests rather than direct pushes.
 
+Pull requests targeting `main` require Code Owner review when files match `.github/CODEOWNERS`.
+
+GitHub branch protection is configured to dismiss stale pull request approvals when new reviewable commits are pushed. This ensures pull requests are re-evaluated after changes.
+
+General required approval counts are not currently enabled under the solo-maintainer model. This may be enabled later when additional maintainers are added.
+
 Before merging, review that:
 
 - The branch is current enough to merge cleanly.
 - Required validation checks have passed.
+- Required Code Owner review has been approved when owned files are changed.
+- Any stale approvals caused by new commits have been re-approved.
 - The pull request scope matches the issue or stated goal.
 - Documentation has been updated when behavior or workflow expectations change.
 

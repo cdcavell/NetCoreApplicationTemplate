@@ -107,6 +107,12 @@ Before merge, the maintainer reviews whether:
 
 Pull requests may be returned for revision when they are too broad, mix unrelated changes, lack validation, bypass documented release expectations, or create unclear downstream behavior.
 
+Pull requests targeting `main` require Code Owner review when files match `.github/CODEOWNERS`.
+
+If new reviewable commits are pushed after approval, GitHub dismisses the stale approval and the pull request must be reviewed again before merge.
+
+General required approval counts are not currently enabled while the repository is maintained under the solo-maintainer model. Required approvals may be enabled later when additional maintainers are added.
+
 ## Validation Expectations
 
 For runtime code changes, run:
@@ -160,7 +166,9 @@ The following controls should be enabled before merging the first external pull 
 
 - Signed commit requirement on protected branches.
 - Required pull request reviewer approval.
-- Code Owners review for governance files, workflow files, release files, security policy files, and template packaging files.
+- Code Owner review is required for pull requests targeting `main` when owned paths are changed.
+- Stale pull request approvals are dismissed when new reviewable commits are pushed.
+- General required approval counts remain deferred until additional maintainers are added.
 - Review of branch protection settings for `main` and any long-lived development branch.
 - Review of repository secrets, environment secrets, and package publishing permissions.
 

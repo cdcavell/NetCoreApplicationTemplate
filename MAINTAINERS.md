@@ -20,6 +20,8 @@ The maintainer is responsible for:
 - Managing GitHub release and Zenodo archival sequencing.
 - Reviewing vulnerability reports and coordinating security fixes.
 - Keeping release, support, and contribution documentation current.
+- Maintaining CODEOWNERS coverage and required Code Owner review for protected branches.
+- Reviewing stale approval behavior when branch protection settings change.
 
 ## Release Cadence
 
@@ -56,13 +58,16 @@ The `main` branch is the stable integration branch and should be protected.
 Expected `main` branch controls include:
 
 - Changes flow through pull requests instead of direct pushes.
+- Pull requests targeting `main` require Code Owner review when owned paths are changed.
+- Stale pull request approvals are dismissed when new reviewable commits are pushed.
 - Required status checks must pass before merge.
 - Branches should be current enough to merge cleanly.
 - Linear history or squash/rebase merge strategy should be preserved according to repository settings.
 - Administrative bypass should be avoided for normal development.
 - Workflow, release, security, package, and governance changes should receive deliberate maintainer review.
-- CODEOWNERS review should be enabled before adding collaborators or accepting external pull requests.
-- Required signed commits should be considered before adding collaborators or accepting external pull requests.
+- General required approvals are intentionally not enabled while the repository operates under a solo-maintainer model.
+- Required pull request approvals may be enabled later when additional maintainers are added.
+- Required approval of the most recent reviewable push is not currently enabled.
 
 ## Adding Maintainers
 

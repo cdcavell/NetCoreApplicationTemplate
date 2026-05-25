@@ -3,9 +3,10 @@
 [![Coverage Gate](https://img.shields.io/badge/coverage%20gate-60%25-brightgreen)](#github-actions)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-[![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
+[![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20373042.svg)](https://doi.org/10.5281/zenodo.20373042)
 
 A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
 
@@ -14,9 +15,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.4.2](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.4.2)__
+Current release: __[Release 0.5.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.0)__
 
-Tag: `v0.4.2`
+Tag: `v0.5.0`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals

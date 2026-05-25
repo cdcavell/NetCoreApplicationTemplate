@@ -80,7 +80,7 @@ jobs:
 
     steps:
       - name: Download template package artifact
-        uses: actions/download-artifact@2acb014e84f7653fdc25869b3cb6aa3d10b3a7f4 # v6
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: template-package
           path: ./artifacts/template-package

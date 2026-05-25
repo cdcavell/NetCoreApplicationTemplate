@@ -154,13 +154,13 @@ jobs:
 
     steps:
       - name: Download scanned image artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: container-image
           path: artifacts
 
       - name: Download release evidence artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
           name: container-release-evidence
           path: artifacts/container-release

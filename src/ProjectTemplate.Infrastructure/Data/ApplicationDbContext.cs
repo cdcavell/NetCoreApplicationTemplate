@@ -98,7 +98,9 @@ public sealed partial class ApplicationDbContext(
     {
         if (!_auditOptions)
         {
-            return base.SaveChanges(acceptAllChangesOnSuccess);
+            return await base.SaveChangesAsync(
+                acceptAllChangesOnSuccess,
+                cancellationToken);
         }
 
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();

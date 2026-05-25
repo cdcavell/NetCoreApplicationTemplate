@@ -165,7 +165,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.3.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.4.nupkg
 ```
 
 Generate a consumer project:
@@ -365,7 +365,7 @@ Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use t
 Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.3. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.4. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
 ```
 
 ## Roadmap

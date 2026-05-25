@@ -1,0 +1,45 @@
+# Repository ownership
+#
+# This project currently operates under a solo-maintainer ownership model.
+# Keep source, tests, documentation, workflows, template configuration, release,
+# and security/governance files owned by the repository maintainer until a
+# broader maintainer group is intentionally documented.
+
+* @cdcavell
+
+# Application source and tests
+/src/ @cdcavell
+/tests/ @cdcavell
+
+# Documentation and architecture decisions
+/docs/ @cdcavell
+README.md @cdcavell
+PACKAGE-README.md @cdcavell
+CHANGELOG.md @cdcavell
+
+# GitHub workflows, issue templates, and repository automation
+/.github/ @cdcavell
+/.github/workflows/ @cdcavell
+/.github/ISSUE_TEMPLATE/ @cdcavell
+/.github/CODEOWNERS @cdcavell
+
+# Template packaging and scaffold configuration
+/.template.config/ @cdcavell
+/.template.content/ @cdcavell
+NetCoreApplicationTemplate.Template.csproj @cdcavell
+Directory.Build.props @cdcavell
+Directory.Packages.props @cdcavell
+global.json @cdcavell
+nuget.config @cdcavell
+
+# Governance, security, release, citation, and archival metadata
+COMMUNITY_STANDARDS.md @cdcavell
+CONTRIBUTING.md @cdcavell
+MAINTAINERS.md @cdcavell
+RELEASE.md @cdcavell
+SECURITY.md @cdcavell
+SUPPORT.md @cdcavell
+CITATION.cff @cdcavell
+.zenodo.json @cdcavell
+LICENSE.txt @cdcavell
+ASSETS-LICENSES.md @cdcavell

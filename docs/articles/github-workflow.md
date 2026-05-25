@@ -58,9 +58,11 @@ Before merging, review that:
 - The pull request scope matches the issue or stated goal.
 - Documentation has been updated when behavior or workflow expectations change.
 
+After changing workflow triggers, review branch protection required checks so old push-scoped duplicate check names are not still required.
+
 ## CI Validation
 
-The CI workflow validates pull requests and relevant branch pushes.
+The CI workflow validates pull requests, `main` branch updates, release tags, and manual workflow runs.
 
 Current validation includes:
 
@@ -73,6 +75,15 @@ Current validation includes:
 - CodeQL analysis.
 - Template package smoke testing on Linux, Windows, and macOS.
 - Scaffolded Docker support file verification.
+
+The CI trigger scope is intentionally limited to:
+
+- Pull requests targeting `main`.
+- Pushes to `main`.
+- Release-style tags matching `v*.*.*`.
+- Manual `workflow_dispatch` runs.
+
+Feature-branch pushes are not CI triggers by default. Feature branches are validated through pull requests so the same branch state does not produce duplicate push and pull-request smoke-test checks.
 
 Dependency update pull requests should be reviewed with the same CI expectations as manually authored pull requests.
 

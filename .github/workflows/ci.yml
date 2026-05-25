@@ -8,12 +8,6 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'
-      - 'fix/**'
-      - 'docs/**'
-      - 'refactor/**'
-      - 'test/**'
-      - 'chore/**'
     tags:
       - 'v*.*.*'
 

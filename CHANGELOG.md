@@ -4,6 +4,42 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.3 - 2026-05-25
+
+### Fixed
+
+- Fixed container release evidence publishing when the GitHub release already exists.
+- Updated release evidence upload logic to use explicit GitHub CLI repository context and `$LASTEXITCODE` checks.
+- Preserved signed container image publishing, SBOM, vulnerability scan, and provenance attestation behavior.
+
+## 0.5.2 - 2026-05-25
+
+### Fixed
+
+- Added explicit GitHub repository context for container release evidence publishing.
+- Fixed release evidence publishing when GitHub CLI commands run outside a checked-out repository.
+
+## 0.5.1 - 2026-05-25
+
+### Fixed
+
+- Corrected pinned GitHub Actions references used by release publishing workflows.
+- Added the Zenodo Concept DOI badge to the README.
+- Updated README release metadata for the `0.5.x` release stream.
+
+## 0.5.0 - 2026-05-25
+
+### Added
+
+- Added Zenodo archival metadata and DOI support for repository citation.
+- Added release publishing support for the template package.
+- Added container publishing, signing, SBOM, vulnerability scan, and provenance evidence workflow support.
+
+### Changed
+
+- Updated package and release metadata for `0.5.0`.
+- Prepared the repository for DOI-bearing archived releases and NuGet package distribution.
+- 
 ## 0.4.2 - 2026-05-23
 
 ### Added

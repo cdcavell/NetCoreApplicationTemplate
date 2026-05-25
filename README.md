@@ -15,9 +15,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.5.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.0)__
+Current release: __[Release 0.5.1](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.1)__
 
-Tag: `v0.5.0`
+Tag: `v0.5.1`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -165,7 +165,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.0.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.1.nupkg
 ```
 
 Generate a consumer project:
@@ -365,7 +365,7 @@ Citation metadata is available in [CITATION.cff](CITATION.cff). GitHub can use t
 Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.0. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.1. MIT License. https://github.com/cdcavell/NetCoreApplicationTemplate
 ```
 
 ## Roadmap

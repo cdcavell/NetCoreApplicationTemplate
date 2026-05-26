@@ -155,6 +155,10 @@ The CI workflow packs the template package, installs the generated `.nupkg`, sca
 
 The smoke test runs on Linux, Windows, and macOS so path handling and package install behavior are validated across supported runner environments.
 
+On Linux runners, CI also validates the Docker consumer path from the generated scaffolded output. This Docker smoke test builds the generated Docker image, validates `docker compose config`, starts the generated Compose application, verifies `/health/live`, captures Compose logs for diagnostics, and tears down the Compose stack during cleanup.
+
+Docker runtime validation is intentionally limited to Linux runners. The goal is to prove that Docker files emitted by the template are usable by a generated consumer project, not to certify Docker host behavior across every operating system.
+
 ## Distribution Direction
 
 The intended stable distribution model is a published NuGet template package installable with `dotnet new install`.

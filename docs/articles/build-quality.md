@@ -121,6 +121,10 @@ The generated template intentionally includes:
 
 These files are part of the consumer build contract because package versions and build quality settings are centralized at the repository root.
 
+## Coverage Policy
+
+The CI coverage gate is intentionally held at 60% for v1.0.0 as a minimum safety net. Contract-level integration tests protect advertised runtime behavior directly, while the global threshold prevents broad coverage regression without forcing low-value tests.
+
 ## Dependency Upgrade Policy
 
 Dependency updates should be reviewed by impact level.

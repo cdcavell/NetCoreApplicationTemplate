@@ -85,7 +85,8 @@
         "CONTRIBUTING.md",
         "NetCoreApplicationTemplate.Template.csproj",
         "PACKAGE-README.md",
-        "SECURITY.md"
+        "SECURITY.md",
+        "scripts/Validate-VersionConsistency.ps1"
       ],
       "rename": {
         "NetCoreApplicationTemplate.slnx": "ProjectTemplate.slnx"

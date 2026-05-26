@@ -202,62 +202,9 @@ jobs:
             --name ContosoSecurityPortal `
             --output ./artifacts/scaffold/ContosoSecurityPortal
 
-      - name: Validate scaffolded consumer output
+      - name: Validate scaffolded consumer manifest
         shell: pwsh
-        run: |
-          $root = Resolve-Path ./artifacts/scaffold/ContosoSecurityPortal
-
-          $expected = @(
-            ".dockerignore",
-            ".editorconfig",
-            ".env.example",
-            "ASSETS-LICENSES.md",
-            "Directory.Build.props",
-            "Directory.Packages.props",
-            "Dockerfile",
-            "docker-compose.yml",
-            "global.json",
-            "LICENSE.txt",
-            "README.md",
-            "ContosoSecurityPortal.slnx",
-            "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
-            "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"
-          )
-
-          foreach ($path in $expected) {
-              $fullPath = Join-Path $root $path
-              if (-not (Test-Path $fullPath)) {
-                  Write-Error "Expected scaffolded path was missing: $path"
-                  exit 1
-              }
-          }
-
-          $forbidden = @(
-            ".github",
-            ".template.config",
-            ".template.content",
-            "docs",
-            "CHANGELOG.md",
-            "CITATION.cff",
-            "CONTRIBUTING.md",
-            "NetCoreApplicationTemplate.Template.csproj",
-            "PACKAGE-README.md",
-            "SECURITY.md"
-          )
-
-          foreach ($path in $forbidden) {
-              $fullPath = Join-Path $root $path
-              if (Test-Path $fullPath) {
-                  Write-Error "Maintainer-only path was scaffolded unexpectedly: $path"
-                  exit 1
-              }
-          }
-
-          $readme = Get-Content (Join-Path $root "README.md") -Raw
-          if ($readme -match "github.com/cdcavell/NetCoreApplicationTemplate/actions" -or $readme -match "Current release:") {
-              Write-Error "Generated README appears to contain repository maintainer content."
-              exit 1
-          }
+        run: ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal
 
       - name: Build scaffolded output
         shell: pwsh

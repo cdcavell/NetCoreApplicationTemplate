@@ -109,6 +109,28 @@ Adding optional keys with safe defaults is normally a minor change.
 
 Correcting descriptions, examples, comments, or validation messages without behavior changes is normally a patch change.
 
+### Security Header Defaults
+
+The `ProjectTemplate:SecurityHeaders` section is part of the v1.0 public configuration surface.
+
+The following defaults are part of the v1.0 runtime contract when security headers are enabled:
+
+| Header | Default behavior |
+|:---|:---|
+| `X-Content-Type-Options` | Emits `nosniff`. |
+| `X-Frame-Options` | Emits `DENY`. |
+| `Referrer-Policy` | Emits `strict-origin-when-cross-origin`. |
+| `X-Permitted-Cross-Domain-Policies` | Emits `none`. |
+| `Cross-Origin-Opener-Policy` | Emits `same-origin` when `EnableCrossOriginHeaders` is `true`. |
+| `Cross-Origin-Resource-Policy` | Emits `same-origin` when `EnableCrossOriginHeaders` is `true`. |
+| `Permissions-Policy` | Emits the configured `PermissionsPolicy` value when `EnablePermissionsPolicy` is `true`. |
+| `Content-Security-Policy` | Emits the configured `ContentSecurityPolicy` value when `EnableContentSecurityPolicy` is `true`. |
+| `X-XSS-Protection` | Not emitted because it is obsolete. |
+
+Changing required default headers, changing documented default values, removing validation, or changing the meaning of documented security-header options is a breaking change after `v1.0.0` unless a compatibility path is provided.
+
+Adding new optional security headers or new configuration options with safe defaults is normally a minor change.
+
 ## Route and Endpoint Conventions
 
 The following endpoint conventions are part of the v1.0 public surface.
@@ -206,7 +228,7 @@ When classification is ambiguous, ask:
 
 > Would an application generated from the previous stable version break, require reconfiguration, require a deployment change, or require consumers to learn a new documented usage pattern?
 
-f yes, the change is probably SemVer-major unless the old behavior remains supported.
+If yes, the change is probably SemVer-major unless the old behavior remains supported.
 
 If the change only adds optional capability, it is probably SemVer-minor.
 
@@ -224,3 +246,4 @@ If the change affects only repository internals and not generated or documented 
 - [Health Checks](health-checks.md)
 - [Error Handling](error-handling.md)
 - [Container Release Publishing](container-publish.md)
+- [Security Headers](security-headers.md)

@@ -159,6 +159,27 @@ public sealed class SecurityHeadersTests
     }
 
     /// <summary>
+    /// Verifies that no security headers are emitted when security headers are globally disabled.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous test operation.</returns>
+    [Fact]
+    public async Task DisabledSecurityHeaders_DoNotEmitSecurityHeaders()
+    {
+        using ApplicationWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>
+        {
+            ["ProjectTemplate:SecurityHeaders:Enabled"] = "false"
+        });
+
+        using HttpClient client = factory.CreateHttpsClient();
+
+        using HttpResponseMessage response = await client.GetAsync("/test/security-headers", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        AssertSecurityHeadersMissing(response);
+    }
+
+    /// <summary>
     /// Verifies that configured excluded path prefixes do not receive security headers.
     /// </summary>
     /// <param name="path">The excluded request path to verify.</param>

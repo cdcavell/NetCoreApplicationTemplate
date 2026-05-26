@@ -15,22 +15,35 @@ The pipeline calls:
 ```csharp
 app.UseApplicationSecurityHeaders();
 ```
-## Default Headers
+## v1.0 Security Header Contract
 
-By default, the middleware applies the following headers when enabled:
+This contract applies when `ProjectTemplate:SecurityHeaders:Enabled` is `true` and the request path does not match `ExcludedPathPrefixes`.
 
-|Header|Default Value|Purpose|
-|:-----|:------------|:------|
-|`X-Content-Type-Options`|`nosniff`|Prevents MIME type sniffing by browsers, reducing the risk of drive-by downloads and content injection attacks.|
-|`X-Frame-Options`|`DENY`|Prevents the application from being framed by another site.|
-|`Referrer-Policy`|`strict-origin-when-cross-origin`|Limits how much referrer information is sent during navigation.|
-|`X-Permitted-Cross-Domain-Policies`|`none`|Blocks legacy cross-domain policy files.|
-|`Cross-Origin-Opener-Policy`|`same-origin`|Helps isolate the browsing context from cross-origin documents.|
-|`Cross-Origin-Resource-Policy`|`same-origin`|Restricts other origins from loading application resources.|
-|`Permissions-Policy`|Configurable|Disables or limits browser features such as camera, microphone, geolocation, payment, USB, and fullscreen.|
-|`Content-Security-Policy`|Configurable|Restricts where scripts, styles, images, forms, frames, and other resources may load from.|
+| Header | Default | Contract | Configuration |
+|:---|:---|:---|:---|
+| `X-Content-Type-Options` | `nosniff` | Required when security headers are enabled and the request path is not excluded | Not individually configurable |
+| `X-Frame-Options` | `DENY` | Required when security headers are enabled and the request path is not excluded | Not individually configurable |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Required when security headers are enabled and the request path is not excluded | Not individually configurable |
+| `X-Permitted-Cross-Domain-Policies` | `none` | Required when security headers are enabled and the request path is not excluded | Not individually configurable |
+| `Cross-Origin-Opener-Policy` | `same-origin` | Configurable group | Controlled by `EnableCrossOriginHeaders` |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Configurable group | Controlled by `EnableCrossOriginHeaders` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)` | Configurable | Controlled by `EnablePermissionsPolicy` and `PermissionsPolicy` |
+| `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';` | Configurable | Controlled by `EnableContentSecurityPolicy` and `ContentSecurityPolicy` |
+| `X-XSS-Protection` | Not emitted | Intentionally omitted | Not supported |
 
 The middleware intentionally does not add `X-XSS-Protection` because that header is obsolete and can create inconsistent behavior in modern browsers.
+
+## Intentional Opt-Outs
+
+The following settings reduce or remove default browser hardening and should be used intentionally:
+
+| Setting | Effect | Recommended use |
+|:---|:---|:---|
+| `Enabled = false` | Disables all application security headers | Only when an upstream reverse proxy, gateway, or host platform applies equivalent headers |
+| `EnableContentSecurityPolicy = false` | Removes CSP | Temporary troubleshooting or applications that must define CSP elsewhere |
+| `EnablePermissionsPolicy = false` | Removes Permissions-Policy | Only when browser feature policy is managed elsewhere |
+| `EnableCrossOriginHeaders = false` | Removes COOP and CORP | Applications that intentionally integrate cross-origin windows or resources |
+| `ExcludedPathPrefixes` | Skips all security headers for matching paths | Infrastructure endpoints such as `/health` and `/metrics` |
 
 ## Configuration
 
@@ -66,7 +79,7 @@ Security headers can be configured from `appsettings.json`:
 
 ## Environment-Specific Behavior
 
-The default configuration is intentionally conservative. Applications created from this application can loosen or override headers in environment-specific settings files such as `appsettings.Development.json`.
+The default configuration is intentionally conservative. Applications created from this template can loosen or override headers in environment-specific settings files such as `appsettings.Development.json`.
 
 For example, a local development configuration may temporarily disable CSP while troubleshooting script or style loading:
 ```json

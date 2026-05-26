@@ -90,7 +90,7 @@ $scaffoldDirectories = @(Get-ScaffoldDirectories $resolvedScaffoldRoot)
 if ($Generate) {
     $manifest = [ordered]@{
         '$schema' = './scaffold-manifest.schema.json'
-        description = 'Approved default consumer scaffold surface for dotnet new cdcavell-netcoreapp.'
+        description = 'Approved default consumer scaffold surface for dotnet new netcoreapp-template.'
         templateName = Split-Path -Leaf $resolvedScaffoldRoot
         expectedFiles = $scaffoldFiles
         expectedDirectories = $scaffoldDirectories

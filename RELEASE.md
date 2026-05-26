@@ -68,6 +68,9 @@ After creating the release candidate or stable release:
 &emsp;**5.** Confirm the DocFX documentation workflow completes.<br />
 &emsp;**6.** Confirm the published GitHub Pages documentation loads successfully.<br />    
 &emsp;**7.** Confirm release badges and documentation links in README resolve correctly.<br />
+&emsp;**8.** Confirm the v1.0 migration guide is current.<br />
+&emsp;**9.** Confirm the production deployment checklist is current.<br />
+&emsp;**10.** Confirm release notes link to the migration guide and production deployment checklist.<br />
 
 ### 6. Clean-environment post-release validation
 

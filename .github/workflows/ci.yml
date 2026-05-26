@@ -192,13 +192,13 @@ jobs:
           }
 
           dotnet new install $package.FullName
-          dotnet new list cdcavell-netcoreapp
+          dotnet new list netcoreapp-template
 
       - name: Scaffold consumer project
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
-          dotnet new cdcavell-netcoreapp `
+          dotnet new netcoreapp-template `
             --name ContosoSecurityPortal `
             --output ./artifacts/scaffold/ContosoSecurityPortal `
             --skipRestore true

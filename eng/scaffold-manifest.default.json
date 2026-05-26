@@ -1,6 +1,6 @@
 {
   "$schema": "./scaffold-manifest.schema.json",
-  "description": "Approved default consumer scaffold surface for dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal.",
+  "description": "Approved default consumer scaffold surface for dotnet new netcoreapp-template -n ContosoSecurityPortal.",
   "templateName": "ContosoSecurityPortal",
   "expectedFiles": [
     ".dockerignore",

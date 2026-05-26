@@ -9,6 +9,7 @@ Use this checklist before publishing a stable template package or creating the f
 - Confirm the version in `Directory.Build.props`, `NetCoreApplicationTemplate.Template.csproj`, `CITATION.cff`, README examples, package documentation, and the latest `CHANGELOG.md` heading is aligned.
 - Run the release build quality commands documented in `docs/articles/build-quality.md`.
 - Run the template smoke-test workflow on the release candidate branch or tag.
+- Confirm the scaffolded output matches `eng/scaffold-manifest.default.json` and contains no maintainer-only files.
 - Confirm the template package ID is still `CDCavell.NetCoreApplicationTemplate`.
 - Confirm `docs/articles/public-surface-v1.md` reflects the final `v1.0.0` package identity, template symbols, generated structure, configuration keys, endpoint conventions, middleware ordering, and publishing conventions.
 - Confirm `docs/articles/v1-upgrade-notes.md` is current before tagging `v1.0.0`.
@@ -61,7 +62,7 @@ Recommended order:
 Recommended stable release order:
 
 1. Merge release-readiness work to `main`.
-2. Confirm CI, CodeQL, template smoke tests, documentation build, version consistency validation, and package workflow dry-run pass.
+2. Confirm CI, CodeQL, template smoke tests, scaffold manifest validation, documentation build, version consistency validation, and package workflow dry-run pass.
 3. Confirm NuGet package identity reservation or documented registry decision.
 4. Confirm package signing remains deferred or verify the configured signing certificate and signing policy.
 5. Confirm Zenodo integration is enabled.

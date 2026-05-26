@@ -1,0 +1,65 @@
+{
+  "$schema": "./scaffold-manifest.schema.json",
+  "description": "Approved default consumer scaffold surface for dotnet new netcoreapp-template -n ContosoSecurityPortal.",
+  "templateName": "ContosoSecurityPortal",
+  "expectedFiles": [
+    ".dockerignore",
+    ".editorconfig",
+    ".env.example",
+    ".gitattributes",
+    ".gitignore",
+    "ASSETS-LICENSES.md",
+    "ContosoSecurityPortal.slnx",
+    "Directory.Build.props",
+    "Directory.Packages.props",
+    "Dockerfile",
+    "LICENSE.txt",
+    "README.md",
+    "docker-compose.yml",
+    "global.json",
+    "scripts/migration.sql",
+    "src/ContosoSecurityPortal.Infrastructure/ContosoSecurityPortal.Infrastructure.csproj",
+    "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
+    "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"
+  ],
+  "expectedDirectories": [
+    "scripts",
+    "src",
+    "src/ContosoSecurityPortal.Infrastructure",
+    "src/ContosoSecurityPortal.Web",
+    "tests",
+    "tests/ContosoSecurityPortal.Web.Tests"
+  ],
+  "allowedFilePatterns": [
+    "src/*",
+    "tests/*"
+  ],
+  "forbiddenPaths": [
+    ".github",
+    ".template.config",
+    ".template.content",
+    "artifacts",
+    "docs",
+    "eng",
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "NetCoreApplicationTemplate.Template.csproj",
+    "PACKAGE-README.md",
+    "RELEASE.md",
+    "SECURITY.md"
+  ],
+  "forbiddenContentPatterns": [
+    {
+      "path": "README.md",
+      "pattern": "github.com/cdcavell/NetCoreApplicationTemplate/actions",
+      "description": "repository maintainer workflow badges"
+    },
+    {
+      "path": "README.md",
+      "pattern": "Current release:",
+      "description": "repository maintainer release block"
+    }
+  ]
+}

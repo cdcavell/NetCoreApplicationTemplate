@@ -10,7 +10,7 @@ Package-based validation is preferred because it verifies the actual distributio
 
 | Field | Value |
 |:---|:---|
-| Template short name | `cdcavell-netcoreapp` |
+| Template short name | `netcoreapp-template` |
 | Template package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
 | Current package version | `0.5.4` |
@@ -34,6 +34,46 @@ The scaffolded output intentionally excludes repository-maintainer content such 
 - Changelog, citation, contribution, security, and release-management files.
 - Repository maintainer badges and release instructions.
 
+## Golden Scaffold Manifest
+
+The approved default scaffold surface is tracked in `eng/scaffold-manifest.default.json`.
+
+The manifest is validated by `eng/Validate-ScaffoldManifest.ps1` after CI packs the template package, installs the generated `.nupkg`, and scaffolds the default `ContosoSecurityPortal` project.
+
+The manifest check fails when:
+
+- An expected consumer file is missing.
+- An expected consumer directory is missing.
+- An unexpected root-level file is generated.
+- A maintainer-only path such as `.github/`, `.template.config/`, `.template.content/`, `docs/`, `eng/`, `CHANGELOG.md`, `CITATION.cff`, `CONTRIBUTING.md`, `RELEASE.md`, or `SECURITY.md` appears in the scaffolded output.
+- The generated consumer README contains repository maintainer content such as workflow badges or the current-release block.
+
+The manifest intentionally allows recursive content under `src/`, `tests/`, and `scripts/` because those folders are part of the consumer scaffold surface. Root-level additions should be added to `expectedFiles` only when they are intended public scaffold files.
+
+### Validate a Generated Scaffold Locally
+
+After packing and installing the template package, generate the default scaffold:
+
+```powershell
+dotnet new netcoreapp-template -n ContosoSecurityPortal --output ./artifacts/scaffold/ContosoSecurityPortal
+```
+
+Validate the scaffold against the checked-in manifest:
+
+```powershell
+./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal
+```
+
+### Intentionally Update the Manifest
+
+When the public scaffold surface intentionally changes, regenerate the scaffold from the packed `.nupkg`, inspect the generated output, and then refresh the manifest:
+
+```powershell
+./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal -Generate
+```
+
+Review the manifest diff carefully before committing. Changes to root-level files, maintainer-only exclusions, template source boundaries, README content checks, or public scaffold folders should be treated as release-surface changes before `v1.0.0`.
+
 ## Pack the Template Package
 
 From the repository root:
@@ -53,7 +93,7 @@ dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTempl
 From a separate working directory:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Use a project name that is also a valid C# identifier, such as `ContosoSecurityPortal`. Dotted project names require additional template symbol handling so namespace replacement and type-name replacement can be handled separately.
@@ -104,16 +144,20 @@ dotnet new install ./
 Then generate from a separate working directory:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Local repository install is useful during template development, but package-based install should remain the primary validation path before release.
 
 ## CI Smoke Test
 
-The CI workflow packs the template package, installs the generated `.nupkg`, scaffolds a new project with `dotnet new cdcavell-netcoreapp`, validates expected and forbidden scaffolded paths, builds the generated output, runs generated tests, and uninstalls the template package.
+The CI workflow packs the template package, installs the generated `.nupkg`, scaffolds a new project with `dotnet new netcoreapp-template`, validates the scaffolded output against the golden manifest, builds the generated output, runs generated tests, and uninstalls the template package.
 
 The smoke test runs on Linux, Windows, and macOS so path handling and package install behavior are validated across supported runner environments.
+
+On Linux runners, CI also validates the Docker consumer path from the generated scaffolded output. This Docker smoke test builds the generated Docker image, validates `docker compose config`, starts the generated Compose application, verifies `/health/live`, captures Compose logs for diagnostics, and tears down the Compose stack during cleanup.
+
+Docker runtime validation is intentionally limited to Linux runners. The goal is to prove that Docker files emitted by the template are usable by a generated consumer project, not to certify Docker host behavior across every operating system.
 
 ## Distribution Direction
 
@@ -123,7 +167,7 @@ Future stable usage is expected to follow this pattern:
 
 ```powershell
 dotnet new install CDCavell.NetCoreApplicationTemplate
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Clone-and-modify remains valid for source review, contribution, and direct customization. However, after package publishing is available, the NuGet template package should be treated as the primary stable distribution path for normal template consumers.

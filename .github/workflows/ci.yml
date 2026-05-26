@@ -192,72 +192,20 @@ jobs:
           }
 
           dotnet new install $package.FullName
-          dotnet new list cdcavell-netcoreapp
+          dotnet new list netcoreapp-template
 
       - name: Scaffold consumer project
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
-          dotnet new cdcavell-netcoreapp `
+          dotnet new netcoreapp-template `
             --name ContosoSecurityPortal `
-            --output ./artifacts/scaffold/ContosoSecurityPortal
+            --output ./artifacts/scaffold/ContosoSecurityPortal `
+            --skipRestore true
 
-      - name: Validate scaffolded consumer output
+      - name: Validate scaffolded consumer manifest
         shell: pwsh
-        run: |
-          $root = Resolve-Path ./artifacts/scaffold/ContosoSecurityPortal
-
-          $expected = @(
-            ".dockerignore",
-            ".editorconfig",
-            ".env.example",
-            "ASSETS-LICENSES.md",
-            "Directory.Build.props",
-            "Directory.Packages.props",
-            "Dockerfile",
-            "docker-compose.yml",
-            "global.json",
-            "LICENSE.txt",
-            "README.md",
-            "ContosoSecurityPortal.slnx",
-            "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
-            "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"
-          )
-
-          foreach ($path in $expected) {
-              $fullPath = Join-Path $root $path
-              if (-not (Test-Path $fullPath)) {
-                  Write-Error "Expected scaffolded path was missing: $path"
-                  exit 1
-              }
-          }
-
-          $forbidden = @(
-            ".github",
-            ".template.config",
-            ".template.content",
-            "docs",
-            "CHANGELOG.md",
-            "CITATION.cff",
-            "CONTRIBUTING.md",
-            "NetCoreApplicationTemplate.Template.csproj",
-            "PACKAGE-README.md",
-            "SECURITY.md"
-          )
-
-          foreach ($path in $forbidden) {
-              $fullPath = Join-Path $root $path
-              if (Test-Path $fullPath) {
-                  Write-Error "Maintainer-only path was scaffolded unexpectedly: $path"
-                  exit 1
-              }
-          }
-
-          $readme = Get-Content (Join-Path $root "README.md") -Raw
-          if ($readme -match "github.com/cdcavell/NetCoreApplicationTemplate/actions" -or $readme -match "Current release:") {
-              Write-Error "Generated README appears to contain repository maintainer content."
-              exit 1
-          }
+        run: ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal
 
       - name: Build scaffolded output
         shell: pwsh
@@ -270,6 +218,73 @@ jobs:
         shell: pwsh
         working-directory: ./artifacts/scaffold/ContosoSecurityPortal
         run: dotnet test ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal /p:ContinuousIntegrationBuild=true
+
+      - name: Build scaffolded Docker image
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          docker build `
+            --build-arg BUILD_CONFIGURATION=$env:CONFIGURATION `
+            --tag contososecurityportal-web:ci `
+            .
+
+      - name: Validate scaffolded Docker Compose configuration
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci config
+
+      - name: Run scaffolded Docker Compose application
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci up --build --detach
+
+      - name: Verify scaffolded Docker health endpoint
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          $healthUrl = "http://localhost:8080/health/live"
+
+          for ($attempt = 1; $attempt -le 30; $attempt++) {
+              try {
+                  $response = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 2
+
+                  if ($response.StatusCode -eq 200) {
+                      Write-Host "Health endpoint responded successfully."
+                      exit 0
+                  }
+
+                  Write-Host "Health endpoint returned HTTP $($response.StatusCode)."
+              }
+              catch {
+                  Write-Host "Health probe attempt $attempt failed: $($_.Exception.Message)"
+              }
+
+              Start-Sleep -Seconds 2
+          }
+
+          docker compose -p contososecurityportal-ci ps
+          docker compose -p contososecurityportal-ci logs --no-color
+
+          Write-Error "Health endpoint did not respond successfully."
+          exit 1
+
+      - name: Capture scaffolded Docker logs
+        if: always() && runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          docker compose -p contososecurityportal-ci ps
+          docker compose -p contososecurityportal-ci logs --no-color
+
+      - name: Stop scaffolded Docker Compose application
+        if: always() && runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci down --volumes --remove-orphans
 
       - name: Uninstall template package
         if: always()

@@ -62,7 +62,7 @@ Expected stable usage:
 
 ```powershell
 dotnet new install <published-template-package-id>
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Clone-and-modify remains valid for source review, contribution, and preview use. Until the published package exists, documentation may continue to describe local installation from the repository root:
@@ -169,6 +169,6 @@ Trade-offs and risks:
 - [`README.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/README.md)
 - [`CITATION.cff`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CITATION.cff)
 - [`docs/articles/public-surface-v1.md`](../articles/public-surface-v1.md)
-- [`docs/articles/v1-upgrade-notes.md`](../articles/v1-upgrade-notes.md)
+- [`docs/articles/v1-migration-guide.md`](../articles/v1-migration-guide.md)
 - [`RELEASE.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/RELEASE.md)
 - [`CHANGELOG.md`](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CHANGELOG.md)

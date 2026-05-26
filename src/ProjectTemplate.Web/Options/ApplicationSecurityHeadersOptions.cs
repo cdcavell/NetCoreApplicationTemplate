@@ -45,7 +45,7 @@ public sealed class ApplicationSecurityHeadersOptions
 
     /// <summary>
     /// Gets or sets the Permissions-Policy header value applied to responses.
-    /// Set this to an empty string to omit the header.
+    /// Set EnablePermissionsPolicy to false to omit the header.
     /// </summary>
     public string PermissionsPolicy { get; set; } =
         "camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)";

@@ -37,8 +37,8 @@ Review these documents before migration:
 - [Configuration](configuration.md)
 - [Deployment Notes](deployment.md)
 - [Production Deployment Checklist](production-deployment-checklist.md)
-- [Release Checklist](../../RELEASE.md)
-- [Changelog](../../CHANGELOG.md)
+- [Release Checklist](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/RELEASE.md)
+- [Changelog](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CHANGELOG.md)
 
 ## Template Identity
 
@@ -248,7 +248,7 @@ Use this checklist before treating a `v0.5.x` application as migrated to the `v1
 [Public Surface v1.0](public-surface-v1.md)
 [Template Packaging](template-packaging.md)
 [Production Deployment Checklist](production-deployment-checklist.md)
-[Deployment Notes](deployment-notes.md)
+[Deployment Notes](deployment.md)
 [Configuration](configuration.md)
 [Middleware Pipeline](middleware.md)
 [Logging](logging.md)

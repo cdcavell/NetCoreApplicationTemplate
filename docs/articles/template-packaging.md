@@ -10,7 +10,7 @@ Package-based validation is preferred because it verifies the actual distributio
 
 | Field | Value |
 |:---|:---|
-| Template short name | `cdcavell-netcoreapp` |
+| Template short name | `netcoreapp-template` |
 | Template package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
 | Current package version | `0.5.4` |
@@ -55,7 +55,7 @@ The manifest intentionally allows recursive content under `src/`, `tests/`, and 
 After packing and installing the template package, generate the default scaffold:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal --output ./artifacts/scaffold/ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal --output ./artifacts/scaffold/ContosoSecurityPortal
 ```
 
 Validate the scaffold against the checked-in manifest:
@@ -93,7 +93,7 @@ dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTempl
 From a separate working directory:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Use a project name that is also a valid C# identifier, such as `ContosoSecurityPortal`. Dotted project names require additional template symbol handling so namespace replacement and type-name replacement can be handled separately.
@@ -144,14 +144,14 @@ dotnet new install ./
 Then generate from a separate working directory:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Local repository install is useful during template development, but package-based install should remain the primary validation path before release.
 
 ## CI Smoke Test
 
-The CI workflow packs the template package, installs the generated `.nupkg`, scaffolds a new project with `dotnet new cdcavell-netcoreapp`, validates the scaffolded output against the golden manifest, builds the generated output, runs generated tests, and uninstalls the template package.
+The CI workflow packs the template package, installs the generated `.nupkg`, scaffolds a new project with `dotnet new netcoreapp-template`, validates the scaffolded output against the golden manifest, builds the generated output, runs generated tests, and uninstalls the template package.
 
 The smoke test runs on Linux, Windows, and macOS so path handling and package install behavior are validated across supported runner environments.
 
@@ -167,7 +167,7 @@ Future stable usage is expected to follow this pattern:
 
 ```powershell
 dotnet new install CDCavell.NetCoreApplicationTemplate
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Clone-and-modify remains valid for source review, contribution, and direct customization. However, after package publishing is available, the NuGet template package should be treated as the primary stable distribution path for normal template consumers.

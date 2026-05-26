@@ -4,6 +4,13 @@
 - name: Getting Started
   href: getting-started.md
 
+
+- name: v1.0 Migration Guide
+  href: v1-migration-guide.md
+
+- name: Production Deployment Checklist
+  href: production-deployment-checklist.md
+
 - name: Docker Development
   href: docker.md
 
@@ -63,8 +70,8 @@
 - name: Public Surface v1.0
   href: public-surface-v1.md
 
-- name: v1.0 Upgrade Notes
-  href: v1-upgrade-notes.md
+- name: v1.0 Migration Guide
+  href: v1-migration-guide.md
 
 - name: GitHub Workflow
   href: github-workflow.md

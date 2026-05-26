@@ -173,7 +173,7 @@ dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTempl
 Generate a consumer project:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Build and test the generated output:
@@ -203,7 +203,7 @@ For local development, the template can also be installed from the repository ro
 
 ```powershell
 dotnet new install .\
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Package-based install remains the preferred validation path because it more closely matches consumer distribution.
@@ -220,6 +220,8 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 Documentation areas include:
 
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
+- [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
+- [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
 - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
 - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
 - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
@@ -338,7 +340,7 @@ The repository currently includes workflows for:
 - Failing CI when coverage regresses below the threshold.
 - Packing the template package.
 - Installing the generated `.nupkg` into a clean SDK environment.
-- Scaffolding a consumer project with `dotnet new cdcavell-netcoreapp`.
+- Scaffolding a consumer project with `dotnet new netcoreapp-template`.
 - Validating expected consumer files and excluded maintainer files.
 - Building and testing scaffolded output on Linux, Windows, and macOS.
 - Running CodeQL analysis.

@@ -1,6 +1,6 @@
 # .NET Core Application Template Package
 
-This package installs the `cdcavell-netcoreapp` project template for `dotnet new`.
+This package installs the `netcoreapp-template` project template for `dotnet new`.
 
 ## Install from a local package
 
@@ -11,7 +11,7 @@ dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTempl
 ## Generate a project
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 ## Build and test generated output

@@ -2,7 +2,7 @@
 
 This article defines the public compatibility surface for the `v1.0.0` release of the .NET Core Application Template.
 
-After `v1.0.0`, this document should be used with [ADR-0003](../adr/0003-record-release-surface-and-distribution-strategy.md), [Release Checklist](../../RELEASE.md), and the [v1.0 Upgrade Notes](v1-upgrade-notes.md) to decide whether a future change is SemVer-major, SemVer-minor, SemVer-patch, or internal-only.
+After `v1.0.0`, this document should be used with [ADR-0003](../adr/0003-record-release-surface-and-distribution-strategy.md), [Release Checklist](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/RELEASE.md), and the [v1.0 Migration Guide](v1-migration-guide.md) to decide whether a future change is SemVer-major, SemVer-minor, SemVer-patch, or internal-only.
 
 ## Purpose
 
@@ -20,7 +20,7 @@ The following identifiers are part of the v1.0 public surface.
 | Template identity | `CDCavell.NetCoreApplicationTemplate.CSharp` |
 | Template group identity | `CDCavell.NetCoreApplicationTemplate` |
 | Template name | `.NET Core Application Template` |
-| `dotnet new` short name | `cdcavell-netcoreapp` |
+| `dotnet new` short name | `netcoreapp-template` |
 | Source replacement name | `ProjectTemplate` |
 | Preferred name directory | `true` |
 
@@ -238,7 +238,7 @@ If the change affects only repository internals and not generated or documented 
 
 ## Related Documents
 - [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md)
-- [v1.0 Upgrade Notes](v1-upgrade-notes.md)
+- [v1.0 Migration Guide](v1-migration-guide.md)
 - [Template Packaging](template-packaging.md)
 - [Project Structure](project-structure.md)
 - [Configuration](configuration.md)

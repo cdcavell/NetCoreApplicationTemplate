@@ -1,6 +1,6 @@
 # ProjectTemplate
 
-ProjectTemplate is a scaffolded ASP.NET Core application created from the `cdcavell-netcoreapp` template.
+ProjectTemplate is a scaffolded ASP.NET Core application created from the `netcoreapp-template` template.
 
 The generated solution includes a production-oriented baseline for common web application infrastructure concerns:
 

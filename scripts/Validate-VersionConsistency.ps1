@@ -163,11 +163,12 @@ if (-not [string]::IsNullOrWhiteSpace($templatePackageVersion)) {
 }
 
 $escapedVersion = [regex]::Escape($ExpectedVersion)
+$escapedReleaseTag = [regex]::Escape('`v' + $ExpectedVersion + '`')
 $escapedPackageId = [regex]::Escape('CDCavell.NetCoreApplicationTemplate')
 
 $readme = Get-RequiredFileText 'README.md'
 Assert-Matches $readme "Current release:\s*__\[Release $escapedVersion\]\([^\)]*/releases/tag/v$escapedVersion\)__" 'README current-release block'
-Assert-Matches $readme "Tag:\s*`v$escapedVersion`" 'README current-release tag'
+Assert-Matches $readme "Tag:\s*$escapedReleaseTag" 'README current-release tag'
 Assert-Matches $readme "$escapedPackageId\.$escapedVersion\.nupkg" 'README package install example'
 Assert-Matches $readme "Version $escapedVersion\. Zenodo\. MIT License\." 'README citation version'
 

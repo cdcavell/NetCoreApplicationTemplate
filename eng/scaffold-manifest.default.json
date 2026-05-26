@@ -17,10 +17,13 @@
     "README.md",
     "docker-compose.yml",
     "global.json",
+    "scripts/migration.sql",
+    "src/ContosoSecurityPortal.Infrastructure/ContosoSecurityPortal.Infrastructure.csproj",
     "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",
     "tests/ContosoSecurityPortal.Web.Tests/ContosoSecurityPortal.Web.Tests.csproj"
   ],
   "expectedDirectories": [
+    "scripts",
     "src",
     "src/ContosoSecurityPortal.Infrastructure",
     "src/ContosoSecurityPortal.Web",
@@ -28,7 +31,6 @@
     "tests/ContosoSecurityPortal.Web.Tests"
   ],
   "allowedFilePatterns": [
-    "scripts/*",
     "src/*",
     "tests/*"
   ],

@@ -5,7 +5,7 @@ This package installs the `cdcavell-netcoreapp` project template for `dotnet new
 ## Install from a local package
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.0.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.4.nupkg
 ```
 
 ## Generate a project

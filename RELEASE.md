@@ -5,7 +5,8 @@ Use this checklist before publishing a stable template package or creating the f
 ## 1. Pre-release validation
 
 - Confirm `main` is green in CI.
-- Confirm the version in `Directory.Build.props`, `NetCoreApplicationTemplate.Template.csproj`, `CITATION.cff`, README examples, and package documentation is aligned.
+- Run `./scripts/Validate-VersionConsistency.ps1` locally before opening the release PR.
+- Confirm the version in `Directory.Build.props`, `NetCoreApplicationTemplate.Template.csproj`, `CITATION.cff`, README examples, package documentation, and the latest `CHANGELOG.md` heading is aligned.
 - Run the release build quality commands documented in `docs/articles/build-quality.md`.
 - Run the template smoke-test workflow on the release candidate branch or tag.
 - Confirm the template package ID is still `CDCavell.NetCoreApplicationTemplate`.
@@ -60,15 +61,16 @@ Recommended order:
 Recommended stable release order:
 
 1. Merge release-readiness work to `main`.
-2. Confirm CI, CodeQL, template smoke tests, documentation build, and package workflow dry-run pass.
+2. Confirm CI, CodeQL, template smoke tests, documentation build, version consistency validation, and package workflow dry-run pass.
 3. Confirm NuGet package identity reservation or documented registry decision.
 4. Confirm package signing remains deferred or verify the configured signing certificate and signing policy.
 5. Confirm Zenodo integration is enabled.
 6. Create a dry-run release tag and verify NuGet/Zenodo outputs.
 7. Correct metadata if necessary.
 8. Tag `v1.0.0`.
-9. Approve protected publish environments only after reviewing generated artifacts.
-10. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
+9. Confirm tag-triggered version consistency validation passes before approving protected publish environments.
+10. Approve protected publish environments only after reviewing generated artifacts.
+11. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
 
 ## 6. Rollback notes
 

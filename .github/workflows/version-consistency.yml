@@ -1,0 +1,42 @@
+name: Version Consistency
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-version-consistency:
+    name: Validate version consistency
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Validate version consistency
+        shell: pwsh
+        run: |
+          $arguments = @()
+
+          if ('${{ github.ref_type }}' -eq 'tag') {
+              $arguments += '-TagName'
+              $arguments += '${{ github.ref_name }}'
+          }
+
+          ./scripts/Validate-VersionConsistency.ps1 @arguments

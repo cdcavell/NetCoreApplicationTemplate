@@ -200,7 +200,8 @@ jobs:
           New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
           dotnet new cdcavell-netcoreapp `
             --name ContosoSecurityPortal `
-            --output ./artifacts/scaffold/ContosoSecurityPortal
+            --output ./artifacts/scaffold/ContosoSecurityPortal `
+            --skipRestore true
 
       - name: Validate scaffolded consumer manifest
         shell: pwsh

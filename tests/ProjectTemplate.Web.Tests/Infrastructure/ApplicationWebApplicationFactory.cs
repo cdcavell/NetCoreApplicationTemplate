@@ -35,6 +35,6 @@ internal sealed class ApplicationWebApplicationFactory(IReadOnlyDictionary<strin
 
         builder.ConfigureServices(services => services
                 .AddControllersWithViews()
-                .AddApplicationPart(typeof(RateLimitingTestController).Assembly));
+                .AddApplicationPart(typeof(AdvertisedBehaviorTestController).Assembly));
     }
 }

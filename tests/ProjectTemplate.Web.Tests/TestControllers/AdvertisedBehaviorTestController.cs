@@ -29,7 +29,7 @@ public sealed class AdvertisedBehaviorTestController : ControllerBase
     /// </summary>
     /// <exception cref="ArgumentException">Always thrown for test coverage.</exception>
     [HttpGet("problem-details")]
-    public IActionResult ProblemDetailsException()
+    public static IActionResult ProblemDetailsException()
     {
         throw new ArgumentException("Invalid advertised behavior test request.");
     }

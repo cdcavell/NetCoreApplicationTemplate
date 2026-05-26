@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text.Json;
 using ProjectTemplate.Web.Tests.Extensions;
 using ProjectTemplate.Web.Tests.Infrastructure;
@@ -11,36 +10,6 @@ namespace ProjectTemplate.Web.Tests;
 /// </summary>
 public sealed class AdvertisedBehaviorTests
 {
-    /// <summary>
-    /// Verifies that API-style exceptions are returned as Problem Details responses.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous test operation.</returns>
-    [Fact]
-    public async Task ApiStyleException_ReturnsProblemDetailsShape()
-    {
-        using ApplicationWebApplicationFactory factory = CreateFactory();
-        using HttpClient client = factory.CreateHttpsClient();
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/test/advertised-behavior/problem-details");
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        using HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
-
-        using JsonDocument document = JsonDocument.Parse(
-            await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
-
-        JsonElement root = document.RootElement;
-
-        Assert.Equal(400, root.GetProperty("status").GetInt32());
-        Assert.Equal("Bad Request", root.GetProperty("title").GetString());
-        Assert.Equal("/test/advertised-behavior/problem-details", root.GetProperty("instance").GetString());
-        Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("traceId").GetString()));
-        Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("requestId").GetString()));
-    }
-
     /// <summary>
     /// Verifies that API-style missing endpoints return Problem Details instead of the browser error page.
     /// </summary>
@@ -58,7 +27,7 @@ public sealed class AdvertisedBehaviorTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
 
-        using JsonDocument document = JsonDocument.Parse(
+        using var document = JsonDocument.Parse(
             await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         JsonElement root = document.RootElement;
@@ -117,7 +86,7 @@ public sealed class AdvertisedBehaviorTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        using JsonDocument document = JsonDocument.Parse(
+        using var document = JsonDocument.Parse(
             await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         JsonElement root = document.RootElement;

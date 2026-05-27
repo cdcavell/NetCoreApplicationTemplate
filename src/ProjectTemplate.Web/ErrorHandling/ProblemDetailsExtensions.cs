@@ -1,4 +1,8 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using ProjectTemplate.Web.Options;
 
 namespace ProjectTemplate.Web.ErrorHandling;
 
@@ -33,13 +37,37 @@ internal static class ProblemDetailsExtensions
 
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
             {
-                context.ProblemDetails.Instance ??= context.HttpContext.Request.Path;
+                string? originalExceptionPath = context.HttpContext.Features
+                    .Get<IExceptionHandlerPathFeature>()?
+                    .Path;
+
+                string? originalStatusCodePath = context.HttpContext.Features
+                    .Get<IStatusCodeReExecuteFeature>()?
+                    .OriginalPath;
+
+                context.ProblemDetails.Instance ??= !string.IsNullOrWhiteSpace(originalExceptionPath)
+                    ? originalExceptionPath
+                    : !string.IsNullOrWhiteSpace(originalStatusCodePath)
+                        ? originalStatusCodePath
+                        : context.HttpContext.Request.Path;
+
+                string correlationId = GetCorrelationId(context.HttpContext);
+
+                Activity? activity = Activity.Current;
 
                 context.ProblemDetails.Extensions["traceId"] =
-                    Activity.Current?.Id ?? context.HttpContext.TraceIdentifier;
+                    activity?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier;
+
+                if (activity is not null)
+                {
+                    context.ProblemDetails.Extensions["spanId"] = activity.SpanId.ToString();
+                }
 
                 context.ProblemDetails.Extensions["requestId"] =
                     context.HttpContext.TraceIdentifier;
+
+                context.ProblemDetails.Extensions["correlationId"] =
+                    correlationId;
 
                 if (!webHostEnvironment.IsDevelopment() &&
                     context.ProblemDetails.Status >= StatusCodes.Status500InternalServerError)
@@ -85,5 +113,30 @@ internal static class ProblemDetailsExtensions
             branch => branch.UseStatusCodePagesWithReExecute("/Home/Error/{0}"));
 
         return app;
+    }
+
+    private static string GetCorrelationId(HttpContext httpContext)
+    {
+        ApplicationRequestLoggingOptions requestLoggingOptions = httpContext.RequestServices
+            .GetService<IOptions<ApplicationRequestLoggingOptions>>()?.Value
+            ?? new ApplicationRequestLoggingOptions();
+
+        if (httpContext.Request.Headers.TryGetValue(
+            requestLoggingOptions.CorrelationHeaderName,
+            out StringValues correlationHeaderValues))
+        {
+            string? headerValue = correlationHeaderValues.FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(headerValue))
+            {
+                string cleanValue = headerValue.Trim();
+
+                return cleanValue.Length <= 128
+                    ? cleanValue
+                    : cleanValue[..128];
+            }
+        }
+
+        return httpContext.TraceIdentifier;
     }
 }

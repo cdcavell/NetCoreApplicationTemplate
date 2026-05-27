@@ -139,7 +139,9 @@ dotnet user-secrets set "ConnectionStrings:ApplicationSqlServer" "Server=(locald
 dotnet user-secrets set "ProjectTemplate:Authentication:Providers:GitHub:ClientSecret" "local-development-secret" --project src/ProjectTemplate.Web
 ```
 
-For production, prefer the hosting platform secret manager, environment-protected variables, or an approved external secret store. Production secret values should be injected at deployment time rather than stored in committed JSON files.
+The generated web project includes a `UserSecretsId` so local development secrets can be managed through Visual Studio's **Manage User Secrets** command or the `dotnet user-secrets` CLI. User secrets are for local development only and should not be treated as encrypted production storage.
+
+Production deployments should supply sensitive values through protected environment variables, hosting-platform secret managers, or vault-backed configuration providers. Do not place production connection strings, authentication provider secrets, API keys, signing material, or organization-specific private endpoints in committed `appsettings*.json` files.
 
 ## Provider-Specific Configuration
 
@@ -185,9 +187,15 @@ The application uses strongly typed options classes for application-owned config
 
 Validated configuration areas include:
 
-- `ProjectTemplate:SecurityHeaders`
+- `ProjectTemplate:ApiVersioning`
+- `ProjectTemplate:Authentication`
+- `ProjectTemplate:Authorization`
+- `ProjectTemplate:DataAccess`
 - `ProjectTemplate:ForwardedHeaders`
+- `ProjectTemplate:OpenTelemetry`
 - `ProjectTemplate:RateLimiting`
+- `ProjectTemplate:RequestLogging`
+- `ProjectTemplate:SecurityHeaders`
 
 Invalid startup-sensitive values fail application startup rather than being silently corrected. This helps catch unsafe or malformed production configuration before the application begins serving requests.
 

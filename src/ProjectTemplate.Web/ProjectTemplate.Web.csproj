@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <UserSecretsId>projecttemplate-web-development</UserSecretsId>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Folder Include="Logs\" />
   </ItemGroup>

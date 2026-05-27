@@ -170,6 +170,33 @@ public sealed class AuthorizationPolicyTests
     }
 
     /// <summary>
+    /// Verifies that application startup fails with an appropriate error when the required RoleClaimType authorization option is not configured.
+    /// </summary>
+    [Fact]
+    public void ApplicationStartup_Fails_WhenAuthorizationRoleClaimTypeIsEmpty()
+    {
+        Dictionary<string, string?> configuration = new()
+        {
+            ["ProjectTemplate:Authorization:RoleClaimType"] = ""
+        };
+
+        OptionsValidationException exception = Assert.Throws<OptionsValidationException>(() =>
+        {
+            using ApplicationWebApplicationFactory factory = new(configuration);
+
+            // Accessing Services forces WebApplicationFactory to build/start the host,
+            // which triggers ValidateOnStart().
+            _ = factory.Services;
+        });
+
+        Assert.Contains(
+            exception.Failures,
+            failure => failure.Contains(
+                "ProjectTemplate:Authorization:RoleClaimType is required.",
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>
     /// <param name="configurationValues">The configuration key/value pairs used to override application settings for a test.</param>

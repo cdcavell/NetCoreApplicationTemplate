@@ -35,7 +35,20 @@ public static class AuthorizationServiceExtensions
 
         services
             .AddOptions<ApplicationAuthorizationOptions>()
-            .Bind(configuration.GetSection(ApplicationAuthorizationOptions.SectionName));
+            .Bind(configuration.GetSection(ApplicationAuthorizationOptions.SectionName))
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.RoleClaimType),
+                "ProjectTemplate:Authorization:RoleClaimType is required.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.PermissionClaimType),
+                "ProjectTemplate:Authorization:PermissionClaimType is required.")
+            .Validate(
+                options => options.AdministratorRoles.Any(role => !string.IsNullOrWhiteSpace(role)),
+                "ProjectTemplate:Authorization:AdministratorRoles must contain at least one non-empty value.")
+            .Validate(
+                options => options.ManageApplicationPermissions.Any(permission => !string.IsNullOrWhiteSpace(permission)),
+                "ProjectTemplate:Authorization:ManageApplicationPermissions must contain at least one non-empty value.")
+            .ValidateOnStart();
 
         services.AddAuthorizationBuilder()
             .AddPolicy(

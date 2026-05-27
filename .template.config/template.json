@@ -185,7 +185,9 @@
       "source": "./.template.content/",
       "target": "./",
       "include": [
-        "README.md"
+        "README.md",
+        "nuget.config",
+        "src/ProjectTemplate.Web/appsettings.json"
       ]
     }
   ],

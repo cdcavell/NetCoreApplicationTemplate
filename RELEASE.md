@@ -39,13 +39,16 @@ Complete these checks before tagging a stable release:
 
 Before approving publication, review generated artifacts from the release workflow:
 - `.nupkg`
-- `.snupkg`, if produced`
+- `.snupkg`, if produced
+- Container image digest, if containers are published
 - SBOM, if produced
-- `checksum files, if produced
-- package metadata
-- `generated release notes
+- Provenance or attestation file, if produced
+- Checksum files, if produced
+- Package metadata
+- Generated release notes
 - GitHub Actions artifacts
-- generated documentation artifacts
+- Generated documentation artifacts
+- DOI / Zenodo archive record, when available
 
 Confirm artifact names, versions, repository URLs, license metadata, authorship metadata, and package descriptions are accurate before publication.
 
@@ -127,7 +130,7 @@ Use this guidance for critical post-release issues:
 - If documentation is incorrect but package artifacts are valid, patch the documentation and note the correction in the next release notes when appropriate.
 - If a security issue is discovered after release, create a hotfix branch from the release tag, apply the minimum safe fix, run the full release gate, and publish a patch release.
 
-## 2. NuGet package identity and publish gate
+## NuGet package identity and publish gate
 
 The intended stable package identity is:
 
@@ -146,7 +149,7 @@ Recommended order:
 5. Review the generated `.nupkg` metadata before publishing to NuGet.org.
 6. Publish the first NuGet.org package only after manual approval.
 
-## 3. Package signing and contributor trust
+## Package signing and contributor trust
 
 NuGet package signing is deferred for `v1.0.0` unless a repository signing certificate, signing owner, timestamping approach, and signing policy are added before release.
 
@@ -158,7 +161,7 @@ The publish workflow keeps the manual approval gate in place so unsigned package
 
 Before each stable release, confirm that [`SECURITY.md`](SECURITY.md) still reflects the current package-signing posture and that any trigger condition requiring a signing-policy review has been evaluated.
 
-## 4. Zenodo archival sequence
+## Zenodo archival sequence
 
 Zenodo archives GitHub releases created after the GitHub integration is enabled. Enable integration before the DOI-bearing release.
 
@@ -172,7 +175,7 @@ Recommended order:
 6. Create the stable `v1.0.0` release only after the dry-run DOI metadata is accepted.
 7. Add the Zenodo DOI badge and copyable citation block to README after the DOI is available.
 
-## 5. Final release order
+## Final release order
 
 Recommended stable release order:
 
@@ -188,9 +191,70 @@ Recommended stable release order:
 10. Approve protected publish environments only after reviewing generated artifacts.
 11. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
 
-## 6. Rollback notes
+## Rollback notes
 
 - If NuGet publication fails before package upload, fix the workflow or secret and rerun.
 - If a package is published with incorrect metadata, publish a corrected patch version rather than overwriting history.
 - If Zenodo metadata is wrong, update repository metadata before creating the stable DOI-bearing release.
 - If the release tag is wrong, prefer a corrected follow-up tag unless no public artifacts were created.
+
+## Version source of truth
+
+Before publishing a stable release, confirm every public version marker agrees with the intended release version.
+
+| Surface | Source / location | Expected v1.0.0 behavior |
+|---|---|---|
+| Assembly/package version | `Directory.Build.props` | `VersionPrefix`, `AssemblyVersion`, and `FileVersion` match the release version. |
+| Template package metadata | Template package project file | Package metadata resolves to the same version as the release tag. |
+| Git tag | GitHub release tag | Stable releases use `vMAJOR.MINOR.PATCH`, for example `v1.0.0`. |
+| NuGet package | Published `.nupkg` metadata | Package version matches the Git tag without the leading `v`. |
+| Container image | Published image tags | Version tag matches the Git tag without the leading `v`; digest is recorded. |
+| Changelog | `CHANGELOG.md` | Latest heading matches the release version and date. |
+| Citation metadata | `CITATION.cff` and `.zenodo.json` | Metadata reflects the stable release and DOI/archive expectations. |
+| GitHub Release | Release title/body/assets | Release notes, attached assets, and links match the release tag. |
+| Documentation | README and DocFX pages | Install commands, badges, release links, and citation guidance match the published release. |
+
+## Changelog and release note process
+
+Before creating a stable release:
+
+1. Add a new `CHANGELOG.md` section above the previous release.
+2. Use the heading format `## MAJOR.MINOR.PATCH - YYYY-MM-DD`.
+3. Group entries under headings such as `Added`, `Changed`, `Fixed`, and `Security`.
+4. Confirm the changelog includes user-facing package, container, documentation, metadata, and security-governance changes.
+5. Use the changelog section as the starting point for GitHub Release notes.
+6. Add links from the GitHub Release notes to the migration guide, production deployment checklist, package page, documentation site, and DOI/archive record when available.
+7. Do not describe unpublished artifacts as available until they have been validated after publication.
+
+## v1.0.0 blocker issue confirmation
+
+Before tagging `v1.0.0`, confirm all release-blocking issues tracked from parent issue #138 are closed, merged, or explicitly deferred with maintainer approval.
+
+Minimum confirmation:
+
+- Parent issue #138 has no unresolved v1.0.0 blockers.
+- Every blocker issue referenced from #138 is either closed as completed or documented as deferred.
+- Deferred items do not affect package correctness, publication safety, security posture, citation metadata, or consumer smoke-test behavior.
+- The final release PR references #138 and summarizes the remaining release risk, if any.
+
+## Maintainer review points for first public publication
+
+The first stable package and first stable container publication require explicit maintainer review before protected publish environments are approved.
+
+Review before NuGet publication:
+
+- Package ID is correct.
+- Version is correct.
+- README/package README render correctly.
+- Repository URL, license, authorship, tags, and description are correct.
+- The `.nupkg` installs successfully in a clean environment.
+- No maintainer-only files are included in scaffolded output.
+
+Review before container publication:
+
+- Image tags are correct.
+- Image digest is captured.
+- SBOM and provenance/attestation evidence are attached when produced.
+- Vulnerability scan results are reviewed.
+- Runtime smoke test passes.
+- Logs do not expose secrets or release-only sensitive values.

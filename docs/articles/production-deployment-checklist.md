@@ -32,6 +32,7 @@ Related docs:
 [ ] TLS termination location is documented.
 [ ] Deployment slot, region, and environment names are documented.
 [ ] Platform-specific startup command or container entry point is verified.
+[ ] Startup configuration validation has been tested with the production configuration source.
 ```
 
 Related docs:
@@ -183,6 +184,7 @@ Related docs:
 [ ] Role and permission claim conventions are documented.
 [ ] Unauthorized and forbidden behavior is tested.
 [ ] Sign-in and sign-out flows are smoke tested.
+[ ] Required authorization claim types, administrator roles, and management permissions are configured.
 ```
 
 Related docs:
@@ -202,6 +204,7 @@ Related docs:
 [ ] Database backup/restore approach is understood before schema changes.
 [ ] Connection resiliency and timeout expectations are reviewed.
 [ ] Local development database settings are not used in production.
+[ ] Missing or invalid provider/connection string settings fail startup before deployment approval.
 ```
 
 Related docs:

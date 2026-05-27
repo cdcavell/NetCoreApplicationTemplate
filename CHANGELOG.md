@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.5 - 2026-05-26
+
+### Added
+
+- Added explicit package signing policy guidance for release governance.
+- Added startup validation for application authorization configuration.
+- Added User Secrets support for the generated web project to support local development secret management.
+- Added configuration validation guidance for v1.0 readiness.
+
+### Changed
+
+- Clarified that NuGet package signing is currently deferred until a project-controlled certificate, timestamping approach, signing owner, and verification policy are documented.
+- Clarified that external contributors do not publish or sign release packages directly.
+- Updated configuration documentation to distinguish local development secrets from production secrets.
+- Cross-linked production deployment guidance with startup validation and secret-management expectations.
+
+### Security
+
+- Strengthened supply-chain and release-governance documentation around package publication, maintainer approval, protected release workflows, and future signing-policy trigger conditions.
+- Strengthened secure-by-default configuration behavior by failing startup when required authorization settings are invalid.
+
 ## 0.5.4 - 2026-05-25
 
 ### Fixed

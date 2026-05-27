@@ -156,6 +156,8 @@ External contributions must enter through pull requests, pass required CI checks
 
 The publish workflow keeps the manual approval gate in place so unsigned package publication remains intentional rather than automatic.
 
+Before each stable release, confirm that [`SECURITY.md`](SECURITY.md) still reflects the current package-signing posture and that any trigger condition requiring a signing-policy review has been evaluated.
+
 ## 4. Zenodo archival sequence
 
 Zenodo archives GitHub releases created after the GitHub integration is enabled. Enable integration before the DOI-bearing release.

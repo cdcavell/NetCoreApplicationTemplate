@@ -13,7 +13,7 @@ Package-based validation is preferred because it verifies the actual distributio
 | Template short name | `netcoreapp-template` |
 | Template package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
-| Current package version | `0.5.4` |
+| Current package version | `0.5.5` |
 
 ## Consumer Scaffold Boundaries
 

@@ -32,11 +32,10 @@ jobs:
       - name: Validate version consistency
         shell: pwsh
         run: |
-          $arguments = @()
+          $arguments = @{}
 
           if ('${{ github.ref_type }}' -eq 'tag') {
-              $arguments += '-TagName'
-              $arguments += '${{ github.ref_name }}'
+              $arguments['TagName'] = '${{ github.ref_name }}'
           }
 
           ./scripts/Validate-VersionConsistency.ps1 @arguments

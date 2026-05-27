@@ -51,11 +51,10 @@ jobs:
       - name: Validate version metadata
         shell: pwsh
         run: |
-          $arguments = @()
+          $arguments = @{}
 
           if ('${{ github.ref_type }}' -eq 'tag') {
-              $arguments += '-TagName'
-              $arguments += '${{ github.ref_name }}'
+              $arguments['TagName'] = '${{ github.ref_name }}'
           }
 
           ./scripts/Validate-VersionConsistency.ps1 @arguments
@@ -76,11 +75,12 @@ jobs:
       - name: Validate generated package version
         shell: pwsh
         run: |
-          $arguments = @('-PackageDirectory', '${{ env.PACKAGE_OUTPUT }}')
+          $arguments = @{
+              PackageDirectory = '${{ env.PACKAGE_OUTPUT }}'
+          }
 
           if ('${{ github.ref_type }}' -eq 'tag') {
-              $arguments += '-TagName'
-              $arguments += '${{ github.ref_name }}'
+              $arguments['TagName'] = '${{ github.ref_name }}'
           }
 
           ./scripts/Validate-VersionConsistency.ps1 @arguments

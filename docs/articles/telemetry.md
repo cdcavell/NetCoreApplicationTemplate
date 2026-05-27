@@ -62,6 +62,17 @@ When an incoming request includes a valid trace context, the ASP.NET Core and Op
 
 This gives operators a consistent path from an API error response to application logs and telemetry traces.
 
+## Log and Problem Details Correlation
+
+The template keeps request correlation, logs, Problem Details, and OpenTelemetry traces connected through a small shared identifier set:
+
+- `correlationId` comes from the configured request correlation header, defaulting to `X-Correlation-ID`.
+- `requestId` comes from ASP.NET Core `HttpContext.TraceIdentifier`.
+- `traceId` and `spanId` come from the current W3C `Activity` when available.
+- Serilog request logs include the same identifiers so operators can move from an error response to logs and then to an OpenTelemetry trace.
+
+OTLP export remains disabled by default. Applications can enable trace and metric export by configuring `ProjectTemplate:OpenTelemetry:Otlp`.
+
 ## Metrics Endpoint Behavior
 
 The template does not expose a direct Prometheus `/metrics` scraping endpoint by default.

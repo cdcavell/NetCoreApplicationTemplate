@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using ProjectTemplate.Web.Options;
@@ -69,8 +70,16 @@ public static class RequestLoggingExtensions
                 return Task.CompletedTask;
             });
 
+            Activity? activity = Activity.Current;
+            string? traceId = activity?.TraceId.ToString();
+            string? spanId = activity?.SpanId.ToString();
+            string? traceParent = activity?.Id;
+
             using (LogContext.PushProperty("CorrelationId", correlationId))
             using (LogContext.PushProperty("RequestId", context.TraceIdentifier))
+            using (LogContext.PushProperty("TraceId", traceId))
+            using (LogContext.PushProperty("SpanId", spanId))
+            using (LogContext.PushProperty("TraceParent", traceParent))
             {
                 await next(context);
             }
@@ -108,12 +117,17 @@ public static class RequestLoggingExtensions
             // Request logging should default to operational metadata only.
             options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
             {
+                Activity? activity = Activity.Current;
+
                 diagnosticContext.Set("CorrelationId", GetCorrelationId(httpContext, requestLoggingOptions));
                 diagnosticContext.Set("RequestId", httpContext.TraceIdentifier);
                 diagnosticContext.Set("TraceIdentifier", httpContext.TraceIdentifier);
                 diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
                 diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
                 diagnosticContext.Set("RequestPathBase", httpContext.Request.PathBase.Value);
+                diagnosticContext.Set("TraceId", activity?.TraceId.ToString());
+                diagnosticContext.Set("SpanId", activity?.SpanId.ToString());
+                diagnosticContext.Set("TraceParent", activity?.Id);
 
                 if (requestLoggingOptions.IncludeQueryString)
                 {

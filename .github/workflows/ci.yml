@@ -286,6 +286,71 @@ jobs:
         working-directory: ./artifacts/scaffold/ContosoSecurityPortal
         run: docker compose -p contososecurityportal-ci down --volumes --remove-orphans
 
+
+      - name: Scaffold non-default consumer project
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
+          dotnet new netcoreapp-template `
+            --name ContosoNoAuthSqlServer `
+            --output ./artifacts/scaffold/ContosoNoAuthSqlServer `
+            --skipRestore true `
+            --authProvider none `
+            --dbProvider sqlserver
+
+      - name: Validate non-default scaffolded consumer manifest
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoNoAuthSqlServer
+
+      - name: Validate non-default scaffolded configuration
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          $appsettingsPath = "./artifacts/scaffold/ContosoNoAuthSqlServer/src/ContosoNoAuthSqlServer.Web/appsettings.json"
+
+          if (-not (Test-Path -LiteralPath $appsettingsPath -PathType Leaf)) {
+              Write-Error "Generated appsettings.json was not found: $appsettingsPath"
+              exit 1
+          }
+
+          $settings = Get-Content -LiteralPath $appsettingsPath -Raw | ConvertFrom-Json
+
+          if ($settings.ProjectTemplate.Authentication.Enabled -ne $false) {
+              Write-Error "Expected ProjectTemplate:Authentication:Enabled to be false."
+              exit 1
+          }
+
+          if ($settings.ProjectTemplate.Authentication.Cookie.Enabled -ne $false) {
+              Write-Error "Expected ProjectTemplate:Authentication:Cookie:Enabled to be false."
+              exit 1
+          }
+
+          if ($settings.ProjectTemplate.DataAccess.Provider -ne "SqlServer") {
+              Write-Error "Expected ProjectTemplate:DataAccess:Provider to be SqlServer."
+              exit 1
+          }
+
+          if ($settings.ProjectTemplate.DataAccess.ConnectionStringName -ne "ApplicationSqlServer") {
+              Write-Error "Expected ProjectTemplate:DataAccess:ConnectionStringName to be ApplicationSqlServer."
+              exit 1
+          }
+
+      - name: Build non-default scaffolded output
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoNoAuthSqlServer
+        run: |
+          dotnet restore ./ContosoNoAuthSqlServer.slnx
+          dotnet build ./ContosoNoAuthSqlServer.slnx --configuration $env:CONFIGURATION --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test non-default scaffolded output
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoNoAuthSqlServer
+        run: dotnet test ./ContosoNoAuthSqlServer.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal /p:ContinuousIntegrationBuild=true
+
       - name: Uninstall template package
         if: always()
         shell: pwsh

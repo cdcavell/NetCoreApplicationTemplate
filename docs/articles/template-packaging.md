@@ -100,6 +100,26 @@ Use a project name that is also a valid C# identifier, such as `ContosoSecurityP
 
 This creates a new project using `ContosoSecurityPortal` as the replacement name for the source template namespace and project prefix.
 
+## Template Options
+
+The template intentionally exposes a small set of stable options for common scaffold variants.
+
+| Option | Default | Supported values | Description |
+|:---|:---|:---|:---|
+| `--authProvider` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
+| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. Use `sqlite` for the default local development configuration or `sqlserver` for the SQL Server provider configuration. |
+
+Example non-default scaffold:
+
+```powershell
+dotnet new netcoreapp-template `
+  --name ContosoNoAuthSqlServer `
+  --authProvider none `
+  --dbProvider sqlserver
+```
+
+All supported variants preserve the template's core infrastructure guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+
 ## Restore, Build, and Test the Generated Project
 
 ```powershell

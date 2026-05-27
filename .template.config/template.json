@@ -26,6 +26,95 @@
       "datatype": "bool",
       "defaultValue": "false",
       "description": "Skips the post-create NuGet restore action when set to true."
+    },
+    "authProvider": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "cookie",
+      "description": "Selects the generated authentication baseline.",
+      "choices": [
+        {
+          "choice": "cookie",
+          "description": "Generates the default cookie-authentication-ready baseline."
+        },
+        {
+          "choice": "none",
+          "description": "Generates the application with application authentication disabled by default."
+        }
+      ]
+    },
+    "dbProvider": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "sqlite",
+      "description": "Selects the generated EF Core provider configuration.",
+      "choices": [
+        {
+          "choice": "sqlite",
+          "description": "Generates the default SQLite development configuration."
+        },
+        {
+          "choice": "sqlserver",
+          "description": "Generates the SQL Server provider configuration."
+        }
+      ]
+    },
+    "templateAuthEnabled": {
+      "type": "generated",
+      "generator": "switch",
+      "datatype": "string",
+      "parameters": {
+        "evaluator": "C++",
+        "cases": [
+          {
+            "condition": "(authProvider == \"none\")",
+            "value": "false"
+          },
+          {
+            "condition": "(authProvider == \"cookie\")",
+            "value": "true"
+          }
+        ]
+      },
+      "replaces": "TemplateAuthEnabled"
+    },
+    "templateDataProvider": {
+      "type": "generated",
+      "generator": "switch",
+      "datatype": "string",
+      "parameters": {
+        "evaluator": "C++",
+        "cases": [
+          {
+            "condition": "(dbProvider == \"sqlserver\")",
+            "value": "SqlServer"
+          },
+          {
+            "condition": "(dbProvider == \"sqlite\")",
+            "value": "Sqlite"
+          }
+        ]
+      },
+      "replaces": "TemplateDataProvider"
+    },
+    "templateDataConnectionStringName": {
+      "type": "generated",
+      "generator": "switch",
+      "datatype": "string",
+      "parameters": {
+        "evaluator": "C++",
+        "cases": [
+          {
+            "condition": "(dbProvider == \"sqlserver\")",
+            "value": "ApplicationSqlServer"
+          },
+          {
+            "condition": "(dbProvider == \"sqlite\")",
+            "value": "ApplicationDatabase"
+          }
+        ]
+      },
+      "replaces": "TemplateDataConnectionStringName"
     }
   },
   "primaryOutputs": [

@@ -85,7 +85,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 ## Install the Template Package
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.4.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.5.nupkg
 ```
 
 ## Create a New Project from the Template

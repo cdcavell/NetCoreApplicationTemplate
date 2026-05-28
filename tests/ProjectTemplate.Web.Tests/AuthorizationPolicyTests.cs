@@ -218,6 +218,8 @@ public sealed class AuthorizationPolicyTests
             ["ProjectTemplate:Authentication:DefaultScheme"] = _testAuthenticationScheme,
             ["ProjectTemplate:Authentication:DefaultChallengeScheme"] = _testAuthenticationScheme,
             ["ProjectTemplate:Authentication:DefaultSignInScheme"] = _testAuthenticationScheme,
+            ["ProjectTemplate:Authentication:Cookie:Enabled"] = "true",
+            ["ProjectTemplate:Authentication:Cookie:Scheme"] = "Cookies",
             ["ProjectTemplate:Authorization:RoleClaimType"] = ApplicationClaimTypes.Role,
             ["ProjectTemplate:Authorization:PermissionClaimType"] = ApplicationClaimTypes.Permission,
             ["ProjectTemplate:Authorization:AdministratorRoles:0"] = "Administrator",

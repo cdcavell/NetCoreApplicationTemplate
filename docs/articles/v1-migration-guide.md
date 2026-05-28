@@ -57,16 +57,18 @@ After `v1.0.0`, changes to these values are treated as public-surface changes.
 
 ## Template Parameters
 
-The template currently exposes the following consumer parameter:
+The template currently exposes the following consumer parameters:
 
-| Parameter | Type | Default | Description |
-|:---|:---|:---|:---|
-| `skipRestore` | `bool` | `false` | Skips the post-create NuGet restore action when set to `true`. |
+| Parameter | Type | Default | Supported values | Description |
+|:---|:---|:---|:---|:---|
+| `skipRestore` | `bool` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
+| `authProvider` | `choice` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
+| `dbProvider` | `choice` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. Use `sqlite` for the default local development configuration or `sqlserver` for the SQL Server provider configuration. |
 
-Default usage:
+Default scaffold:
 
 ```powershell
-dotnet new cdcavell-netcoreapp -n ContosoSecurityPortal
+dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Skip automatic restore:
@@ -74,7 +76,31 @@ Skip automatic restore:
 dotnet new netcoreapp-template -n ContosoSecurityPortal --skipRestore true
 ```
 
-When skipRestore is not supplied, the template attempts to run dotnet restore after project creation.
+Generate with authentication disabled:
+```powershell
+dotnet new netcoreapp-template `
+  -n ContosoNoAuthPortal `
+  --authProvider none
+```
+
+Generate with SQL Server provider configuration:
+```powershell
+dotnet new netcoreapp-template `
+  -n ContosoSqlServerPortal `
+  --dbProvider sqlserver
+```
+
+Generate a non-default scaffold with authentication disabled and SQL Server configuration:
+```powershell
+dotnet new netcoreapp-template `
+  -n ContosoNoAuthSqlServer `
+  --authProvider none `
+  --dbProvider sqlserver
+```
+
+
+When `skipRestore` is not supplied, the template attempts to run `dotnet restore` after project creation.
+
 
 ## Recommended Clean Migration Workflow
 
@@ -103,13 +129,21 @@ Generate a clean `v1.0.0` application:
 dotnet new netcoreapp-template -n ContosoSecurityPortal-v1
 ```
 
-Restore, build, and test:
+Compare the existing application to the clean v1.0 scaffold:
 
 ```powershell
 git diff --no-index C:\Path\To\ExistingApp C:\Temp\NetCoreApplicationTemplate-v1-migration\ContosoSecurityPortal-v1
 ```
 
 Treat differences as review items rather than automatic replacements.
+
+Then restore, build, and test the migrated application:
+```powershell
+cd C:\Path\To\MigratedApp
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
 
 ## Areas to Compare
 
@@ -240,6 +274,7 @@ Use this checklist before treating a `v0.5.x` application as migrated to the `v1
 [ ] Build succeeds in Release configuration.
 [ ] Tests pass.
 [ ] Application starts locally.
+[ ] README and generated consumer documentation reviewed.
 [ ] Production deployment checklist completed.
 ```
 

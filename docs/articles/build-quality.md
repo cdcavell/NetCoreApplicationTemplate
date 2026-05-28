@@ -92,7 +92,6 @@ Analyzer settings are intentionally production-oriented but not configured as gl
 Before a release, the expected validation path is:
 
 ```powershell
-dotnet restore ./NetCoreApplicationTemplate.slnx
 dotnet build ./NetCoreApplicationTemplate.slnx --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
 dotnet format ./NetCoreApplicationTemplate.slnx --verify-no-changes --verbosity minimal
 dotnet test ./NetCoreApplicationTemplate.slnx --configuration Release --no-build --verbosity normal /p:ContinuousIntegrationBuild=true

@@ -55,9 +55,6 @@ With the default configuration, the application resolves:
 ConnectionStrings:ApplicationDatabase
 ```
 
-
-
-
 EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `ApplicationDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
@@ -223,6 +220,19 @@ When the application starts, the data access startup log records the configured 
 When auditing is enabled, audit records are written to the application database. The template does not include automatic pruning, retention, archival, legal hold, masking, export, or purge behavior for audit records.
 
 Consuming applications are responsible for deciding how audit records are retained, archived, masked, purged, or moved to long-term storage. Before enabling auditing in production, review whether audited values may contain sensitive or regulated data.
+
+
+## Optimistic Concurrency
+
+The template includes baseline optimistic concurrency detection for entities that inherit from `DataEntity`.
+
+Each data entity includes a `ConcurrencyStamp` value. EF Core configures this value as a concurrency token. When an entity is updated or deleted, EF Core includes the original concurrency token value in the database update check. If another context or application instance has already changed the row, the update affects zero rows and EF Core throws `DbUpdateConcurrencyException`.
+
+The template uses an application-managed string concurrency stamp instead of a database-generated SQL Server `rowversion`. This keeps the default behavior provider-safe for SQLite local development while still supporting SQL Server-oriented production paths.
+
+`ApplicationDbContext.SaveChanges` and `SaveChangesAsync` refresh the concurrency stamp for modified entities before saving. Concurrency conflicts are logged and rethrown. The template does not automatically retry, merge, or overwrite conflicting changes.
+
+Consuming applications should decide how to handle conflicts based on domain needs. Common options include showing the user a reload-and-retry message, re-querying the current database values, or implementing an application-specific merge workflow.
 
 
 ## Automatic Startup Migrations

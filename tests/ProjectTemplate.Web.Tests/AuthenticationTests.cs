@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ProjectTemplate.Web.Authentication.Options;
@@ -102,19 +103,29 @@ public sealed class AuthenticationTests
     }
 
     /// <summary>
-    /// Verifies the application authentication and cookie authentication are enabled by default for the base application.
+    /// Verifies that the authentication options match the expected values based on the provided configuration.
     /// </summary>
     [Fact]
-    public void AuthenticationOptions_AreEnabledByDefault()
+    public void AuthenticationOptions_MatchGeneratedConfiguration()
     {
         using ApplicationWebApplicationFactory factory = CreateFactory(new Dictionary<string, string?>());
+
+        IConfiguration configuration = factory.Services.GetRequiredService<IConfiguration>();
 
         ApplicationAuthenticationOptions options = factory.Services
             .GetRequiredService<IOptions<ApplicationAuthenticationOptions>>()
             .Value;
 
-        Assert.True(options.Enabled);
-        Assert.True(options.Cookie.Enabled);
+        bool expectedAuthenticationEnabled = bool.TryParse(
+            configuration["ProjectTemplate:Authentication:Enabled"],
+            out bool authenticationEnabled) && authenticationEnabled;
+
+        bool expectedCookieEnabled = bool.TryParse(
+            configuration["ProjectTemplate:Authentication:Cookie:Enabled"],
+            out bool cookieEnabled) && cookieEnabled;
+
+        Assert.Equal(expectedAuthenticationEnabled, options.Enabled);
+        Assert.Equal(expectedCookieEnabled, options.Cookie.Enabled);
         Assert.Equal("Cookies", options.DefaultScheme);
         Assert.Equal("Cookies", options.Cookie.Scheme);
     }

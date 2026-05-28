@@ -20,8 +20,14 @@ public sealed class AdvertisedBehaviorTests
         using ApplicationWebApplicationFactory factory = CreateFactory();
         using HttpClient client = factory.CreateHttpsClient();
 
-        using HttpResponseMessage response = await client.GetAsync(
-            "/api/v1/advertised-behavior/missing",
+        using var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            "/api/v1/advertised-behavior/missing");
+
+        request.Headers.TryAddWithoutValidation("X-Correlation-ID", "test-correlation-187");
+
+        using HttpResponseMessage response = await client.SendAsync(
+            request,
             TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -35,6 +41,7 @@ public sealed class AdvertisedBehaviorTests
         Assert.Equal(404, root.GetProperty("status").GetInt32());
         Assert.Equal("Not Found", root.GetProperty("title").GetString());
         Assert.Equal("/api/v1/advertised-behavior/missing", root.GetProperty("instance").GetString());
+        Assert.Equal("test-correlation-187", root.GetProperty("correlationId").GetString());
         Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("traceId").GetString()));
         Assert.False(string.IsNullOrWhiteSpace(root.GetProperty("requestId").GetString()));
     }

@@ -17,9 +17,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.5.5](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.5)__
+Current release: __[Release 0.5.6](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.6)__
 
-Tag: `v0.5.5`
+Tag: `v0.5.6`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -167,7 +167,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.5.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.6.nupkg
 ```
 
 Generate a consumer project:
@@ -184,6 +184,27 @@ dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release
 ```
+
+Generate a non-default scaffold with authentication disabled and SQL Server selected as the data provider:
+
+```powershell
+dotnet new netcoreapp-template `
+  --name ContosoNoAuthSqlServer `
+  --authProvider none `
+  --dbProvider sqlserver
+```
+
+Build and test the non-default generated output:
+
+```powershell
+cd ContosoNoAuthSqlServer
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
+
+The non-default scaffold preserves the template's core guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+
 
 Update the installed template by installing a newer package version:
 
@@ -371,7 +392,7 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.5. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.6. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap

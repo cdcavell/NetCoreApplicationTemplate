@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Entities;
@@ -39,12 +40,22 @@ public sealed partial class ApplicationDbContext(
         ILogger logger,
         string efCoreMessage);
 
+    [LoggerMessage(
+        EventId = 19001,
+        Level = LogLevel.Warning,
+        Message = "Optimistic concurrency conflict detected while saving {EntryCount} tracked entity entries.")]
+    private static partial void LogOptimisticConcurrencyConflict(
+        ILogger logger,
+        int entryCount,
+        Exception exception);
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        ConfigureDataEntityDefaults(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -73,13 +84,19 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
+        ApplyConcurrencyStamps();
+
         if (!_auditOptions)
         {
-            return base.SaveChanges(acceptAllChangesOnSuccess);
+            return SaveChangesWithConcurrencyHandling(
+                () => base.SaveChanges(acceptAllChangesOnSuccess));
         }
 
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
-        int result = base.SaveChanges(acceptAllChangesOnSuccess);
+
+        int result = SaveChangesWithConcurrencyHandling(
+            () => base.SaveChanges(acceptAllChangesOnSuccess));
+
         _ = OnAfterSaveChanges(auditEntries);
 
         return result;
@@ -96,18 +113,22 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+        ApplyConcurrencyStamps();
+
         if (!_auditOptions)
         {
-            return await base.SaveChangesAsync(
-                acceptAllChangesOnSuccess,
-                cancellationToken);
+            return await SaveChangesWithConcurrencyHandlingAsync(
+                () => base.SaveChangesAsync(
+                    acceptAllChangesOnSuccess,
+                    cancellationToken)).ConfigureAwait(false);
         }
 
         List<AuditEntry> auditEntries = OnBeforeSaveChanges();
 
-        int result = await base.SaveChangesAsync(
-            acceptAllChangesOnSuccess,
-            cancellationToken).ConfigureAwait(false);
+        int result = await SaveChangesWithConcurrencyHandlingAsync(
+            () => base.SaveChangesAsync(
+                acceptAllChangesOnSuccess,
+                cancellationToken)).ConfigureAwait(false);
 
         _ = await OnAfterSaveChangesAsync(auditEntries, cancellationToken)
             .ConfigureAwait(false);
@@ -257,5 +278,71 @@ public sealed partial class ApplicationDbContext(
         return await base
             .SaveChangesAsync(cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private static void ConfigureDataEntityDefaults(ModelBuilder modelBuilder)
+    {
+        foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(DataEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                continue;
+            }
+
+            modelBuilder.Entity(entityType.ClrType)
+                .Property<string>(nameof(DataEntity.ConcurrencyStamp))
+                .HasMaxLength(64)
+                .IsRequired()
+                .IsConcurrencyToken();
+        }
+    }
+
+    private void ApplyConcurrencyStamps()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry<DataEntity> entry in ChangeTracker.Entries<DataEntity>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Entity.ConcurrencyStamp))
+                {
+                    entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
+                }
+
+                continue;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
+            }
+        }
+    }
+
+    private int SaveChangesWithConcurrencyHandling(Func<int> saveChanges)
+    {
+        try
+        {
+            return saveChanges();
+        }
+        catch (DbUpdateConcurrencyException exception)
+        {
+            LogOptimisticConcurrencyConflict(_logger, exception.Entries.Count, exception);
+            throw;
+        }
+    }
+
+    private async Task<int> SaveChangesWithConcurrencyHandlingAsync(Func<Task<int>> saveChanges)
+    {
+        try
+        {
+            return await saveChanges().ConfigureAwait(false);
+        }
+        catch (DbUpdateConcurrencyException exception)
+        {
+            LogOptimisticConcurrencyConflict(_logger, exception.Entries.Count, exception);
+            throw;
+        }
     }
 }

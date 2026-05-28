@@ -35,6 +35,14 @@ The template supports a small set of scaffold options for common application var
 
 The generated application still includes the core production-oriented guardrails regardless of these options, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
 
+### Authentication-disabled scaffolds
+
+When `--authProvider none` is used, application authentication and cookie authentication are disabled in the generated `appsettings.json`.
+
+This is intended for applications that do not need local cookie authentication at scaffold time, or that plan to add a different authentication approach later.
+
+Authentication and authorization tests that intentionally exercise protected endpoints may need to enable test authentication through in-memory test configuration.
+
 ## Restore
 
 ```powershell

@@ -120,6 +120,12 @@ dotnet new netcoreapp-template `
 
 All supported variants preserve the template's core infrastructure guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
 
+### Authentication-disabled variant
+
+The `--authProvider none` option generates the application with `ProjectTemplate:Authentication:Enabled` and `ProjectTemplate:Authentication:Cookie:Enabled` set to `false`.
+
+The application still includes the authentication and authorization infrastructure so consumers can enable or replace authentication later. Test cases that intentionally exercise protected endpoints may enable test authentication through in-memory test configuration.
+
 ## Restore, Build, and Test the Generated Project
 
 ```powershell

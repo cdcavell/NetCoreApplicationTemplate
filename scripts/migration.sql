@@ -39,3 +39,13 @@ VALUES ('20260521230436_InitialCreate', '10.0.8');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+ALTER TABLE "ExternalLoginAccounts" ADD "ConcurrencyStamp" TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE "AuditRecords" ADD "ConcurrencyStamp" TEXT NOT NULL DEFAULT '';
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20260528165924_AddDataEntityConcurrencyStamp', '10.0.8');
+
+COMMIT;
+

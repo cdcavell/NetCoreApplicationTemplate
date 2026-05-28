@@ -22,6 +22,27 @@ The generated solution includes a production-oriented baseline for common web ap
 - .NET SDK 10.0 or later.
 - Docker Desktop or a compatible container runtime, only if you plan to use Docker Compose.
 
+## Template Options Used
+
+This project was generated from the `netcoreapp-template` template.
+
+The template supports a small set of scaffold options for common application variants:
+
+| Option | Default | Supported values | Description |
+|:---|:---|:---|:---|
+| `authProvider` | `cookie` | `cookie`, `none` | Selects whether the generated application starts with the cookie-authentication-ready baseline or with application authentication disabled by default. |
+| `dbProvider` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. |
+
+The generated application still includes the core production-oriented guardrails regardless of these options, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+
+### Authentication-disabled scaffolds
+
+When `--authProvider none` is used, application authentication and cookie authentication are disabled in the generated `appsettings.json`.
+
+This is intended for applications that do not need local cookie authentication at scaffold time, or that plan to add a different authentication approach later.
+
+Authentication and authorization tests that intentionally exercise protected endpoints may need to enable test authentication through in-memory test configuration.
+
 ## Restore
 
 ```powershell

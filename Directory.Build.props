@@ -14,6 +14,8 @@
     <InformationalVersion>$(Version)+$(RepositoryUrl)</InformationalVersion>
 
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == '' and '$(GITHUB_ACTIONS)' == 'true'">true</EnableSourceLink>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">false</EnableSourceLink>
     <Deterministic>true</Deterministic>
     <DebugType>embedded</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

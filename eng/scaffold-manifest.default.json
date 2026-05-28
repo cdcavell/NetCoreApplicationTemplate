@@ -17,6 +17,7 @@
     "README.md",
     "docker-compose.yml",
     "global.json",
+    "nuget.config",
     "scripts/migration.sql",
     "src/ContosoSecurityPortal.Infrastructure/ContosoSecurityPortal.Infrastructure.csproj",
     "src/ContosoSecurityPortal.Web/ContosoSecurityPortal.Web.csproj",

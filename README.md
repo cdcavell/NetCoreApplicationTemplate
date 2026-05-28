@@ -185,6 +185,27 @@ dotnet build --configuration Release
 dotnet test --configuration Release
 ```
 
+Generate a non-default scaffold with authentication disabled and SQL Server selected as the data provider:
+
+```powershell
+dotnet new netcoreapp-template `
+  --name ContosoNoAuthSqlServer `
+  --authProvider none `
+  --dbProvider sqlserver
+```
+
+Build and test the non-default generated output:
+
+```powershell
+cd ContosoNoAuthSqlServer
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
+
+The non-default scaffold preserves the template's core guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+
+
 Update the installed template by installing a newer package version:
 
 ```powershell

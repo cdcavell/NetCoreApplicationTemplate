@@ -14,7 +14,7 @@
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
     <PackageReleaseNotes>Preview release-readiness package metadata. Production publication requires the protected NuGet publish workflow, NuGet package identity ownership, and release checklist validation.</PackageReleaseNotes>
-    <VersionPrefix>0.5.5</VersionPrefix>
+    <VersionPrefix>0.5.6</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

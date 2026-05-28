@@ -129,6 +129,7 @@ public sealed class AuthenticationTests
         Assert.Equal("Cookies", options.DefaultScheme);
         Assert.Equal("Cookies", options.Cookie.Scheme);
     }
+
     /// <summary>
     /// Verifies that anonymous endpoints remain accessible when authentication is disabled.
     /// </summary>

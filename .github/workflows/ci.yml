@@ -295,9 +295,9 @@ jobs:
           dotnet new netcoreapp-template `
             --name ContosoNoAuthSqlServer `
             --output ./artifacts/scaffold/ContosoNoAuthSqlServer `
-            --skipRestore true `
-            --authProvider none `
-            --dbProvider sqlserver
+            --skipRestore=true `
+            --authProvider=none `
+            --dbProvider=sqlserver
 
       - name: Validate non-default scaffolded configuration
         if: runner.os == 'Linux'
@@ -311,6 +311,10 @@ jobs:
           }
 
           $settings = Get-Content -LiteralPath $appsettingsPath -Raw | ConvertFrom-Json
+          Write-Host "Generated auth enabled: $($settings.ProjectTemplate.Authentication.Enabled)"
+          Write-Host "Generated cookie enabled: $($settings.ProjectTemplate.Authentication.Cookie.Enabled)"
+          Write-Host "Generated data provider: $($settings.ProjectTemplate.DataAccess.Provider)"
+          Write-Host "Generated connection string name: $($settings.ProjectTemplate.DataAccess.ConnectionStringName)"
 
           if ($settings.ProjectTemplate.Authentication.Enabled -ne $false) {
               Write-Error "Expected ProjectTemplate:Authentication:Enabled to be false."

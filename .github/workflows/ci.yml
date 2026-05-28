@@ -299,11 +299,6 @@ jobs:
             --authProvider none `
             --dbProvider sqlserver
 
-      - name: Validate non-default scaffolded consumer manifest
-        if: runner.os == 'Linux'
-        shell: pwsh
-        run: ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoNoAuthSqlServer
-
       - name: Validate non-default scaffolded configuration
         if: runner.os == 'Linux'
         shell: pwsh

@@ -310,29 +310,37 @@ jobs:
               exit 1
           }
 
+          $projectName = "ContosoNoAuthSqlServer"
           $settings = Get-Content -LiteralPath $appsettingsPath -Raw | ConvertFrom-Json
-          Write-Host "Generated auth enabled: $($settings.ProjectTemplate.Authentication.Enabled)"
-          Write-Host "Generated cookie enabled: $($settings.ProjectTemplate.Authentication.Cookie.Enabled)"
-          Write-Host "Generated data provider: $($settings.ProjectTemplate.DataAccess.Provider)"
-          Write-Host "Generated connection string name: $($settings.ProjectTemplate.DataAccess.ConnectionStringName)"
+          $projectSettings = $settings.PSObject.Properties[$projectName].Value
 
-          if ($settings.ProjectTemplate.Authentication.Enabled -ne $false) {
-              Write-Error "Expected ProjectTemplate:Authentication:Enabled to be false."
+          if ($null -eq $projectSettings) {
+              Write-Error "Expected generated appsettings root '$projectName' was not found."
               exit 1
           }
 
-          if ($settings.ProjectTemplate.Authentication.Cookie.Enabled -ne $false) {
-              Write-Error "Expected ProjectTemplate:Authentication:Cookie:Enabled to be false."
+          Write-Host "Generated auth enabled: $($projectSettings.Authentication.Enabled)"
+          Write-Host "Generated cookie enabled: $($projectSettings.Authentication.Cookie.Enabled)"
+          Write-Host "Generated data provider: $($projectSettings.DataAccess.Provider)"
+          Write-Host "Generated connection string name: $($projectSettings.DataAccess.ConnectionStringName)"
+
+          if ($projectSettings.Authentication.Enabled -ne $false) {
+              Write-Error "Expected ${projectName}:Authentication:Enabled to be false."
               exit 1
           }
 
-          if ($settings.ProjectTemplate.DataAccess.Provider -ne "SqlServer") {
-              Write-Error "Expected ProjectTemplate:DataAccess:Provider to be SqlServer."
+          if ($projectSettings.Authentication.Cookie.Enabled -ne $false) {
+              Write-Error "Expected ${projectName}:Authentication:Cookie:Enabled to be false."
               exit 1
           }
 
-          if ($settings.ProjectTemplate.DataAccess.ConnectionStringName -ne "ApplicationSqlServer") {
-              Write-Error "Expected ProjectTemplate:DataAccess:ConnectionStringName to be ApplicationSqlServer."
+          if ($projectSettings.DataAccess.Provider -ne "SqlServer") {
+              Write-Error "Expected ${projectName}:DataAccess:Provider to be SqlServer."
+              exit 1
+          }
+
+          if ($projectSettings.DataAccess.ConnectionStringName -ne "ApplicationSqlServer") {
+              Write-Error "Expected ${projectName}:DataAccess:ConnectionStringName to be ApplicationSqlServer."
               exit 1
           }
 

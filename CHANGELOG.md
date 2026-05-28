@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.6 - 2026-05-28
+
+### Added
+
+* Added optimistic concurrency handling for EF Core entities that inherit from `DataEntity`.
+* Added a provider-safe `ConcurrencyStamp` concurrency token for SQLite-oriented local development and SQL Server-oriented production paths.
+* Added EF Core migration support for the shared data-entity concurrency stamp.
+* Added tests proving stale entity updates are detected for both synchronous and asynchronous save paths.
+* Added scaffold validation coverage for generated template output, including default application configuration and NuGet configuration.
+
+### Changed
+
+* Updated `ApplicationDbContext.SaveChanges` and `SaveChangesAsync` to refresh concurrency stamps during modified entity saves.
+* Updated concurrency conflict behavior to surface diagnosable `DbUpdateConcurrencyException` failures rather than allowing silent last-writer-wins overwrites.
+* Updated data-access, template-packaging, telemetry, release, and public-surface documentation for the 0.5.6 release.
+* Updated test platform package references to the latest 18.6.0 test SDK/platform packages.
+
+### Fixed
+
+* Improved generated-template completeness by ensuring expected scaffold content is included and verified.
+
 ## 0.5.5 - 2026-05-26
 
 ### Added

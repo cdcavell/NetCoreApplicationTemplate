@@ -63,7 +63,7 @@ The template currently exposes the following consumer parameters:
 |:---|:---|:---|:---|:---|
 | `skipRestore` | `bool` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 | `authProvider` | `choice` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
-| `dbProvider` | `choice` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. Use `sqlite` for the default local development configuration or `sqlserver` for the SQL Server provider configuration. |
+| `dbProvider` | `choice` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. Use `sqlite` for the default local development configuration, `sqlserver` for the SQL Server provider configuration, or `none` to generate the application with EF Core data access disabled. |
 
 Default scaffold:
 
@@ -88,6 +88,14 @@ Generate with SQL Server provider configuration:
 dotnet new netcoreapp-template `
   -n ContosoSqlServerPortal `
   --dbProvider sqlserver
+```
+
+Generate with EF Core data access disabled:
+
+```powershell
+dotnet new netcoreapp-template `
+  -n ContosoNoDataAccessPortal `
+  --dbProvider none
 ```
 
 Generate a non-default scaffold with authentication disabled and SQL Server configuration:
@@ -165,7 +173,7 @@ Review these areas carefully:
 [ ] Rate limiting defaults.
 [ ] Logging and telemetry configuration.
 [ ] Authentication and authorization configuration.
-[ ] EF Core provider and migration strategy.
+[ ] EF Core provider, disabled data access mode, and migration strategy reviewed.
 [ ] Tests and smoke-test expectations.
 [ ] README and generated consumer instructions.
 ```
@@ -185,7 +193,7 @@ Pay special attention to:
 - Static file behavior.
 - Routing, CORS, rate limiting, authentication, and authorization order.
 - Health check endpoints.
-- Data access provider selection.
+- Data access provider selection or disabled data access mode.
 - Explicit migration execution rather than automatic production startup migration.
 
 ## Breaking Change Review
@@ -229,8 +237,10 @@ At minimum, confirm:
 [ ] AllowedHosts matches public host names.
 [ ] Forwarded headers match the proxy/load balancer topology.
 [ ] Production secrets are not committed.
-[ ] Database provider and connection string names are correct.
-[ ] Migrations are applied intentionally.
+[ ] Data access provider or disabled data access mode reviewed.
+[ ] Database provider and connection string names are correct, when data access is enabled.
+[ ] Data access provider and migration strategy reviewed, when applicable.
+[ ] Migrations are applied intentionally, when data access is enabled.
 [ ] Health checks match infrastructure probe paths.
 [ ] Rate limits are appropriate for expected traffic.
 [ ] Logs do not expose sensitive values.
@@ -268,7 +278,7 @@ Use this checklist before treating a `v0.5.x` application as migrated to the `v1
 [ ] Security headers reviewed.
 [ ] Rate limits reviewed.
 [ ] Authentication and authorization settings reviewed.
-[ ] Data provider and migration strategy reviewed.
+[ ] Data access provider or disabled data access mode reviewed.
 [ ] Docker/container behavior reviewed, if applicable.
 [ ] Restore succeeds.
 [ ] Build succeeds in Release configuration.

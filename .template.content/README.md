@@ -34,7 +34,7 @@ The template supports these scaffold options:
 | Option | Default | Supported values | Description |
 |:---|:---|:---|:---|
 | `--authProvider` | `cookie` | `cookie`, `none` | Selects whether the generated application starts with the cookie-authentication-ready baseline or with application authentication disabled by default. |
-| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. |
+| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. |
 | `--skipRestore` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 
 The generated application still includes the core production-oriented guardrails regardless of these options, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
@@ -74,6 +74,8 @@ This is intended for applications that do not need local cookie authentication a
 Authentication and authorization tests that intentionally exercise protected endpoints may need to enable test authentication through in-memory test configuration.
 
 When `--dbProvider sqlserver` is used, the generated data access configuration selects `SqlServer` and `ApplicationSqlServer`. The generated `ConnectionStrings:ApplicationSqlServer` value is a local development example and should be replaced through environment-specific configuration before production use.
+
+When `--dbProvider none` is used, the generated data access configuration selects `None`. EF Core application data access services are not registered, and no data access connection string is required unless the consuming application adds its own persistence strategy.
 
 ## Restore
 
@@ -163,6 +165,8 @@ SQL Server scaffolds select `ConnectionStrings:ApplicationSqlServer`.
 The EF Core model includes baseline optimistic concurrency support for entities that inherit from the shared data entity base type. Concurrency conflicts are surfaced through EF Core rather than silently overwriting stale updates.
 
 The scaffold does not run EF Core migrations automatically during startup. Apply migrations intentionally as part of local setup or deployment.
+
+When data access is disabled with `--dbProvider none`, EF Core services are not registered and migration commands are not applicable unless the consuming application adds its own persistence layer.
 
 ### Health checks
 

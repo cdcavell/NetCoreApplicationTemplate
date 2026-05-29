@@ -4,32 +4,35 @@
 - name: Getting Started
   href: getting-started.md
 
+- name: v1.0 Readiness
+  items:
+    - name: v1.0 Migration Guide
+      href: v1-migration-guide.md
+    - name: Public Surface v1.0
+      href: public-surface-v1.md
+    - name: Production Deployment Checklist
+      href: production-deployment-checklist.md
+    - name: Runtime Readiness
+      href: runtime-readiness.md
+    - name: Build Quality and Reproducibility
+      href: build-quality.md
+    - name: Container Release Publishing
+      href: container-publish.md
+    - name: Template Packaging
+      href: template-packaging.md
 
-- name: v1.0 Migration Guide
-  href: v1-migration-guide.md
+- name: Application Basics
+  items:
+    - name: Project Structure
+      href: project-structure.md
+    - name: Configuration
+      href: configuration.md
+    - name: Deployment Notes
+      href: deployment.md
+    - name: Docker Development
+      href: docker.md
 
-- name: Production Deployment Checklist
-  href: production-deployment-checklist.md
-
-- name: Docker Development
-  href: docker.md
-
-- name: Container Release Publishing
-  href: container-publish.md
-
-- name: Project Structure
-  href: project-structure.md
-
-- name: Configuration
-  href: configuration.md
-
-- name: Deployment
-  href: deployment.md
-
-- name: Runtime Readiness
-  href: runtime-readiness.md
-
-- name: Middleware
+- name: Middleware Pipeline
   items:
     - name: Middleware Pipeline
       href: middleware.md
@@ -64,17 +67,5 @@
 - name: Data Access
   href: data-access.md
 
-- name: Build Quality and Reproducibility
-  href: build-quality.md
-
-- name: Public Surface v1.0
-  href: public-surface-v1.md
-
-- name: v1.0 Migration Guide
-  href: v1-migration-guide.md
-
 - name: GitHub Workflow
   href: github-workflow.md
-
-- name: Template Packaging
-  href: template-packaging.md

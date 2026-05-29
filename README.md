@@ -241,26 +241,35 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 Documentation areas include:
 
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
-- [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
-- [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
-- [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
-- [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
-- [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
-- [Deployment](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
-- [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
+- __v1.0 Readiness__
+  - [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
+  - [Public Surface v1.0](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/public-surface-v1.html)
+  - [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
+  - [Runtime Readiness](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/runtime-readiness.html)
+  - [Build Quality and Reproducibility](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/build-quality.html)
+  - [Container Release Publishing](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/container-publish.html)
+  - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
+- __Application Basics__
+  - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
+  - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
+  - [Deployment Notes](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
+  - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
+- __Middleware Pipeline__
+  - [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
+  - [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
+  - [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)
+  - [Forwarded Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/forwarded-headers.html)
+  - [Rate Limiting](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/rate-limiting.html)
+  - [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
 - [API Versioning](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/api-versioning.html)
-- [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
-- [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
-- [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)
-- [Forwarded Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/forwarded-headers.html)
-- [Rate Limiting](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/rate-limiting.html)
-- [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
-- [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
-- [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
-- [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
+- __Observability__
+  - [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
+  - [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
+- __Authentication and Authorization__
+  - [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+  - [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
 - [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
 - [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
-- [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 
 ## Repository Governance
 

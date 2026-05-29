@@ -2,8 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectTemplate.Infrastructure.Data;
-using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Extensions;
+using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 
 namespace ProjectTemplate.Web.Tests;
 

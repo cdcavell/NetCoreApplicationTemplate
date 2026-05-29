@@ -21,6 +21,11 @@ Install the template package from NuGet:
 dotnet new install CDCavell.NetCoreApplicationTemplate
 ```
 
+## For local package validation, install a packed package directly:
+```powershell
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.6.nupkg
+```
+
 ## Generate a project
 
 Create a default scaffold:

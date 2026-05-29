@@ -9,6 +9,15 @@ internal sealed partial class DataAccessStartupLogger(
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        if (DataAccessOptions.IsDisabledProvider(options.Value.Provider))
+        {
+            LogDataAccessDisabled(
+                logger,
+                options.Value.Provider);
+
+            return Task.CompletedTask;
+        }
+
         LogDataAccessConfiguration(
             logger,
             options.Value.Provider,
@@ -32,4 +41,12 @@ internal sealed partial class DataAccessStartupLogger(
         string provider,
         string connectionStringName,
         string auditingStatus);
+
+    [LoggerMessage(
+        EventId = 19101,
+        Level = LogLevel.Information,
+        Message = "Application data access disabled. Provider: {Provider}; EF Core services were not registered.")]
+    private static partial void LogDataAccessDisabled(
+        ILogger logger,
+        string provider);
 }

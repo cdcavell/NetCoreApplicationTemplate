@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data;
+using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;
 using ProjectTemplate.Web.Extensions;
 
@@ -80,6 +82,52 @@ public sealed class DataAccessServiceExtensionsTests
         using ApplicationDbContext context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
         Assert.Equal(expectedProviderName, context.Database.ProviderName);
+    }
+
+    /// <summary>
+    /// Verifies that data access can be intentionally disabled without requiring EF Core services.
+    /// </summary>
+    [Theory]
+    [InlineData("None")]
+    [InlineData("none")]
+    [InlineData("Disabled")]
+    [InlineData("disabled")]
+    public void AddApplicationDataAccess_DisabledProvider_SkipsEfCoreRegistrations(string provider)
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ProjectTemplate:DataAccess:Provider"] = provider
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
+        Assert.Null(serviceProvider.GetService<IDbContextFactory<ApplicationDbContext>>());
+        Assert.Null(serviceProvider.GetService<IExternalLoginAccountResolver>());
+    }
+
+    /// <summary>
+    /// Verifies that disabled data access does not require a configured connection string.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_DisabledProvider_DoesNotRequireConnectionStringName()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ProjectTemplate:DataAccess:Provider"] = "None",
+                ["ProjectTemplate:DataAccess:ConnectionStringName"] = string.Empty
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.Equal("None", options.Provider);
+        Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
     }
 
     /// <summary>

@@ -27,11 +27,17 @@ public static class InfrastructureDataAccessServiceExtensions
             .Bind(configuration.GetSection(DataAccessOptions.SectionName))
             .Validate(options => !string.IsNullOrWhiteSpace(options.Provider),
                 "ProjectTemplate:DataAccess:Provider must not be empty.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ConnectionStringName),
-                "ProjectTemplate:DataAccess:ConnectionStringName must not be empty.")
+            .Validate(options => DataAccessOptions.IsDisabledProvider(options.Provider)
+                || !string.IsNullOrWhiteSpace(options.ConnectionStringName),
+                "ProjectTemplate:DataAccess:ConnectionStringName must not be empty when data access is enabled.")
             .ValidateOnStart();
 
         DataAccessRegistration registration = ResolveDataAccessRegistration(configuration);
+
+        if (registration.IsDisabled)
+        {
+            return services;
+        }
 
         services.TryAddScoped<ICurrentActorAccessor, SystemCurrentActorAccessor>();
 
@@ -68,6 +74,11 @@ public static class InfrastructureDataAccessServiceExtensions
                 "Application data access provider was not configured.");
         }
 
+        if (DataAccessOptions.IsDisabledProvider(provider))
+        {
+            return DataAccessRegistration.Disabled(provider);
+        }
+
         if (string.IsNullOrWhiteSpace(connectionStringName))
         {
             throw new InvalidOperationException(
@@ -78,7 +89,7 @@ public static class InfrastructureDataAccessServiceExtensions
             ?? throw new InvalidOperationException(
                 $"Connection string '{connectionStringName}' was not configured.");
 
-        return new DataAccessRegistration(
+        return DataAccessRegistration.Enabled(
             provider,
             connectionString);
     }
@@ -88,23 +99,38 @@ public static class InfrastructureDataAccessServiceExtensions
         string provider,
         string connectionString)
     {
-        if (provider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
+        if (provider.Equals(DataAccessOptions.SqliteProvider, StringComparison.OrdinalIgnoreCase))
         {
             options.UseSqlite(connectionString);
             return;
         }
 
-        if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+        if (provider.Equals(DataAccessOptions.SqlServerProvider, StringComparison.OrdinalIgnoreCase))
         {
             options.UseSqlServer(connectionString);
             return;
         }
 
         throw new InvalidOperationException(
-            $"Unsupported data access provider '{provider}'. Supported providers: Sqlite, SqlServer.");
+            $"Unsupported data access provider '{provider}'. Supported providers: {DataAccessOptions.SqliteProvider}, {DataAccessOptions.SqlServerProvider}, {DataAccessOptions.DisabledProvider}.");
     }
 
     private readonly record struct DataAccessRegistration(
         string Provider,
-        string ConnectionString);
+        string ConnectionString,
+        bool IsDisabled)
+    {
+        public static DataAccessRegistration Enabled(
+            string provider,
+            string connectionString)
+        {
+            return new DataAccessRegistration(provider, connectionString, false);
+        }
+
+        public static DataAccessRegistration Disabled(
+            string provider)
+        {
+            return new DataAccessRegistration(provider, string.Empty, true);
+        }
+    }
 }

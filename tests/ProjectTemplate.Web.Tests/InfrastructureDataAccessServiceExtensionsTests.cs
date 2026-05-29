@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Extensions;
+using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 
 namespace ProjectTemplate.Web.Tests;
 
@@ -43,5 +44,29 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         Assert.Equal(SystemCurrentActorAccessor.ActorName, actorAccessor.CurrentActor);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", context.Database.ProviderName);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", factoryContext.Database.ProviderName);
+    }
+
+    [Fact]
+    public void AddApplicationInfrastructureDataAccess_DisabledProvider_SkipsDbContextFactoryAndEfBackedServices()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ProjectTemplate:DataAccess:Provider"] = "None"
+                })
+            .Build();
+
+        ServiceCollection services = new();
+
+        services.AddLogging();
+        services.AddApplicationInfrastructureDataAccess(configuration);
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        Assert.Null(serviceProvider.GetService<ICurrentActorAccessor>());
+        Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
+        Assert.Null(serviceProvider.GetService<IDbContextFactory<ApplicationDbContext>>());
+        Assert.Null(serviceProvider.GetService<IExternalLoginAccountResolver>());
     }
 }

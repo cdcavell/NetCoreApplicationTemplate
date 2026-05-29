@@ -194,10 +194,26 @@ dotnet new netcoreapp-template `
   --dbProvider sqlserver
 ```
 
-Build and test the non-default generated output:
+Generate a scaffold with authentication and EF Core data access disabled:
+
+```powershell
+dotnet new netcoreapp-template `
+  --name ContosoNoAuthNoDataAccess `
+  --authProvider none `
+  --dbProvider none
+```
+
+Build and test either non-default generated output, for example:
 
 ```powershell
 cd ContosoNoAuthSqlServer
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
+
+```powershell
+cd ContosoNoAuthNoDataAccess
 dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release

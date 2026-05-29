@@ -1,3 +1,4 @@
+using System.Reflection;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
@@ -42,12 +43,14 @@ public static class OpenTelemetryServiceExtensions
             return services;
         }
 
+        string serviceVersion = ResolveServiceVersion(options);
+
         OpenTelemetryBuilder openTelemetryBuilder = services
             .AddOpenTelemetry()
             .ConfigureResource(resource => resource
                 .AddService(
                     serviceName: options.ServiceName,
-                    serviceVersion: options.ServiceVersion)
+                    serviceVersion: serviceVersion)
                 .AddAttributes(new Dictionary<string, object>
                 {
                     ["deployment.environment.name"] = environment.EnvironmentName
@@ -109,5 +112,21 @@ public static class OpenTelemetryServiceExtensions
             StringComparison.OrdinalIgnoreCase)
             ? OtlpExportProtocol.HttpProtobuf
             : OtlpExportProtocol.Grpc;
+    }
+
+    private static string ResolveServiceVersion(ApplicationOpenTelemetryOptions options)
+    {
+        if (!string.IsNullOrWhiteSpace(options.ServiceVersion))
+        {
+            return options.ServiceVersion.Trim();
+        }
+
+        Assembly assembly = typeof(Program).Assembly;
+
+        string? informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+
+        return !string.IsNullOrWhiteSpace(informationalVersion) ? informationalVersion : assembly.GetName().Version?.ToString() ?? "unknown";
     }
 }

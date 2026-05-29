@@ -37,9 +37,9 @@ Data access behavior is configured under `ProjectTemplate:DataAccess`:
 The configuration values are:
 |Setting|Purpose|
 |:------|:------|
-|`Provider`|Selects the EF Core database provider used by the application. The default local development provider is `Sqlite`.
-|`ConnectionStringName`|Identifies which named connection string should be resolved from `ConnectionStrings`.
-|`Auditing:Enabled`|Enables or disables EF Core audit record creation during `SaveChanges` and `SaveChangesAsync`.
+|`Provider`|Selects the data access mode. Supported values are `Sqlite`, `SqlServer`, `None`, and `Disabled`. The default local development provider is `Sqlite`.|
+|`ConnectionStringName`|Identifies which named connection string should be resolved from `ConnectionStrings` when data access is enabled. This value is not required when `Provider` is `None` or `Disabled`.|
+|`Auditing:Enabled`|Enables or disables EF Core audit record creation during `SaveChanges` and `SaveChangesAsync` when EF Core data access is enabled.|
 
 By default, the application uses:
 
@@ -58,6 +58,38 @@ ConnectionStrings:ApplicationDatabase
 EF Core migrations are stored in the infrastructure project because `ProjectTemplate.Infrastructure` owns the `ApplicationDbContext`, entities, and EF Core configuration.
 
 The web project is used as the startup project because it provides application configuration, dependency injection, provider setup, and connection-string resolution.
+
+## Disabled Data Access Mode
+
+Applications that do not need the template's EF Core data access layer can opt out explicitly:
+
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Provider": "None"
+  }
+}
+```
+
+`Disabled` is also accepted as an alias:
+
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Provider": "Disabled"
+  }
+}
+```
+
+When data access is disabled, the application does not register:
+
+- `ApplicationDbContext`
+- `IDbContextFactory<ApplicationDbContext>`
+- EF-backed application services that require `ApplicationDbContext`
+
+Disabled mode also does not require `ProjectTemplate:DataAccess:ConnectionStringName` to resolve to an existing connection string. This mode is appropriate for lightweight applications, workers, external modules, static front ends, or services that use a separate persistence strategy.
+
+Disabled mode should not be used by applications that need EF Core migrations, audit records, external login account persistence, or any service that depends on `ApplicationDbContext`.
 
 ## EF Core CLI Tool
 The dotnet ef command requires the EF Core command-line tool.
@@ -115,7 +147,7 @@ Generate a SQL script for review:
 dotnet ef migrations script `
   --project src/ProjectTemplate.Infrastructure `
   --startup-project src/ProjectTemplate.Web `
-  --context ApplicationDbContext
+  --context ApplicationDbContext `
   --output migration.sql
 ```
 ## Connection String Resolution
@@ -175,6 +207,8 @@ When `ConnectionStringName` is set to `ApplicationSqlServer`, the application re
 ConnectionStrings:ApplicationSqlServer
 ```
 
+When `Provider` is set to `None` or `Disabled`, connection string resolution is skipped.
+
 ## EF Core Auditing
 
 The template includes a baseline EF Core audit trail.
@@ -215,7 +249,7 @@ To disable audit record creation:
 }
 ```
 
-When the application starts, the data access startup log records the configured provider, connection string name, and EF Core auditing status.
+When the application starts, the data access startup log records the configured provider, connection string name, and EF Core auditing status. If data access is disabled, the startup log reports that EF Core services were not registered.
 
 When auditing is enabled, audit records are written to the application database. The template does not include automatic pruning, retention, archival, legal hold, masking, export, or purge behavior for audit records.
 
@@ -309,7 +343,7 @@ If migrations are not discovered, confirm that the command uses:
 --context ApplicationDbContext
 ```
 
-If data access provider configuration fails, confirm that `ProjectTemplate:DataAccess:Provider` is configured, that the selected provider package is referenced, and that `ProjectTemplate:DataAccess:ConnectionStringName` points to an existing named connection string under `ConnectionStrings`.
+If data access provider configuration fails, confirm that `ProjectTemplate:DataAccess:Provider` is configured. Use `Sqlite` or `SqlServer` when EF Core data access is required. Use `None` or `Disabled` only when the application intentionally does not need EF Core registrations.
 
 Future database providers, such as SQL Server, can be added by extending the data access registration configuration.
 SQLite remains the default development provider. SQL Server can be selected through configuration. Because EF Core migrations are provider-specific, production SQL Server deployments should generate and maintain SQL Server-compatible migrations before applying database updates.

@@ -17,9 +17,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 0.5.6](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.6)__
+Current release: __[Release 0.5.7](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v0.5.7)__
 
-Tag: `v0.5.6`
+Tag: `v0.5.7`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -167,7 +167,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.6.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.7.nupkg
 ```
 
 Generate a consumer project:
@@ -194,10 +194,26 @@ dotnet new netcoreapp-template `
   --dbProvider sqlserver
 ```
 
-Build and test the non-default generated output:
+Generate a scaffold with authentication and EF Core data access disabled:
+
+```powershell
+dotnet new netcoreapp-template `
+  --name ContosoNoAuthNoDataAccess `
+  --authProvider none `
+  --dbProvider none
+```
+
+Build and test either non-default generated output, for example:
 
 ```powershell
 cd ContosoNoAuthSqlServer
+dotnet restore
+dotnet build --configuration Release
+dotnet test --configuration Release
+```
+
+```powershell
+cd ContosoNoAuthNoDataAccess
 dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release
@@ -401,7 +417,7 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.6. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 0.5.7. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap

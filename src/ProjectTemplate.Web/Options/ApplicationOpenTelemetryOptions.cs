@@ -23,7 +23,7 @@ public sealed class ApplicationOpenTelemetryOptions
     /// <summary>
     /// Gets or sets the logical OpenTelemetry service version.
     /// </summary>
-    public string ServiceVersion { get; set; } = "1.0.0";
+    public string? ServiceVersion { get; set; } = "1.0.0";
 
     /// <summary>
     /// Gets or sets a value indicating whether tracing is enabled.

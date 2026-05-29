@@ -107,7 +107,7 @@ The template intentionally exposes a small set of stable options for common scaf
 | Option | Default | Supported values | Description |
 |:---|:---|:---|:---|
 | `--authProvider` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
-| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver` | Selects the generated EF Core provider configuration. Use `sqlite` for the default local development configuration or `sqlserver` for the SQL Server provider configuration. |
+| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. Use `sqlite` for the default local development configuration, `sqlserver` for the SQL Server provider configuration, or `none` to generate the application with EF Core data access disabled. |
 
 Example non-default scaffold:
 
@@ -125,6 +125,14 @@ All supported variants preserve the template's core infrastructure guardrails, i
 The `--authProvider none` option generates the application with `ProjectTemplate:Authentication:Enabled` and `ProjectTemplate:Authentication:Cookie:Enabled` set to `false`.
 
 The application still includes the authentication and authorization infrastructure so consumers can enable or replace authentication later. Test cases that intentionally exercise protected endpoints may enable test authentication through in-memory test configuration.
+
+### Data-access-disabled variant
+
+The `--dbProvider none` option generates the application with `ProjectTemplate:DataAccess:Provider` set to `None`.
+
+When data access is disabled, EF Core application data access services are not registered, including `ApplicationDbContext`, `IDbContextFactory<ApplicationDbContext>`, and EF-backed services that require `ApplicationDbContext`.
+
+This mode is appropriate for lightweight applications, workers, external modules, or services that use a separate persistence strategy.
 
 ## Restore, Build, and Test the Generated Project
 

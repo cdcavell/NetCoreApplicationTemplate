@@ -56,6 +56,10 @@
         {
           "choice": "sqlserver",
           "description": "Generates the SQL Server provider configuration."
+        },
+        {
+          "choice": "none",
+          "description": "Generates the application with EF Core data access disabled."
         }
       ]
     },
@@ -92,6 +96,10 @@
           {
             "condition": "(dbProvider == \"sqlite\")",
             "value": "Sqlite"
+          },
+          {
+            "condition": "(dbProvider == \"none\")",
+            "value": "None"
           }
         ]
       },
@@ -111,8 +119,11 @@
           {
             "condition": "(dbProvider == \"sqlite\")",
             "value": "ApplicationDatabase"
-          }
-        ]
+          },
+          {
+            "condition": "(dbProvider == \"none\")",
+            "value": ""
+          }        ]
       },
       "replaces": "TemplateDataConnectionStringName"
     }

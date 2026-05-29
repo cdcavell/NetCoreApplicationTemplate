@@ -8,6 +8,31 @@ This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
 ### Added
 
+* Added Infrastructure-owned data access registration via `AddApplicationInfrastructureDataAccess(...)`.
+* Added non-web dependency injection support for resolving `ApplicationDbContext` and `IDbContextFactory<ApplicationDbContext>` from the Infrastructure layer.
+* Added `SystemCurrentActorAccessor` for non-HTTP audit contexts.
+* Added explicit `none` / disabled data access provider support for generated applications that do not need EF Core registration.
+* Added generated README and package README examples for default scaffolds, `--authProvider none`, `--dbProvider sqlserver`, and combined non-default template variants.
+* Added additional consumer-facing links from package documentation to the repository, published docs, template-packaging guidance, changelog, license, and releases.
+
+### Changed
+
+* Moved shared EF Core setup into the Infrastructure layer while keeping Web-specific HTTP actor wiring in the Web project.
+* Updated disabled data access behavior to skip EF Core registration and avoid connection-string resolution when data access is disabled.
+* Updated v1.0 readiness documentation, DocFX navigation, migration guidance, and public documentation surfaces for clearer discoverability.
+* Updated package and documentation references from `0.5.6` to `0.5.7`.
+* Updated OpenTelemetry service version handling to resolve from assembly metadata when no explicit configuration value is provided.
+
+### Fixed
+
+* Fixed `--dbProvider none` template behavior so the generated configuration maps to `ProjectTemplate:DataAccess:Provider = None`.
+* Removed stale hardcoded OpenTelemetry `ServiceVersion` values from shipped `appsettings.json` files.
+* Preserved stable NuGet install guidance while keeping versioned local `.nupkg` install examples aligned with `0.5.7` validation.
+
+## 0.5.6 - 2026-05-28
+
+### Added
+
 * Added optimistic concurrency handling for EF Core entities that inherit from `DataEntity`.
 * Added a provider-safe `ConcurrencyStamp` concurrency token for SQLite-oriented local development and SQL Server-oriented production paths.
 * Added EF Core migration support for the shared data-entity concurrency stamp.

@@ -140,6 +140,72 @@ public sealed class OpenTelemetryTests
     }
 
     /// <summary>
+    /// Verifies that no appsettings.json files in the repository contain a stale OpenTelemetry service version value.
+    /// </summary>
+    [Fact]
+    public void Appsettings_DoNotContainStaleOpenTelemetryServiceVersion()
+    {
+        string solutionRoot = GetSolutionRoot();
+
+        List<string> appsettingsPaths = [];
+
+        string srcDirectory = Path.Combine(solutionRoot, "src");
+
+        if (Directory.Exists(srcDirectory))
+        {
+            appsettingsPaths.AddRange(
+                Directory.EnumerateFiles(srcDirectory, "appsettings.json", SearchOption.AllDirectories));
+        }
+
+        string templateContentAppsettings = Path.Combine(
+            solutionRoot,
+            ".template.content",
+            "src",
+            "ProjectTemplate.Web",
+            "appsettings.json");
+
+        if (File.Exists(templateContentAppsettings))
+        {
+            appsettingsPaths.Add(templateContentAppsettings);
+        }
+
+        Assert.NotEmpty(appsettingsPaths);
+
+        foreach (string appsettingsPath in appsettingsPaths.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            string appsettings = File.ReadAllText(appsettingsPath);
+
+            Assert.DoesNotContain(
+                "\"ServiceVersion\": \"0.3.1\"",
+                appsettings,
+                StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>
+    /// Gets the root directory of the solution.
+    /// </summary>
+    /// <returns>The solution root directory.</returns>
+    /// <exception cref="DirectoryNotFoundException"></exception>
+    private static string GetSolutionRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            if (Directory.EnumerateFiles(directory.FullName, "*.slnx").Any())
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException(
+            $"Could not locate solution root from '{AppContext.BaseDirectory}'.");
+    }
+
+    /// <summary>
     /// Creates a test application factory with the supplied in-memory configuration overrides.
     /// </summary>
     /// <param name="configurationValues">The configuration key/value pairs used to override application settings for a test.</param>

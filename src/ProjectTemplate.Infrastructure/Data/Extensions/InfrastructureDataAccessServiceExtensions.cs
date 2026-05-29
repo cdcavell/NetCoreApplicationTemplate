@@ -122,9 +122,15 @@ public static class InfrastructureDataAccessServiceExtensions
     {
         public static DataAccessRegistration Enabled(
             string provider,
-            string connectionString) => new(provider, connectionString, false);
+            string connectionString)
+        {
+            return new DataAccessRegistration(provider, connectionString, false);
+        }
 
         public static DataAccessRegistration Disabled(
-            string provider) => new(provider, string.Empty, true);
+            string provider)
+        {
+            return new DataAccessRegistration(provider, string.Empty, true);
+        }
     }
 }

@@ -9,3 +9,6 @@
 
 - name: Repository
   href: https://github.com/cdcavell/NetCoreApplicationTemplate
+
+- name: Test Coverage
+  href: coverage/

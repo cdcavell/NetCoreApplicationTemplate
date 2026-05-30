@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectTemplate.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using ProjectTemplate.Infrastructure.Data;
 namespace ProjectTemplate.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260530111053_AddExternalLoginAccountNormalizedLookupColumns")]
+    partial class AddExternalLoginAccountNormalizedLookupColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
@@ -52,7 +55,6 @@ namespace ProjectTemplate.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ModifiedOnUtc")
-                        .HasPrecision(3)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OriginalValues")
@@ -81,7 +83,6 @@ namespace ProjectTemplate.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedOnUtc")
-                        .HasPrecision(3)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DisplayName")
@@ -93,7 +94,6 @@ namespace ProjectTemplate.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("LastLoginOnUtc")
-                        .HasPrecision(3)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("LocalUserId")
@@ -119,7 +119,6 @@ namespace ProjectTemplate.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedOnUtc")
-                        .HasPrecision(3)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

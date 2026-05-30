@@ -249,3 +249,4 @@ If the change affects only repository internals and not generated or documented 
 - [Error Handling](error-handling.md)
 - [Container Release Publishing](container-publish.md)
 - [Security Headers](security-headers.md)
+- [Coverage Report](../coverage/index.html)

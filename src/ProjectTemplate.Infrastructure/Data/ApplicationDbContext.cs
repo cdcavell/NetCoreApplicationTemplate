@@ -56,6 +56,7 @@ public sealed partial class ApplicationDbContext(
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         ConfigureDataEntityDefaults(modelBuilder);
+        ConfigureTimestampDefaults(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -84,6 +85,9 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
+        ApplyPersistedStringCanonicalization();
+        ApplyLookupStringNormalization();
+        ApplyTimestampNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -113,6 +117,9 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+        ApplyPersistedStringCanonicalization();
+        ApplyLookupStringNormalization();
+        ApplyTimestampNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -136,6 +143,121 @@ public sealed partial class ApplicationDbContext(
         return result;
     }
 
+    private void ApplyPersistedStringCanonicalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is AuditRecord ||
+                entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            foreach (PropertyEntry property in entry.Properties)
+            {
+                if (property.Metadata.ClrType != typeof(string) ||
+                    property.Metadata.IsPrimaryKey() ||
+                    property.Metadata.IsConcurrencyToken)
+                {
+                    continue;
+                }
+
+                if (entry.State == EntityState.Modified && !property.IsModified)
+                {
+                    continue;
+                }
+
+                if (property.CurrentValue is not string currentValue)
+                {
+                    continue;
+                }
+
+                string canonicalValue = PersistenceStringCanonicalizer.Canonicalize(currentValue);
+
+                if (!string.Equals(canonicalValue, currentValue, StringComparison.Ordinal))
+                {
+                    property.CurrentValue = canonicalValue;
+                }
+            }
+        }
+    }
+
+    private void ApplyLookupStringNormalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry<ExternalLoginAccount> entry in ChangeTracker.Entries<ExternalLoginAccount>())
+        {
+            if (entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            ExternalLoginAccount account = entry.Entity;
+
+            account.ProviderName =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName);
+
+            account.NormalizedProviderName =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName);
+
+            account.ProviderUserId =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId);
+
+            account.DisplayName =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName);
+
+            account.Email =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email);
+
+            account.NormalizedEmail =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email);
+        }
+    }
+
+    private void ApplyTimestampNormalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry entry in ChangeTracker.Entries())
+        {
+            if (entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            foreach (PropertyEntry property in entry.Properties)
+            {
+                if (!IsUtcTimestampProperty(property.Metadata.Name))
+                {
+                    continue;
+                }
+
+                Type propertyType = Nullable.GetUnderlyingType(property.Metadata.ClrType)
+                    ?? property.Metadata.ClrType;
+
+                if (propertyType == typeof(DateTime) &&
+                    property.CurrentValue is DateTime dateTimeValue)
+                {
+                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeValue);
+                    continue;
+                }
+
+                if (propertyType == typeof(DateTimeOffset) &&
+                    property.CurrentValue is DateTimeOffset dateTimeOffsetValue)
+                {
+                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeOffsetValue);
+                }
+            }
+        }
+    }
+
+    private static bool IsUtcTimestampProperty(string propertyName)
+    {
+        return propertyName.EndsWith("Utc", StringComparison.Ordinal);
+    }
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         ChangeTracker.DetectChanges();
@@ -151,7 +273,7 @@ public sealed partial class ApplicationDbContext(
             {
                 TableName = entry.Metadata.GetTableName() ?? string.Empty,
                 ModifiedBy = _currentActorAccessor.CurrentActor,
-                ModifiedOnUtc = DateTime.UtcNow,
+                ModifiedOnUtc = PersistenceTimestamp.UtcNow(),
                 State = entry.State.ToString()
             };
             auditEntries.Add(auditEntry);
@@ -294,6 +416,24 @@ public sealed partial class ApplicationDbContext(
                 .HasMaxLength(64)
                 .IsRequired()
                 .IsConcurrencyToken();
+        }
+    }
+
+    private static void ConfigureTimestampDefaults(ModelBuilder modelBuilder)
+    {
+        foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (IMutableProperty property in entityType.GetProperties())
+            {
+                Type propertyType = Nullable.GetUnderlyingType(property.ClrType)
+                    ?? property.ClrType;
+
+                if ((propertyType == typeof(DateTime) || propertyType == typeof(DateTimeOffset)) &&
+                    IsUtcTimestampProperty(property.Name))
+                {
+                    property.SetPrecision(PersistenceTimestamp.Precision);
+                }
+            }
         }
     }
 

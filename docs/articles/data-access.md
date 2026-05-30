@@ -255,6 +255,107 @@ When auditing is enabled, audit records are written to the application database.
 
 Consuming applications are responsible for deciding how audit records are retained, archived, masked, purged, or moved to long-term storage. Before enabling auditing in production, review whether audited values may contain sensitive or regulated data.
 
+## Persisted String Canonicalization
+
+The template canonicalizes string scalar values for added entities and modified string properties before EF Core persists changes.
+
+Canonicalization decodes bounded HTML/entity encoding and normalizes Unicode into a stable representation before save. This prevents common single-encoded or double-encoded values from being stored inconsistently while preserving raw special characters such as apostrophes, quotation marks, ampersands, and accented characters.
+
+This behavior is intended for persistence consistency and defense-in-depth. It is not a replacement for SQL injection protection.
+
+The primary SQL injection protections remain:
+
+- EF Core parameterized commands.
+- Avoiding manually concatenated SQL.
+- Validating application input according to domain rules.
+- Keeping output encoding context-specific.
+
+The template does not blanket HTML-encode values before database storage. Razor/UI output encoding and any API-specific encoding rules remain the responsibility of the output layer.
+
+## String Comparison and Lookup Normalization
+
+The template separates display values from lookup values.
+
+Persisted display strings preserve user-facing casing where practical, but lookup-sensitive values use explicit normalization rules so behavior is not accidentally determined by provider-specific collation behavior.
+
+Default rules:
+
+| Value | Rule |
+|---|---|
+| Provider name | Trim, Unicode Form C, preserve display casing |
+| Normalized provider name | Trim, Unicode Form C, uppercase invariant |
+| Provider user ID | Trim, Unicode Form C, case-sensitive |
+| Display name | Trim, Unicode Form C, preserve casing |
+| Email | Trim, Unicode Form C, preserve casing |
+| Normalized email | Trim, Unicode Form C, uppercase invariant |
+
+The external login unique key uses `NormalizedProviderName` plus `ProviderUserId`. This makes provider-name matching case-insensitive while preserving provider user IDs as exact, case-sensitive external identifiers.
+
+SQLite and SQL Server can differ in default collation and case-sensitivity behavior. The template avoids relying on those defaults for provider-name lookup by storing a normalized provider-name value. Future applications that add slugs, usernames, tenant names, email login, or other lookup-sensitive fields should follow the same pattern: preserve the display value, store a normalized lookup value, and place uniqueness constraints on the normalized value.
+
+## Date and Time Persistence
+
+System and audit timestamps use UTC `DateTime` properties with a `Utc` suffix.
+
+The template treats these values as persistence timestamps, not display timestamps. They are generated in UTC, normalized to millisecond precision before save, and should be converted to a user's local time zone only at the display/API boundary when a consuming application needs that behavior.
+
+Provider notes:
+
+- SQL Server supports explicit precision for `DateTime`/`DateTimeOffset` values. UTC `DateTime` system fields are configured with millisecond precision.
+- SQLite stores these values as `TEXT`; provider precision behavior differs from SQL Server, so the application normalizes timestamp values before persistence to keep tests and comparisons stable.
+- Future application fields that need to preserve a caller-provided offset should use `DateTimeOffset` intentionally rather than overloading UTC `DateTime` fields.
+
+Do not store local time in system/audit `*Utc` columns.
+
+## Decimal Precision and Scale
+
+The baseline template currently does not define persisted `decimal` entity properties.
+
+Future applications that add persisted decimal values should configure precision and scale explicitly with EF Core instead of relying on provider defaults. This is especially important for values that represent money, percentages, rates, measurements, thresholds, scores, limits, or other business-sensitive quantities.
+
+Recommended default patterns:
+
+| Value type | Suggested precision | Notes |
+|---|---:|---|
+| Money-like values | `decimal(18, 2)` or `HasPrecision(18, 2)` | Common default for currency-style values. Domain-specific financial applications may require different precision, rounding, or minor-unit storage rules. |
+| Percentage values | `decimal(9, 4)` or `HasPrecision(9, 4)` | Useful when storing percentages such as `12.3456`. Decide whether the value is stored as `12.3456` or `0.123456` before choosing precision. |
+| Rates and ratios | `decimal(18, 6)` or `HasPrecision(18, 6)` | Useful for tax rates, interest rates, thresholds, and ratios where more fractional precision may matter. |
+| Measurements | `decimal(18, 4)` or domain-specific precision | Use precision appropriate to the measurement unit and required tolerance. |
+| Scores or weights | `decimal(9, 4)` or domain-specific precision | Useful for scoring, ranking, confidence, or weighting values when deterministic decimal behavior is preferred. |
+
+Example entity configuration:
+
+```csharp
+builder.Property(x => x.Amount)
+    .HasPrecision(18, 2);
+
+builder.Property(x => x.Rate)
+    .HasPrecision(18, 6);
+```
+
+SQLite and SQL Server handle decimal storage differently. SQL Server enforces decimal precision and scale through column types such as `decimal(18,2)`. SQLite has dynamic typing and does not enforce the same decimal semantics in the same way. For this reason, consuming applications should still validate decimal range, scale, and rounding rules in the application/domain layer when those rules matter.
+
+Do not use `double` or `float` for money-like values. Use `decimal` with explicit precision/scale, or use integer minor units such as cents when that better fits the domain.
+
+The template includes a model validation test that fails when persisted decimal properties are added without explicit precision and scale.
+
+## Raw SQL and Parameterization Safety
+
+The template does not currently require raw SQL command construction for its baseline data-access behavior.
+
+When database access is needed, prefer EF Core LINQ queries and normal EF Core change tracking. These APIs generate parameterized database commands for application values and avoid manual SQL string construction.
+
+If raw SQL is required for a future feature, dynamic values must not be inserted into SQL command text through string concatenation, `string.Format`, or unsafe interpolation.
+
+Preferred approaches are:
+
+- Use `FromSqlInterpolated` for raw SQL queries with dynamic values.
+- Use `ExecuteSqlInterpolated` for raw SQL commands with dynamic values.
+- Use explicit provider parameters such as `DbParameter` when provider-specific command construction is required.
+- Keep raw SQL command text static except for reviewed schema identifiers that cannot be parameterized.
+- Do not rely on input encoding, persisted string canonicalization, or output encoding as the primary SQL injection defense.
+
+Persisted string canonicalization supports consistency and defense-in-depth. SQL injection protection remains based on parameterized database access, safe query construction, validation, and avoiding manually concatenated SQL.
 
 ## Optimistic Concurrency
 

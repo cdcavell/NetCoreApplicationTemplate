@@ -16,6 +16,11 @@ public sealed class ExternalLoginAccount : DataEntity
     public string ProviderName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Normalized provider name used for lookup and uniqueness comparisons.
+    /// </summary>
+    public string NormalizedProviderName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Provider-specific unique identifier for the user (e.g., the "sub" claim from an OpenID Connect token).
     /// </summary>
     public string ProviderUserId { get; set; } = string.Empty;
@@ -31,9 +36,14 @@ public sealed class ExternalLoginAccount : DataEntity
     public string? Email { get; set; }
 
     /// <summary>
+    /// Normalized email address used for lookup comparisons when email-based lookup is needed.
+    /// </summary>
+    public string? NormalizedEmail { get; set; }
+
+    /// <summary>
     /// Creation timestamp in UTC when this external login account was linked to the local user. This can be useful for auditing and tracking purposes.
     /// </summary>
-    public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedOnUtc { get; set; } = PersistenceTimestamp.UtcNow();
 
     /// <summary>
     /// Update timestamp in UTC when this external login account was last modified. This can be useful for auditing and tracking purposes, especially if the display name or email associated with the external account changes over time.

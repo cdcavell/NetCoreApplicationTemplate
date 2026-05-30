@@ -18,7 +18,7 @@ permissions:
 
 env:
   CONFIGURATION: Release
-  COVERAGE_THRESHOLD: '60'
+  COVERAGE_THRESHOLD: '75'
   SOLUTION_FILE: './NetCoreApplicationTemplate.slnx'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true

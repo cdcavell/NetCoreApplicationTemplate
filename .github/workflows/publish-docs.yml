@@ -46,8 +46,6 @@ jobs:
         run: |
           dotnet test ${{ env.SOLUTION_FILE }} `
           --configuration ${{ env.CONFIGURATION }} `
-          --no-restore `
-          --no-build `
           --verbosity normal `
           --collect:"XPlat Code Coverage" `
           --logger "trx" `

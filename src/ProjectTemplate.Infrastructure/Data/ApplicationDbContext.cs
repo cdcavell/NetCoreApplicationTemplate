@@ -84,6 +84,7 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
+        ApplyPersistedStringCanonicalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -113,6 +114,7 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+        ApplyPersistedStringCanonicalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -136,6 +138,46 @@ public sealed partial class ApplicationDbContext(
         return result;
     }
 
+    private void ApplyPersistedStringCanonicalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is AuditRecord ||
+                entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            foreach (PropertyEntry property in entry.Properties)
+            {
+                if (property.Metadata.ClrType != typeof(string) ||
+                    property.Metadata.IsPrimaryKey() ||
+                    property.Metadata.IsConcurrencyToken)
+                {
+                    continue;
+                }
+
+                if (entry.State == EntityState.Modified && !property.IsModified)
+                {
+                    continue;
+                }
+
+                if (property.CurrentValue is not string currentValue)
+                {
+                    continue;
+                }
+
+                string canonicalValue = PersistenceStringCanonicalizer.Canonicalize(currentValue);
+
+                if (!string.Equals(canonicalValue, currentValue, StringComparison.Ordinal))
+                {
+                    property.CurrentValue = canonicalValue;
+                }
+            }
+        }
+    }
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         ChangeTracker.DetectChanges();

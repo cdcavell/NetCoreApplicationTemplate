@@ -255,6 +255,22 @@ When auditing is enabled, audit records are written to the application database.
 
 Consuming applications are responsible for deciding how audit records are retained, archived, masked, purged, or moved to long-term storage. Before enabling auditing in production, review whether audited values may contain sensitive or regulated data.
 
+## Persisted String Canonicalization
+
+The template canonicalizes string scalar values for added entities and modified string properties before EF Core persists changes.
+
+Canonicalization decodes bounded HTML/entity encoding and normalizes Unicode into a stable representation before save. This prevents common single-encoded or double-encoded values from being stored inconsistently while preserving raw special characters such as apostrophes, quotation marks, ampersands, and accented characters.
+
+This behavior is intended for persistence consistency and defense-in-depth. It is not a replacement for SQL injection protection.
+
+The primary SQL injection protections remain:
+
+- EF Core parameterized commands.
+- Avoiding manually concatenated SQL.
+- Validating application input according to domain rules.
+- Keeping output encoding context-specific.
+
+The template does not blanket HTML-encode values before database storage. Razor/UI output encoding and any API-specific encoding rules remain the responsibility of the output layer.
 
 ## Optimistic Concurrency
 

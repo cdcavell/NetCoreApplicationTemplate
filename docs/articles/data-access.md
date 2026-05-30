@@ -307,6 +307,38 @@ Provider notes:
 
 Do not store local time in system/audit `*Utc` columns.
 
+## Decimal Precision and Scale
+
+The baseline template currently does not define persisted `decimal` entity properties.
+
+Future applications that add persisted decimal values should configure precision and scale explicitly with EF Core instead of relying on provider defaults. This is especially important for values that represent money, percentages, rates, measurements, thresholds, scores, limits, or other business-sensitive quantities.
+
+Recommended default patterns:
+
+| Value type | Suggested precision | Notes |
+|---|---:|---|
+| Money-like values | `decimal(18, 2)` or `HasPrecision(18, 2)` | Common default for currency-style values. Domain-specific financial applications may require different precision, rounding, or minor-unit storage rules. |
+| Percentage values | `decimal(9, 4)` or `HasPrecision(9, 4)` | Useful when storing percentages such as `12.3456`. Decide whether the value is stored as `12.3456` or `0.123456` before choosing precision. |
+| Rates and ratios | `decimal(18, 6)` or `HasPrecision(18, 6)` | Useful for tax rates, interest rates, thresholds, and ratios where more fractional precision may matter. |
+| Measurements | `decimal(18, 4)` or domain-specific precision | Use precision appropriate to the measurement unit and required tolerance. |
+| Scores or weights | `decimal(9, 4)` or domain-specific precision | Useful for scoring, ranking, confidence, or weighting values when deterministic decimal behavior is preferred. |
+
+Example entity configuration:
+
+```csharp
+builder.Property(x => x.Amount)
+    .HasPrecision(18, 2);
+
+builder.Property(x => x.Rate)
+    .HasPrecision(18, 6);
+```
+
+SQLite and SQL Server handle decimal storage differently. SQL Server enforces decimal precision and scale through column types such as `decimal(18,2)`. SQLite has dynamic typing and does not enforce the same decimal semantics in the same way. For this reason, consuming applications should still validate decimal range, scale, and rounding rules in the application/domain layer when those rules matter.
+
+Do not use `double` or `float` for money-like values. Use `decimal` with explicit precision/scale, or use integer minor units such as cents when that better fits the domain.
+
+The template includes a model validation test that fails when persisted decimal properties are added without explicit precision and scale.
+
 ## Raw SQL and Parameterization Safety
 
 The template does not currently require raw SQL command construction for its baseline data-access behavior.

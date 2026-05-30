@@ -272,6 +272,24 @@ The primary SQL injection protections remain:
 
 The template does not blanket HTML-encode values before database storage. Razor/UI output encoding and any API-specific encoding rules remain the responsibility of the output layer.
 
+## Raw SQL and Parameterization Safety
+
+The template does not currently require raw SQL command construction for its baseline data-access behavior.
+
+When database access is needed, prefer EF Core LINQ queries and normal EF Core change tracking. These APIs generate parameterized database commands for application values and avoid manual SQL string construction.
+
+If raw SQL is required for a future feature, dynamic values must not be inserted into SQL command text through string concatenation, `string.Format`, or unsafe interpolation.
+
+Preferred approaches are:
+
+- Use `FromSqlInterpolated` for raw SQL queries with dynamic values.
+- Use `ExecuteSqlInterpolated` for raw SQL commands with dynamic values.
+- Use explicit provider parameters such as `DbParameter` when provider-specific command construction is required.
+- Keep raw SQL command text static except for reviewed schema identifiers that cannot be parameterized.
+- Do not rely on input encoding, persisted string canonicalization, or output encoding as the primary SQL injection defense.
+
+Persisted string canonicalization supports consistency and defense-in-depth. SQL injection protection remains based on parameterized database access, safe query construction, validation, and avoiding manually concatenated SQL.
+
 ## Optimistic Concurrency
 
 The template includes baseline optimistic concurrency detection for entities that inherit from `DataEntity`.

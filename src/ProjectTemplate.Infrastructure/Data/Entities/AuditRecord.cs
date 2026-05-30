@@ -9,7 +9,7 @@ public class AuditRecord : DataEntity
     /// <summary>
     /// The date and time when the change was made, in Coordinated Universal Time (UTC). It should be stored in UTC to avoid issues with time zones and daylight saving time. When displaying the date and time to users, it can be converted to their local time zone as needed.
     /// </summary>
-    public DateTime ModifiedOnUtc { get; set; } = DateTime.UtcNow;
+    public DateTime ModifiedOnUtc { get; set; } = PersistenceTimestamp.UtcNow();
     /// <summary>
     /// The name of the application or service that made the change. It can be used to group changes by application or service, and to identify which application or service is responsible for a change. It should be unique enough to identify the source of the change, but it does not have to be globally unique.
     /// </summary>

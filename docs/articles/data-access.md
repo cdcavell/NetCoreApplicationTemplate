@@ -293,6 +293,20 @@ The external login unique key uses `NormalizedProviderName` plus `ProviderUserId
 
 SQLite and SQL Server can differ in default collation and case-sensitivity behavior. The template avoids relying on those defaults for provider-name lookup by storing a normalized provider-name value. Future applications that add slugs, usernames, tenant names, email login, or other lookup-sensitive fields should follow the same pattern: preserve the display value, store a normalized lookup value, and place uniqueness constraints on the normalized value.
 
+## Date and Time Persistence
+
+System and audit timestamps use UTC `DateTime` properties with a `Utc` suffix.
+
+The template treats these values as persistence timestamps, not display timestamps. They are generated in UTC, normalized to millisecond precision before save, and should be converted to a user's local time zone only at the display/API boundary when a consuming application needs that behavior.
+
+Provider notes:
+
+- SQL Server supports explicit precision for `DateTime`/`DateTimeOffset` values. UTC `DateTime` system fields are configured with millisecond precision.
+- SQLite stores these values as `TEXT`; provider precision behavior differs from SQL Server, so the application normalizes timestamp values before persistence to keep tests and comparisons stable.
+- Future application fields that need to preserve a caller-provided offset should use `DateTimeOffset` intentionally rather than overloading UTC `DateTime` fields.
+
+Do not store local time in system/audit `*Utc` columns.
+
 ## Raw SQL and Parameterization Safety
 
 The template does not currently require raw SQL command construction for its baseline data-access behavior.

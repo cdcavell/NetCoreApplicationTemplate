@@ -96,5 +96,6 @@ dotnet new uninstall CDCavell.NetCoreApplicationTemplate
 - Changelog: https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/CHANGELOG.md
 - License: https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/LICENSE.txt
 - Releases: https://github.com/cdcavell/NetCoreApplicationTemplate/releases
+- Coverage Report: https://cdcavell.github.io/NetCoreApplicationTemplate/coverage/index.html
 
 Generated projects receive their own consumer-oriented README from the scaffold. This package README is intentionally limited to NuGet installation, scaffold options, validation commands, and consumer-facing reference links.

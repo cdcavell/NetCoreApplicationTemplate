@@ -1,6 +1,6 @@
 # .NET Core Application Template 
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
-[![Coverage Report](https://img.shields.io/badge/coverage%20gate-60%25-brightgreen)](https://cdcavell.github.io/NetCoreApplicationTemplate/coverage/index.html)
+[![Coverage Report](https://img.shields.io/badge/coverage%20gate-75%25-brightgreen)](https://cdcavell.github.io/NetCoreApplicationTemplate/coverage/index.html)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
@@ -382,7 +382,7 @@ The repository currently includes workflows for:
 - Verifying formatting.
 - Running tests.
 - Generating test result and coverage artifacts.
-- Enforcing a 60% minimum line coverage threshold in CI.
+- Enforcing a 75% minimum line coverage threshold in CI.
 - Failing CI when coverage regresses below the threshold.
 - Packing the template package.
 - Installing the generated `.nupkg` into a clean SDK environment.

@@ -43,9 +43,12 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Run tests with coverage
+        shell: pwsh
         run: |
           dotnet test ${{ env.SOLUTION_FILE }} `
           --configuration ${{ env.CONFIGURATION }} `
+          --no-restore `
+          --no-build `
           --verbosity normal `
           --collect:"XPlat Code Coverage" `
           --logger "trx" `

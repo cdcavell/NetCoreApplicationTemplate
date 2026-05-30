@@ -272,6 +272,27 @@ The primary SQL injection protections remain:
 
 The template does not blanket HTML-encode values before database storage. Razor/UI output encoding and any API-specific encoding rules remain the responsibility of the output layer.
 
+## String Comparison and Lookup Normalization
+
+The template separates display values from lookup values.
+
+Persisted display strings preserve user-facing casing where practical, but lookup-sensitive values use explicit normalization rules so behavior is not accidentally determined by provider-specific collation behavior.
+
+Default rules:
+
+| Value | Rule |
+|---|---|
+| Provider name | Trim, Unicode Form C, preserve display casing |
+| Normalized provider name | Trim, Unicode Form C, uppercase invariant |
+| Provider user ID | Trim, Unicode Form C, case-sensitive |
+| Display name | Trim, Unicode Form C, preserve casing |
+| Email | Trim, Unicode Form C, preserve casing |
+| Normalized email | Trim, Unicode Form C, uppercase invariant |
+
+The external login unique key uses `NormalizedProviderName` plus `ProviderUserId`. This makes provider-name matching case-insensitive while preserving provider user IDs as exact, case-sensitive external identifiers.
+
+SQLite and SQL Server can differ in default collation and case-sensitivity behavior. The template avoids relying on those defaults for provider-name lookup by storing a normalized provider-name value. Future applications that add slugs, usernames, tenant names, email login, or other lookup-sensitive fields should follow the same pattern: preserve the display value, store a normalized lookup value, and place uniqueness constraints on the normalized value.
+
 ## Raw SQL and Parameterization Safety
 
 The template does not currently require raw SQL command construction for its baseline data-access behavior.

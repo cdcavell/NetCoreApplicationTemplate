@@ -26,6 +26,10 @@ public sealed class ExternalLoginAccountConfiguration : IEntityTypeConfiguration
             .HasMaxLength(100)
             .IsRequired();
 
+        builder.Property(x => x.NormalizedProviderName)
+            .HasMaxLength(100)
+            .IsRequired();
+
         builder.Property(x => x.ProviderUserId)
             .HasMaxLength(256)
             .IsRequired();
@@ -36,14 +40,19 @@ public sealed class ExternalLoginAccountConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.Email)
             .HasMaxLength(320);
 
+        builder.Property(x => x.NormalizedEmail)
+            .HasMaxLength(320);
+
         builder.Property(x => x.CreatedOnUtc)
             .IsRequired();
 
-        builder.HasIndex(x => new { x.ProviderName, x.ProviderUserId })
+        builder.HasIndex(x => new { x.NormalizedProviderName, x.ProviderUserId })
             .IsUnique();
 
         builder.HasIndex(x => x.LocalUserId);
 
         builder.HasIndex(x => x.Email);
+
+        builder.HasIndex(x => x.NormalizedEmail);
     }
 }

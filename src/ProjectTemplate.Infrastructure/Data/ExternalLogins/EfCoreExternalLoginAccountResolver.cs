@@ -14,8 +14,8 @@ public sealed class EfCoreExternalLoginAccountResolver(ApplicationDbContext dbCo
     /// <summary>
     /// Finds an external login account by the provider name and provider user ID.
     /// </summary>
-    /// <param name="providerName">Provider name (e.g., "Google", "Facebook"). This value is case-insensitive and will be trimmed of whitespace.</param>
-    /// <param name="providerUserId">Provider user ID (the unique identifier for the user from the external provider). This value is case-insensitive and will be trimmed of whitespace.</param>
+    /// <param name="providerName">Provider name. This value is matched case-insensitively after trimming and Unicode normalization.</param>
+    /// <param name="providerUserId">Provider user ID. This value is trimmed and Unicode-normalized, but remains case-sensitive.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation if needed.</param>
     /// <returns>Returns the matching <see cref="ExternalLoginAccount" /> if found; otherwise, returns null.</returns>
     public async Task<ExternalLoginAccount?> FindByProviderUserIdAsync(
@@ -28,13 +28,16 @@ public sealed class EfCoreExternalLoginAccountResolver(ApplicationDbContext dbCo
             return null;
         }
 
-        string normalizedProviderName = providerName.Trim();
-        string normalizedProviderUserId = providerUserId.Trim();
+        string normalizedProviderName =
+            PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(providerName);
+
+        string normalizedProviderUserId =
+            PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(providerUserId);
 
         return await _dbContext.ExternalLoginAccounts
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.ProviderName == normalizedProviderName
+                x => x.NormalizedProviderName == normalizedProviderName
                     && x.ProviderUserId == normalizedProviderUserId,
                 cancellationToken)
             .ConfigureAwait(false);

@@ -85,6 +85,7 @@ public sealed partial class ApplicationDbContext(
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
         ApplyPersistedStringCanonicalization();
+        ApplyLookupStringNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -115,6 +116,7 @@ public sealed partial class ApplicationDbContext(
         CancellationToken cancellationToken = default)
     {
         ApplyPersistedStringCanonicalization();
+        ApplyLookupStringNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -178,6 +180,40 @@ public sealed partial class ApplicationDbContext(
             }
         }
     }
+
+    private void ApplyLookupStringNormalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry<ExternalLoginAccount> entry in ChangeTracker.Entries<ExternalLoginAccount>())
+        {
+            if (entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            ExternalLoginAccount account = entry.Entity;
+
+            account.ProviderName =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName);
+
+            account.NormalizedProviderName =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName);
+
+            account.ProviderUserId =
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId);
+
+            account.DisplayName =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName);
+
+            account.Email =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email);
+
+            account.NormalizedEmail =
+                PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email);
+        }
+    }
+
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         ChangeTracker.DetectChanges();

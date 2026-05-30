@@ -4,6 +4,53 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.8 - 2026-05-30
+
+### Added
+
+* Added improved CI coverage report generation for the current `ProjectTemplate.*` assemblies.
+* Added coverage report filtering to exclude test assemblies, build output, generated `.g.cs` files, `bin`, and `obj` content.
+* Added generated ReportGenerator HTML coverage output to the published DocFX documentation site under `/coverage`.
+* Added direct hosted coverage report links from the root `README.md` and `PACKAGE-README.md`.
+* Added bounded persisted string canonicalization before EF Core save operations.
+* Added normalization for added entity string values and modified string properties before auditing, concurrency stamping, and persistence.
+* Added static raw SQL safety audit coverage to detect unsafe raw SQL APIs and manual command construction patterns.
+* Added normalized lookup columns for external login provider name and email values.
+* Added persisted string lookup tests for whitespace trimming, provider-name casing, provider-user-id case sensitivity, and Unicode Form C normalization.
+* Added UTC timestamp persistence conventions for system and audit timestamps.
+* Added millisecond precision normalization for `*Utc` timestamp values before save.
+* Added EF Core timestamp precision configuration for UTC timestamp properties.
+* Added timestamp persistence tests for external login and audit records.
+* Added model validation coverage for persisted decimal precision and scale configuration.
+* Added EF Core migration coverage for migration `Up` / `Down` operations, migration target model metadata, and the current `ApplicationDbContext` model snapshot.
+
+### Changed
+
+* Updated coverage threshold enforcement to read the expected `Cobertura.xml` report directly.
+* Updated documentation publishing to copy the generated coverage report into `docs/_site/coverage`.
+* Updated README coverage badge behavior so the visible badge links directly to the published test coverage report.
+* Updated external login lookup behavior to use normalized provider-name comparison while preserving case-sensitive provider user IDs.
+* Documented persisted string comparison rules and SQLite / SQL Server collation expectations.
+* Documented the distinction between persisted string canonicalization, EF Core parameterization, and context-specific output encoding.
+* Documented timestamp persistence versus display-time conversion guidance for SQLite and SQL Server.
+* Documented recommended decimal precision and scale patterns for future template consumers.
+* Clarified provider differences between SQL Server and SQLite decimal behavior.
+
+### Fixed
+
+* Fixed CI coverage assembly filtering that still referenced the older `Template.Web` naming pattern.
+* Fixed coverage report generation so it reports usable application assembly coverage instead of noisy or empty coverage output.
+* Fixed documentation workflow coverage publishing so the generated report is available through the public DocFX site.
+* Fixed PowerShell-based multi-line coverage commands so they run under `pwsh` during workflow execution.
+
+### Security
+
+* Strengthened persistence defense-in-depth by canonicalizing stored string values before EF Core persistence.
+* Strengthened raw SQL safety guardrails with static test coverage against unsafe raw SQL usage patterns.
+* Clarified that SQL injection protection remains based on EF Core parameterization and safe query construction, not string canonicalization alone.
+* Clarified that output encoding remains context-specific and is not replaced by persistence normalization.
+
+
 ## 0.5.7 - 2026-05-29
 
 ### Added

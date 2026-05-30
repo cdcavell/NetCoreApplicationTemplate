@@ -23,7 +23,7 @@ dotnet new install CDCavell.NetCoreApplicationTemplate
 
 ## For local package validation, install a packed package directly:
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.7.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.8.nupkg
 ```
 
 ## Generate a project

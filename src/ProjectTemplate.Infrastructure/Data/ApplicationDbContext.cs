@@ -56,6 +56,7 @@ public sealed partial class ApplicationDbContext(
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         ConfigureDataEntityDefaults(modelBuilder);
+        ConfigureTimestampDefaults(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -86,6 +87,7 @@ public sealed partial class ApplicationDbContext(
     {
         ApplyPersistedStringCanonicalization();
         ApplyLookupStringNormalization();
+        ApplyTimestampNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -117,6 +119,7 @@ public sealed partial class ApplicationDbContext(
     {
         ApplyPersistedStringCanonicalization();
         ApplyLookupStringNormalization();
+        ApplyTimestampNormalization();
         ApplyConcurrencyStamps();
 
         if (!_auditOptions)
@@ -214,6 +217,47 @@ public sealed partial class ApplicationDbContext(
         }
     }
 
+    private void ApplyTimestampNormalization()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (EntityEntry entry in ChangeTracker.Entries())
+        {
+            if (entry.State is not (EntityState.Added or EntityState.Modified))
+            {
+                continue;
+            }
+
+            foreach (PropertyEntry property in entry.Properties)
+            {
+                if (!IsUtcTimestampProperty(property.Metadata.Name))
+                {
+                    continue;
+                }
+
+                Type propertyType = Nullable.GetUnderlyingType(property.Metadata.ClrType)
+                    ?? property.Metadata.ClrType;
+
+                if (propertyType == typeof(DateTime) &&
+                    property.CurrentValue is DateTime dateTimeValue)
+                {
+                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeValue);
+                    continue;
+                }
+
+                if (propertyType == typeof(DateTimeOffset) &&
+                    property.CurrentValue is DateTimeOffset dateTimeOffsetValue)
+                {
+                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeOffsetValue);
+                }
+            }
+        }
+    }
+
+    private static bool IsUtcTimestampProperty(string propertyName)
+    {
+        return propertyName.EndsWith("Utc", StringComparison.Ordinal);
+    }
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         ChangeTracker.DetectChanges();
@@ -229,7 +273,7 @@ public sealed partial class ApplicationDbContext(
             {
                 TableName = entry.Metadata.GetTableName() ?? string.Empty,
                 ModifiedBy = _currentActorAccessor.CurrentActor,
-                ModifiedOnUtc = DateTime.UtcNow,
+                ModifiedOnUtc = PersistenceTimestamp.UtcNow(),
                 State = entry.State.ToString()
             };
             auditEntries.Add(auditEntry);
@@ -372,6 +416,24 @@ public sealed partial class ApplicationDbContext(
                 .HasMaxLength(64)
                 .IsRequired()
                 .IsConcurrencyToken();
+        }
+    }
+
+    private static void ConfigureTimestampDefaults(ModelBuilder modelBuilder)
+    {
+        foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (IMutableProperty property in entityType.GetProperties())
+            {
+                Type propertyType = Nullable.GetUnderlyingType(property.ClrType)
+                    ?? property.ClrType;
+
+                if ((propertyType == typeof(DateTime) || propertyType == typeof(DateTimeOffset)) &&
+                    IsUtcTimestampProperty(property.Name))
+                {
+                    property.SetPrecision(PersistenceTimestamp.Precision);
+                }
+            }
         }
     }
 

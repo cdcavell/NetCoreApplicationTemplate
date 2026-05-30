@@ -43,7 +43,7 @@ public sealed class ExternalLoginAccount : DataEntity
     /// <summary>
     /// Creation timestamp in UTC when this external login account was linked to the local user. This can be useful for auditing and tracking purposes.
     /// </summary>
-    public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedOnUtc { get; set; } = PersistenceTimestamp.UtcNow();
 
     /// <summary>
     /// Update timestamp in UTC when this external login account was last modified. This can be useful for auditing and tracking purposes, especially if the display name or email associated with the external account changes over time.

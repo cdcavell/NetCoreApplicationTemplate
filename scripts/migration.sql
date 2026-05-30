@@ -49,3 +49,19 @@ VALUES ('20260528165924_AddDataEntityConcurrencyStamp', '10.0.8');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+DROP INDEX "IX_ExternalLoginAccounts_ProviderName_ProviderUserId";
+
+ALTER TABLE "ExternalLoginAccounts" ADD "NormalizedEmail" TEXT NULL;
+
+ALTER TABLE "ExternalLoginAccounts" ADD "NormalizedProviderName" TEXT NOT NULL DEFAULT '';
+
+CREATE INDEX "IX_ExternalLoginAccounts_NormalizedEmail" ON "ExternalLoginAccounts" ("NormalizedEmail");
+
+CREATE UNIQUE INDEX "IX_ExternalLoginAccounts_NormalizedProviderName_ProviderUserId" ON "ExternalLoginAccounts" ("NormalizedProviderName", "ProviderUserId");
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('20260530111053_AddExternalLoginAccountNormalizedLookupColumns', '10.0.8');
+
+COMMIT;
+

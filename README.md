@@ -4,7 +4,7 @@
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
-[![License](https://img.shields.io/github/license/cdcavell/NetCoreApplicationTemplate)](LICENSE.txt)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
 [![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
 [![NuGet](https://img.shields.io/nuget/v/CDCavell.NetCoreApplicationTemplate?label=NuGet)](https://www.nuget.org/packages/CDCavell.NetCoreApplicationTemplate)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20373042.svg)](https://doi.org/10.5281/zenodo.20373042)

@@ -7,5 +7,9 @@
 - name: API Reference
   href: api/
 
+- name: Test Coverage
+  href: coverage/
+
 - name: Repository
   href: https://github.com/cdcavell/NetCoreApplicationTemplate
+

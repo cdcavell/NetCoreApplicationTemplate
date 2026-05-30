@@ -92,6 +92,7 @@ jobs:
               dotnet test $project.FullName `
                 --configuration $env:CONFIGURATION `
                 --no-restore `
+                --no-build `
                 --verbosity normal `
                 --collect:"XPlat Code Coverage" `
                 --logger "trx" `
@@ -109,7 +110,8 @@ jobs:
             -reports:"./artifacts/test-results/**/coverage.cobertura.xml" `
             -targetdir:"./artifacts/coverage-report" `
             -reporttypes:"Html;MarkdownSummaryGithub;Cobertura" `
-            -assemblyfilters:"+Template.Web;-*.Tests"
+            -assemblyfilters:"+ProjectTemplate.*;-*.Tests" `
+            -filefilters:"-**/bin/**;-**/obj/**;-**/*.g.cs"
 
       - name: Publish test results artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -129,9 +131,7 @@ jobs:
         shell: pwsh
         run: |
           $threshold = [double]$env:COVERAGE_THRESHOLD
-          $coverageFile = Get-ChildItem -Path "./artifacts/coverage-report" -Recurse -Filter "*.xml" |
-            Where-Object { $_.Name -match "Cobertura|coverage" } |
-            Select-Object -First 1
+          $coverageFile = Get-Item "./artifacts/coverage-report/Cobertura.xml" -ErrorAction SilentlyContinue
 
           if (-not $coverageFile) {
               Write-Error "Coverage file was not generated."

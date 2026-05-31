@@ -50,7 +50,8 @@ public sealed class ApplicationDbContextBranchGapTests
         Assert.Equal("Sync.User@Example.com", account.Email);
         Assert.Equal("SYNC.USER@EXAMPLE.COM", account.NormalizedEmail);
         Assert.Equal(NormalizeExpectedUtc(localCreatedOnUtc), account.CreatedOnUtc);
-        Assert.Equal(NormalizeExpectedUtc(unspecifiedUpdatedOnUtc), account.UpdatedOnUtc);
+        Assert.NotNull(account.UpdatedOnUtc);
+        Assert.Equal(NormalizeExpectedUtc(unspecifiedUpdatedOnUtc), account.UpdatedOnUtc.Value);
 
         int auditRecordCount = await context.AuditRecords
             .CountAsync(TestContext.Current.CancellationToken);
@@ -171,12 +172,14 @@ public sealed class ApplicationDbContextBranchGapTests
         await context.ExternalLoginAccounts.AddAsync(account, TestContext.Current.CancellationToken);
         _ = await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
+        Assert.NotNull(account.UpdatedOnUtc);
+        Assert.NotNull(account.LastLoginOnUtc);
         Assert.Equal(NormalizeExpectedUtc(localCreatedOnUtc), account.CreatedOnUtc);
-        Assert.Equal(NormalizeExpectedUtc(unspecifiedUpdatedOnUtc), account.UpdatedOnUtc);
-        Assert.Equal(NormalizeExpectedUtc(localLastLoginOnUtc), account.LastLoginOnUtc);
+        Assert.Equal(NormalizeExpectedUtc(unspecifiedUpdatedOnUtc), account.UpdatedOnUtc.Value);
+        Assert.Equal(NormalizeExpectedUtc(localLastLoginOnUtc), account.LastLoginOnUtc.Value);
         Assert.Equal(DateTimeKind.Utc, account.CreatedOnUtc.Kind);
-        Assert.Equal(DateTimeKind.Utc, account.UpdatedOnUtc?.Kind);
-        Assert.Equal(DateTimeKind.Utc, account.LastLoginOnUtc?.Kind);
+        Assert.Equal(DateTimeKind.Utc, account.UpdatedOnUtc.Value.Kind);
+        Assert.Equal(DateTimeKind.Utc, account.LastLoginOnUtc.Value.Kind);
     }
 
     private static async Task<Guid> SeedExternalLoginAccountAsync(

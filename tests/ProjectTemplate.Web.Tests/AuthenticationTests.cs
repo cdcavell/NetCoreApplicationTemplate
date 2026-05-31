@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using ProjectTemplate.Web.Authentication.Extensions;
 using ProjectTemplate.Web.Authentication.Options;
 using ProjectTemplate.Web.Authentication.Providers.GitHub;
 using ProjectTemplate.Web.Authentication.Providers.Google;
@@ -16,6 +17,18 @@ namespace ProjectTemplate.Web.Tests;
 /// </summary>
 public sealed class AuthenticationTests
 {
+    /// <summary>
+    /// Test data for enabled external authentication provider configurations. Each entry includes the provider key, display name, and a set of configuration values required to enable the provider. This data is used to verify that the application correctly binds and validates external authentication provider settings from configuration. The test cases cover various providers such as OpenIdConnect, SAML2, Google, and GitHub, ensuring that each provider's specific configuration requirements are met when enabled.
+    /// </summary>
+    public static TheoryData<string, string, string> EnabledExternalProviderConfigurations =>
+        new()
+        {
+            { "OpenIdConnect", "OpenIdConnect", "OpenID Connect" },
+            { "Saml2", "Saml2", "SAML2" },
+            { "Google", "Google", "Google" },
+            { "GitHub", "GitHub", "GitHub" }
+        };
+
     /// <summary>
     /// Verifies that authentication options are bound from configuration into the options model.
     /// </summary>
@@ -174,6 +187,47 @@ public sealed class AuthenticationTests
         AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync("Cookies");
 
         Assert.NotNull(scheme);
+    }
+
+    /// <summary>
+    /// Verifies that an enabled external authentication provider registers the expected authentication scheme with the correct display name. This test uses parameterized data to validate multiple providers, ensuring that when a provider is enabled in the configuration, it correctly adds its authentication scheme to the application's authentication system. The test checks both the presence of the scheme and that its properties match the expected values defined in the configuration.
+    /// </summary>
+    /// <param name="providerName">
+    /// Name of the external authentication provider being tested (e.g., "OpenIdConnect", "Saml2", "Google", "GitHub"). This parameter is used to generate the appropriate configuration for the provider and to verify that the corresponding authentication scheme is registered correctly in the application's authentication system.
+    /// </param>
+    /// <param name="schemeName">
+    /// Name of the authentication scheme that should be registered for the enabled provider. This value is derived from the provider's configuration and is used to retrieve the scheme from the authentication scheme provider during the test. The test asserts that a scheme with this name exists and has the expected properties when the provider is enabled.
+    /// </param>
+    /// <param name="displayName">
+    /// Name of the display name that should be associated with the registered authentication scheme for the enabled provider. This value is defined in the provider's configuration and is used to verify that the scheme's display name matches the expected value when the provider is enabled. The test asserts that the display name of the registered scheme is correct, ensuring that the configuration is properly applied to the authentication system.
+    /// </param>
+    /// <returns></returns>
+    [Theory]
+    [MemberData(nameof(EnabledExternalProviderConfigurations))]
+    public async Task EnabledExternalAuthenticationProvider_RegistersConfiguredScheme(
+        string providerName,
+        string schemeName,
+        string displayName)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(CreateEnabledAuthenticationConfiguration(providerName))
+            .Build();
+
+        ServiceCollection services = new();
+
+        services.AddLogging();
+        services.AddApplicationAuthentication(configuration);
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+
+        IAuthenticationSchemeProvider schemeProvider = serviceProvider
+            .GetRequiredService<IAuthenticationSchemeProvider>();
+
+        AuthenticationScheme? scheme = await schemeProvider.GetSchemeAsync(schemeName);
+
+        Assert.NotNull(scheme);
+        Assert.Equal(schemeName, scheme.Name);
+        Assert.Equal(displayName, scheme.DisplayName);
     }
 
     /// <summary>
@@ -652,5 +706,89 @@ public sealed class AuthenticationTests
     private static ApplicationWebApplicationFactory CreateFactory(IReadOnlyDictionary<string, string?> configurationValues)
     {
         return new ApplicationWebApplicationFactory(configurationValues);
+    }
+
+    private static Dictionary<string, string?> CreateEnabledAuthenticationConfiguration(string providerName)
+    {
+        Dictionary<string, string?> configuration = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ProjectTemplate:Authentication:Enabled"] = "true",
+            ["ProjectTemplate:Authentication:DefaultScheme"] = "Cookies",
+            ["ProjectTemplate:Authentication:DefaultChallengeScheme"] = "Cookies",
+            ["ProjectTemplate:Authentication:DefaultSignInScheme"] = "Cookies",
+            ["ProjectTemplate:Authentication:Cookie:Enabled"] = "true",
+            ["ProjectTemplate:Authentication:Cookie:Scheme"] = "Cookies",
+            ["ProjectTemplate:Authentication:Cookie:LoginPath"] = "/Account/Login",
+            ["ProjectTemplate:Authentication:Cookie:LogoutPath"] = "/Account/Logout",
+            ["ProjectTemplate:Authentication:Cookie:AccessDeniedPath"] = "/Account/AccessDenied",
+            ["ProjectTemplate:Authentication:Cookie:ExpireMinutes"] = "60"
+        };
+
+        foreach (KeyValuePair<string, string?> item in CreateProviderConfiguration(providerName))
+        {
+            configuration[item.Key] = item.Value;
+        }
+
+        return configuration;
+    }
+
+    private static Dictionary<string, string?> CreateProviderConfiguration(string providerName)
+    {
+        return providerName switch
+        {
+            "OpenIdConnect" => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Enabled"] = "true",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Scheme"] = "OpenIdConnect",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:DisplayName"] = "OpenID Connect",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Authority"] = "https://login.example.test",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:ClientId"] = "test-oidc-client-id",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:ClientSecret"] = "test-oidc-client-secret",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:CallbackPath"] = "/signin-oidc",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:ResponseType"] = "code",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Scopes:0"] = "openid",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Scopes:1"] = "profile",
+                ["ProjectTemplate:Authentication:Providers:OpenIdConnect:Scopes:2"] = "email"
+            },
+
+            "Saml2" => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ProjectTemplate:Authentication:Providers:Saml2:Enabled"] = "true",
+                ["ProjectTemplate:Authentication:Providers:Saml2:Scheme"] = "Saml2",
+                ["ProjectTemplate:Authentication:Providers:Saml2:DisplayName"] = "SAML2",
+                ["ProjectTemplate:Authentication:Providers:Saml2:EntityId"] = "https://ProjectTemplate.example.test/saml2",
+                ["ProjectTemplate:Authentication:Providers:Saml2:MetadataUrl"] = "https://idp.example.test/metadata",
+                ["ProjectTemplate:Authentication:Providers:Saml2:ModulePath"] = "/Saml2/Acs",
+                ["ProjectTemplate:Authentication:Providers:Saml2:LoadMetadata"] = "false"
+            },
+
+            "Google" => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ProjectTemplate:Authentication:Providers:Google:Enabled"] = "true",
+                ["ProjectTemplate:Authentication:Providers:Google:Scheme"] = "Google",
+                ["ProjectTemplate:Authentication:Providers:Google:DisplayName"] = "Google",
+                ["ProjectTemplate:Authentication:Providers:Google:ClientId"] = "test-google-client-id",
+                ["ProjectTemplate:Authentication:Providers:Google:ClientSecret"] = "test-google-client-secret",
+                ["ProjectTemplate:Authentication:Providers:Google:CallbackPath"] = "/signin-google",
+                ["ProjectTemplate:Authentication:Providers:Google:Scopes:0"] = "profile",
+                ["ProjectTemplate:Authentication:Providers:Google:Scopes:1"] = "email"
+            },
+
+            "GitHub" => new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["ProjectTemplate:Authentication:Providers:GitHub:Enabled"] = "true",
+                ["ProjectTemplate:Authentication:Providers:GitHub:Scheme"] = "GitHub",
+                ["ProjectTemplate:Authentication:Providers:GitHub:DisplayName"] = "GitHub",
+                ["ProjectTemplate:Authentication:Providers:GitHub:ClientId"] = "test-github-client-id",
+                ["ProjectTemplate:Authentication:Providers:GitHub:ClientSecret"] = "test-github-client-secret",
+                ["ProjectTemplate:Authentication:Providers:GitHub:CallbackPath"] = "/signin-github",
+                ["ProjectTemplate:Authentication:Providers:GitHub:Scopes:0"] = "user:email"
+            },
+
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(providerName),
+                providerName,
+                "Unsupported authentication provider.")
+        };
     }
 }

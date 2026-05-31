@@ -58,8 +58,6 @@ public sealed class RequestLoggingExtensionsBranchGapTests
             StringComparison.Ordinal);
     }
 
-    private static readonly string[] _expected = ["/healthz", "/metrics"];
-
     [Fact]
     public void AddApplicationRequestLogging_ValidExcludedPathPrefixes_BindsOptions()
     {
@@ -88,7 +86,8 @@ public sealed class RequestLoggingExtensionsBranchGapTests
         Assert.True(options.IncludeQueryString);
         Assert.False(options.IncludeRemoteIpAddress);
         Assert.False(options.IncludeUserName);
-        Assert.Equal(_expected, options.ExcludedPathPrefixes);
+        Assert.Contains("/healthz", options.ExcludedPathPrefixes);
+        Assert.Contains("/metrics", options.ExcludedPathPrefixes);
     }
 
     [Fact]

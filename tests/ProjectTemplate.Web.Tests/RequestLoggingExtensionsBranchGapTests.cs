@@ -86,7 +86,7 @@ public sealed class RequestLoggingExtensionsBranchGapTests
         Assert.True(options.IncludeQueryString);
         Assert.False(options.IncludeRemoteIpAddress);
         Assert.False(options.IncludeUserName);
-        Assert.Equal(["/healthz", "/metrics"], options.ExcludedPathPrefixes);
+        Assert.Equal(new[] { "/healthz", "/metrics" }, options.ExcludedPathPrefixes);
     }
 
     [Fact]

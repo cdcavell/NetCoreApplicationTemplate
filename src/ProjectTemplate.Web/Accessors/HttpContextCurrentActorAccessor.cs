@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ProjectTemplate.Infrastructure.Data;
 
 namespace ProjectTemplate.Web.Accessors;
@@ -10,8 +11,13 @@ public sealed class HttpContextCurrentActorAccessor(
     IHttpContextAccessor httpContextAccessor)
     : ICurrentActorAccessor
 {
+    private const string _subjectClaimType = "sub";
+    private const string _unknownActor = "Unknown";
+
     /// <summary>
-    /// Accesses the current actor information from the HTTP context. It first attempts to retrieve the "sub" claim from the user's claims, and if that is not available, it falls back to using the remote IP address. If neither is available, it returns "Unknown".
+    /// Accesses the current actor information from the HTTP context. It first attempts to retrieve the authenticated
+    /// subject claim from the user's claims, then falls back to the authenticated name identifier claim, then the remote
+    /// IP address. If none are available, it returns "Unknown".
     /// </summary>
     public string CurrentActor
     {
@@ -19,16 +25,46 @@ public sealed class HttpContextCurrentActorAccessor(
         {
             HttpContext? httpContext = httpContextAccessor.HttpContext;
 
-            string? subject = httpContext?.User?.FindFirst("sub")?.Value;
+            string? authenticatedActor = GetAuthenticatedActor(httpContext?.User);
 
-            if (!string.IsNullOrWhiteSpace(subject))
+            if (!string.IsNullOrWhiteSpace(authenticatedActor))
             {
-                return $"Subject: {subject}";
+                return authenticatedActor;
             }
 
             string? remoteIpAddress = httpContext?.Connection.RemoteIpAddress?.ToString();
 
-            return !string.IsNullOrWhiteSpace(remoteIpAddress) ? $"Remote IP: {remoteIpAddress}" : "Unknown";
+            return !string.IsNullOrWhiteSpace(remoteIpAddress)
+                ? $"Remote IP: {remoteIpAddress}"
+                : _unknownActor;
         }
+    }
+
+    private static string? GetAuthenticatedActor(ClaimsPrincipal? user)
+    {
+        if (user?.Identity?.IsAuthenticated != true)
+        {
+            return null;
+        }
+
+        string? subject = GetClaimValue(user, _subjectClaimType);
+
+        if (!string.IsNullOrWhiteSpace(subject))
+        {
+            return $"Subject: {subject}";
+        }
+
+        string? nameIdentifier = GetClaimValue(user, ClaimTypes.NameIdentifier);
+
+        return !string.IsNullOrWhiteSpace(nameIdentifier)
+            ? $"Name Identifier: {nameIdentifier}"
+            : null;
+    }
+
+    private static string? GetClaimValue(ClaimsPrincipal user, string claimType)
+    {
+        string? value = user.FindFirst(claimType)?.Value?.Trim();
+
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 }

@@ -102,7 +102,7 @@ The CI workflow additionally:
 
 - Runs dependency review on pull requests.
 - Generates coverage reports.
-- Enforces the configured coverage threshold.
+- Enforces the configured global and security-critical coverage thresholds.
 - Runs CodeQL analysis.
 - Packs and installs the template package.
 - Scaffolds a consumer project.
@@ -123,6 +123,25 @@ These files are part of the consumer build contract because package versions and
 ## Coverage Policy
 
 The CI coverage gate is intentionally held at 75% for v1.0.0 as a minimum safety net. Contract-level integration tests protect advertised runtime behavior directly, while the global threshold prevents broad coverage regression without forcing low-value tests.
+
+Security-critical files also have a stricter file-level coverage gate. This second gate exists because global line coverage can hide concentrated risk in files responsible for error handling, request classification, identity resolution, audit attribution, security headers, forwarded headers, rate limiting, and persistence normalization.
+
+The protected file list is maintained in:
+
+```text
+eng/security-critical-coverage.json
+```
+
+The CI assertion script is:
+
+```text
+eng/Assert-SecurityCriticalCoverage.ps1
+```
+
+The per-file gate evaluates ReportGenerator's generated Cobertura output and fails CI with actionable file-level messages when a protected file falls below its configured line or branch threshold.
+
+Protected files should be added when they control security, trust boundaries, request identity, safe failure, audit attribution, or persistence safety. Lowering a protected threshold should be treated as a quality-gate change and should include a reason in the pull request.
+
 
 ## Dependency Upgrade Policy
 

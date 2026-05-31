@@ -124,7 +124,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
 
         Assert.Contains("profile", scopes);
         Assert.Contains("calendar.readonly", scopes);
-        Assert.Single(scopes.Where(scope => string.Equals(scope, "calendar.readonly", StringComparison.Ordinal)));
+        Assert.Single(scopes, scope => string.Equals(scope, "calendar.readonly", StringComparison.Ordinal));
         Assert.DoesNotContain(scopes, string.IsNullOrWhiteSpace);
     }
 
@@ -325,7 +325,10 @@ public sealed class AuthenticationProviderOptionCoverageTests
 
         object? options = getMethod.Invoke(monitor, [schemeName]);
 
-        return Assert.IsType(optionsType, options);
+        Assert.NotNull(options);
+        Assert.IsType(optionsType, options);
+
+        return options;
     }
 
     private static Type FindLoadedType(string typeName)
@@ -348,7 +351,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         return authenticationMatch ?? matches[0];
     }
 
-    private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+    private static Type[] GetLoadableTypes(Assembly assembly)
     {
         try
         {
@@ -356,11 +359,11 @@ public sealed class AuthenticationProviderOptionCoverageTests
         }
         catch (ReflectionTypeLoadException exception)
         {
-            return exception.Types.Where(type => type is not null)!;
+            return exception.Types.Where(type => type is not null).ToArray()!;
         }
     }
 
-    private static IReadOnlyList<string> GetStringCollectionProperty(
+    private static string[] GetStringCollectionProperty(
         object instance,
         string propertyName)
     {
@@ -370,7 +373,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         return values.ToArray();
     }
 
-    private static IReadOnlyList<object> GetEnumerableValues(object instance)
+    private static object[] GetEnumerableValues(object instance)
     {
         IEnumerable values = Assert.IsAssignableFrom<IEnumerable>(instance);
 
@@ -401,6 +404,8 @@ public sealed class AuthenticationProviderOptionCoverageTests
 
         object? value = property.GetValue(instance);
 
-        return Assert.NotNull(value);
+        Assert.NotNull(value);
+
+        return value;
     }
 }

@@ -146,11 +146,15 @@ Related docs:
 ```text
 [ ] `/health` behavior is understood.
 [ ] `/health/live` is configured for liveness probes.
-[ ] `/health/ready` is configured for readiness probes.
+[ ] `/health/ready` is configured for readiness probes and includes the database, cache, queue, external service, or other dependency checks required before the service receives normal production traffic.
 [ ] Infrastructure probe paths and methods match application behavior.
 [ ] Health responses do not expose sensitive dependency details publicly.
 [ ] Load balancer or orchestrator health behavior is tested.
 ```
+
+Readiness scope:
+
+The template provides the readiness endpoint shape, but each generated application must register the dependency checks that define production readiness for that service. Do not treat the default readiness endpoint as proof that database, cache, queue, or external service dependencies are available unless those checks have been explicitly registered and included in readiness.
 
 Related docs:
 

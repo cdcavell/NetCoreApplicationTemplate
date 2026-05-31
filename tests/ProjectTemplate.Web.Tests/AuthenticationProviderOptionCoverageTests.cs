@@ -120,7 +120,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         Assert.Equal("google-client-secret", GetPropertyAsString(options, "ClientSecret"));
         Assert.Equal("/signin-google-coverage", GetPropertyAsString(options, "CallbackPath"));
 
-        IReadOnlyList<string> scopes = GetStringCollectionProperty(options, "Scope");
+        string[] scopes = GetStringCollectionProperty(options, "Scope");
 
         Assert.Contains("profile", scopes);
         Assert.Contains("calendar.readonly", scopes);
@@ -173,7 +173,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         Assert.Equal("github-client-secret", GetPropertyAsString(options, "ClientSecret"));
         Assert.Equal("/signin-github-coverage", GetPropertyAsString(options, "CallbackPath"));
 
-        IReadOnlyList<string> scopes = GetStringCollectionProperty(options, "Scope");
+        string[] scopes = GetStringCollectionProperty(options, "Scope");
 
         Assert.Contains("read:user", scopes);
         Assert.Contains("user:email", scopes);
@@ -231,7 +231,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         Assert.Equal("code", GetPropertyAsString(options, "ResponseType"));
         Assert.True(GetPropertyValue<bool>(options, "SaveTokens"));
 
-        IReadOnlyList<string> scopes = GetStringCollectionProperty(options, "Scope");
+        string[] scopes = GetStringCollectionProperty(options, "Scope");
 
         Assert.Contains("openid", scopes);
         Assert.Contains("profile", scopes);
@@ -318,7 +318,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         Type monitorType = typeof(IOptionsMonitor<>).MakeGenericType(optionsType);
         object monitor = serviceProvider.GetRequiredService(monitorType);
         MethodInfo? getMethod = monitorType.GetMethod(
-            nameof(IOptionsMonitor<object>.Get),
+            nameof(IOptionsMonitor<>.Get),
             [typeof(string)]);
 
         Assert.True(getMethod is not null);
@@ -333,10 +333,12 @@ public sealed class AuthenticationProviderOptionCoverageTests
 
     private static Type FindLoadedType(string typeName)
     {
-        List<Type> matches = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(GetLoadableTypes)
-            .Where(type => string.Equals(type.Name, typeName, StringComparison.Ordinal))
-            .ToList();
+        List<Type> matches =
+        [
+            .. AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(GetLoadableTypes)
+                .Where(type => string.Equals(type.Name, typeName, StringComparison.Ordinal))
+        ];
 
         Assert.NotEmpty(matches);
 
@@ -345,7 +347,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
             return matches[0];
         }
 
-        Type? authenticationMatch = matches.SingleOrDefault(type =>
+        var authenticationMatch = matches.SingleOrDefault(type =>
             type.FullName?.Contains("Authentication", StringComparison.Ordinal) == true);
 
         return authenticationMatch ?? matches[0];
@@ -359,7 +361,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
         }
         catch (ReflectionTypeLoadException exception)
         {
-            return exception.Types.Where(type => type is not null).ToArray()!;
+            return [.. exception.Types.Where(type => type is not null).Cast<Type>()];
         }
     }
 
@@ -370,14 +372,14 @@ public sealed class AuthenticationProviderOptionCoverageTests
         object value = GetRequiredPropertyValue(instance, propertyName);
         IEnumerable<string> values = Assert.IsAssignableFrom<IEnumerable<string>>(value);
 
-        return values.ToArray();
+        return [.. values];
     }
 
     private static object[] GetEnumerableValues(object instance)
     {
         IEnumerable values = Assert.IsAssignableFrom<IEnumerable>(instance);
 
-        return values.Cast<object>().ToArray();
+        return [.. values.Cast<object>()];
     }
 
     private static T GetPropertyValue<T>(object instance, string propertyName)

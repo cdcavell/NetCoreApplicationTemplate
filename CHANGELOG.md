@@ -4,6 +4,48 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 0.5.9 - 2026-05-31
+
+### Added
+
+* Added `AGENTS.md` repository instructions for GitHub Copilot coding agents and other AI-assisted contributors.
+* Added a security-critical coverage gate that evaluates ReportGenerator Cobertura output against file-level line and branch coverage thresholds.
+* Added `eng/security-critical-coverage.json` to define protected source files and minimum security-critical coverage expectations.
+* Added `eng/Assert-SecurityCriticalCoverage.ps1` to enforce security-critical coverage thresholds in CI.
+* Added focused contract coverage for `ProblemDetailsExceptionHandler`, including exception-to-status/title mappings and safe production response behavior.
+* Added Problem Details customization coverage for extension and request-classification behavior.
+* Added branch coverage for `HttpContextCurrentActorAccessor`, including authenticated subject claims, authenticated name identifier fallback, whitespace handling, remote IP fallback, and unknown actor behavior.
+* Added focused branch coverage for `ApplicationDbContext` save hooks, audit stamping, string normalization, timestamp normalization, direct audit-record saves, and concurrency-related persistence behavior.
+* Added additional `ApplicationDbContext` branch-gap tests for auditing-disabled and save-pipeline scenarios.
+* Added direct coverage for persistence normalization helpers, including timestamp precision trimming, UTC conversion, string comparison normalization, whitespace handling, and Unicode normalization behavior.
+* Added enabled-path authentication provider coverage for OpenID Connect, SAML2, Google, and GitHub registration.
+* Added provider option coverage for external authentication provider extensions, including null-argument validation, option binding, callback paths, scopes, and SAML2 provider configuration.
+* Added branch coverage for API versioning configuration validation.
+* Added branch coverage for OpenTelemetry registration, tracing, metrics, OTLP exporter configuration, and service-version behavior.
+* Added branch coverage for forwarded header configuration and request logging behavior.
+* Added README badge updates for NuGet total downloads, static Zenodo DOI display, and static MIT license presentation.
+* Added documentation examples for an opt-in fallback authorization policy and named authorization policy usage.
+
+### Changed
+
+* Updated CI to enforce both the global coverage threshold and the new security-critical per-file coverage gate.
+* Updated build-quality documentation to explain the security-critical coverage gate, protected-file configuration, and expectations for lowering protected thresholds.
+* Hardened HTTP current actor resolution so authenticated users resolve from the `sub` claim first, then `ClaimTypes.NameIdentifier`, before falling back to remote IP or `Unknown`.
+* Clarified that `/health/ready` provides the readiness endpoint shape but does not prove database, cache, queue, or external dependency readiness unless those checks are explicitly registered.
+* Updated the production deployment checklist to require service-specific readiness dependency checks before normal production traffic is allowed.
+* Clarified that fallback authorization is opt-in and should be reviewed carefully for public endpoints such as login, callback, health checks, static assets, and intentionally anonymous API endpoints.
+* Clarified the NuGet package signing policy: packages are not author-signed while the repository remains solo-maintained and are published only through the maintainer-controlled release workflow.
+* Clarified that published NuGet.org packages rely on NuGet.org repository signing rather than a separate project-managed author-signing certificate.
+
+### Security
+
+* Strengthened release-governance documentation around NuGet package publication, solo-maintainer ownership, protected release workflows, manual approval, and repository-signed NuGet.org package distribution.
+* Strengthened CI regression protection for security-sensitive source files by adding file-level coverage requirements for error handling, request classification, actor resolution, security headers, forwarded headers, rate limiting, persistence normalization, timestamp handling, and `ApplicationDbContext` save hooks.
+* Strengthened centralized error-handling confidence by pinning Problem Details mappings and safe production sanitization behavior with focused tests.
+* Strengthened audit attribution behavior by verifying authenticated actor resolution and fallback behavior for HTTP request contexts.
+* Strengthened authentication-provider confidence by covering enabled registration paths and provider option behavior for supported external authentication providers.
+* Strengthened production readiness guidance by clarifying that readiness probes must include the dependency checks required by each deployed service.
+
 ## 0.5.8 - 2026-05-30
 
 ### Added

@@ -1,0 +1,62 @@
+{
+  "defaultMinimumLineCoverage": 60,
+  "defaultMinimumBranchCoverage": 40,
+  "files": [
+    {
+      "path": "src/ProjectTemplate.Web/ErrorHandling/ProblemDetailsExceptionHandler.cs",
+      "minimumLineCoverage": 75,
+      "minimumBranchCoverage": 60,
+      "reason": "Centralized exception-to-Problem-Details mapping must not regress into leaking unsafe details."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/ErrorHandling/ProblemDetailsRequestClassifier.cs",
+      "minimumLineCoverage": 75,
+      "minimumBranchCoverage": 50,
+      "reason": "Request classification controls whether centralized Problem Details handling is applied."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/Accessors/HttpContextCurrentActorAccessor.cs",
+      "minimumLineCoverage": 80,
+      "minimumBranchCoverage": 60,
+      "reason": "Current actor resolution feeds audit attribution for HTTP requests."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/Middleware/SecurityHeadersMiddleware.cs",
+      "reason": "Security header emission is part of the HTTP hardening surface."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/Extensions/SecurityHeadersExtensions.cs",
+      "reason": "Security header registration/configuration is part of the HTTP hardening surface."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/Extensions/ForwardedHeadersExtensions.cs",
+      "reason": "Forwarded header configuration affects proxy trust boundaries and request identity."
+    },
+    {
+      "path": "src/ProjectTemplate.Web/Extensions/RateLimitingServiceExtensions.cs",
+      "reason": "Rate limiting protects request-processing surfaces from abuse."
+    },
+    {
+      "path": "src/ProjectTemplate.Infrastructure/Data/PersistenceStringCanonicalizer.cs",
+      "minimumLineCoverage": 75,
+      "minimumBranchCoverage": 50,
+      "reason": "Persistence string canonicalization protects storage normalization behavior."
+    },
+    {
+      "path": "src/ProjectTemplate.Infrastructure/Data/PersistenceStringComparisonNormalizer.cs",
+      "minimumLineCoverage": 75,
+      "minimumBranchCoverage": 50,
+      "reason": "Lookup/display string normalization protects persistence comparison behavior."
+    },
+    {
+      "path": "src/ProjectTemplate.Infrastructure/Data/PersistenceTimestamp.cs",
+      "minimumLineCoverage": 60,
+      "minimumBranchCoverage": 50,
+      "reason": "Timestamp normalization protects persistence consistency."
+    },
+    {
+      "path": "src/ProjectTemplate.Infrastructure/Data/ApplicationDbContext.cs",
+      "reason": "Save hooks apply auditing, canonicalization, timestamp normalization, and concurrency behavior."
+    }
+  ]
+}

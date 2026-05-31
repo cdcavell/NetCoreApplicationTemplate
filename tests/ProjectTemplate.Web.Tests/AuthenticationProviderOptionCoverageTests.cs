@@ -347,7 +347,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
             return matches[0];
         }
 
-        var authenticationMatch = matches.SingleOrDefault(type =>
+        Type? authenticationMatch = matches.SingleOrDefault(type =>
             type.FullName?.Contains("Authentication", StringComparison.Ordinal) == true);
 
         return authenticationMatch ?? matches[0];

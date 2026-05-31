@@ -22,7 +22,9 @@ app.MapApplicationHealthChecks();
 | `/health/ready` | Readiness endpoint intended for dependency-aware checks such as database, cache, or external service availability. |
 | `/health/live` | Liveness endpoint intended to verify that the application process can respond. |
 
-The baseline application does not yet register database or external dependency checks. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
+The baseline application provides the readiness endpoint shape. It does not, by itself, prove database, cache, queue, or external service availability.
+
+Each generated application must register the dependency checks that define production readiness for that service. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
 
 ## Liveness Semantics
 

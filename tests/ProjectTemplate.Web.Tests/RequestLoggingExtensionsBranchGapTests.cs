@@ -58,6 +58,8 @@ public sealed class RequestLoggingExtensionsBranchGapTests
             StringComparison.Ordinal);
     }
 
+    private static readonly string[] _expected = ["/healthz", "/metrics"];
+
     [Fact]
     public void AddApplicationRequestLogging_ValidExcludedPathPrefixes_BindsOptions()
     {
@@ -86,14 +88,16 @@ public sealed class RequestLoggingExtensionsBranchGapTests
         Assert.True(options.IncludeQueryString);
         Assert.False(options.IncludeRemoteIpAddress);
         Assert.False(options.IncludeUserName);
-        Assert.Equal(new[] { "/healthz", "/metrics" }, options.ExcludedPathPrefixes);
+        Assert.Equal(_expected, options.ExcludedPathPrefixes);
     }
 
     [Fact]
     public void GetCorrelationId_HeaderWithWhitespace_ReturnsTrimmedHeaderValue()
     {
-        DefaultHttpContext httpContext = new();
-        httpContext.TraceIdentifier = "trace-fallback";
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-fallback"
+        };
         httpContext.Request.Headers["X-Correlation-ID"] = "  request-correlation-id  ";
 
         string result = InvokeGetCorrelationId(httpContext, new ApplicationRequestLoggingOptions());
@@ -104,8 +108,10 @@ public sealed class RequestLoggingExtensionsBranchGapTests
     [Fact]
     public void GetCorrelationId_HeaderLongerThanMaximum_TruncatesToMaximumLength()
     {
-        DefaultHttpContext httpContext = new();
-        httpContext.TraceIdentifier = "trace-fallback";
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-fallback"
+        };
         httpContext.Request.Headers["X-Correlation-ID"] = new string('a', 140);
 
         string result = InvokeGetCorrelationId(httpContext, new ApplicationRequestLoggingOptions());
@@ -120,8 +126,10 @@ public sealed class RequestLoggingExtensionsBranchGapTests
     [InlineData("   ")]
     public void GetCorrelationId_MissingOrBlankHeader_ReturnsTraceIdentifier(string? headerValue)
     {
-        DefaultHttpContext httpContext = new();
-        httpContext.TraceIdentifier = "trace-fallback";
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-fallback"
+        };
 
         if (headerValue is not null)
         {

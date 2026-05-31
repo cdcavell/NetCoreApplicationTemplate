@@ -255,7 +255,7 @@ public sealed class AuthenticationProviderOptionCoverageTests
             ModulePath = "/saml2/coverage",
             RequireSignedAssertions = true,
             ValidateCertificates = false,
-            LoadMetadata = false
+            LoadMetadata = true
         });
 
         Assert.Same(builder, result);

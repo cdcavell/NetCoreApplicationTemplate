@@ -42,7 +42,64 @@ The template registers named policies but does not force every endpoint to requi
 
 Application authors should apply authorization intentionally at the controller, Razor Page, endpoint, folder, or convention level. This keeps the base template runnable while still providing clear policy names for protected application areas.
 
-For production applications, review whether a fallback policy or broader default authorization convention should be added by the consuming application.
+For production applications that should be closed by default, the consuming application can opt in to a fallback authorization policy.
+
+```csharp
+using Microsoft.AspNetCore.Authorization;
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+```
+
+This fallback policy is not enabled by default. Enabling it changes the default posture for endpoints that do not explicitly declare authorization metadata.
+
+Before enabling a fallback policy, review endpoints that must remain publicly reachable, including:
+
+- Login, logout, callback, and access-denied endpoints.
+- Health check endpoints.
+- Static files and browser assets.
+- Public documentation or landing pages.
+- API endpoints that intentionally allow anonymous access.
+
+Use `[AllowAnonymous]` intentionally for endpoints that should remain public.
+
+Named role and permission policies still apply where they are explicitly used.
+
+## Named Policy Usage Examples
+
+Require any authenticated user:
+
+```csharp
+[Authorize(Policy = ApplicationAuthorizationPolicyNames.AuthenticatedUser)]
+public IActionResult SecurePage()
+{
+    return View();
+}
+```
+
+Require an administrator role:
+
+```csharp
+[Authorize(Policy = ApplicationAuthorizationPolicyNames.AdministratorRole)]
+public IActionResult AdminOnly()
+{
+    return View();
+}
+```
+
+Require the manage-application permission:
+
+```csharp
+[Authorize(Policy = ApplicationAuthorizationPolicyNames.ManageApplicationPermission)]
+public IActionResult ManageApplication()
+{
+    return View();
+}
+```
 
 ## Sample Policy Purposes
 

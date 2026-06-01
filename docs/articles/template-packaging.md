@@ -108,6 +108,7 @@ The template intentionally exposes a small set of stable options for common scaf
 |:---|:---|:---|:---|
 | `--authProvider` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
 | `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. Use `sqlite` for the default local development configuration, `sqlserver` for the SQL Server provider configuration, or `none` to generate the application with EF Core data access disabled. |
+| `--skipRestore` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 
 Example non-default scaffold:
 

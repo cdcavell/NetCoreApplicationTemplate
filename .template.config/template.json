@@ -153,7 +153,6 @@
         ".gitattributes",
         ".gitignore",
         "ASSETS-LICENSES.md",
-        "CITATION.cff",
         "Directory.Build.props",
         "Directory.Packages.props",
         "Dockerfile",

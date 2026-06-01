@@ -8,53 +8,76 @@ The .NET Core Application Template is organized as a compact, production-oriente
 /
 ├── src/
 │   ├── ProjectTemplate.Web/
-│   │   └── ASP.NET Core host, startup composition, middleware, auth, UI endpoints, and web concerns
+│   │   └── ASP.NET Core host, startup composition, middleware, authentication, UI, API, health checks, and web-facing configuration
 │   │
 │   └── ProjectTemplate.Infrastructure/
-│       └── Infrastructure and data access concerns used by the web application
+│       └── Infrastructure, EF Core data access, persistence normalization, migrations, auditing, and provider-specific implementation details
 │
 ├── tests/
 │   └── ProjectTemplate.Web.Tests/
-│       └── Automated tests for startup, configuration, middleware, auth, and runtime behavior
+│       └── Automated tests for startup, configuration, middleware, authentication, authorization, data access, error handling, and runtime behavior
 │
 ├── docs/
 │   ├── adr/
 │   │   └── Architecture decision records
 │   ├── articles/
 │   │   └── DocFX conceptual documentation
+│   ├── examples/
+│   │   └── Safe configuration examples
 │   ├── images/
 │   │   └── Documentation and README images
 │   └── docfx.json
 │
+├── eng/
+│   ├── Assert-SecurityCriticalCoverage.ps1
+│   ├── security-critical-coverage.json
+│   ├── scaffold-manifest.default.json
+│   ├── scaffold-manifest.schema.json
+│   └── Validate-ScaffoldManifest.ps1
+│
+├── scripts/
+│   ├── migration.sql
+│   └── Validate-VersionConsistency.ps1
+│
 ├── .template.config/
 │   └── dotnet new template metadata
 │
-├── scripts/
-│   └── Utility scripts for setup, build, migration, or maintenance work
+├── .template.content/
+│   └── consumer scaffold overlay content, including generated README and configuration replacements
 │
 ├── .github/
 │   ├── workflows/
-│   │   └── GitHub Actions CI and documentation publishing workflows
+│   │   └── GitHub Actions CI, documentation, package, container, CodeQL, and release validation workflows
 │   ├── ISSUE_TEMPLATE/
 │   │   └── Issue templates
+│   ├── CODEOWNERS
 │   ├── dependabot.yml
 │   └── pull_request_template.md
 │
 ├── .dockerignore
 ├── .editorconfig
+├── .env.example
 ├── .gitattributes
 ├── .gitignore
 ├── ASSETS-LICENSES.md
 ├── CHANGELOG.md
 ├── CITATION.cff
+├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
+├── Directory.Build.props
+├── Directory.Packages.props
 ├── Dockerfile
 ├── docker-compose.yml
+├── global.json
 ├── LICENSE.txt
 ├── NetCoreApplicationTemplate.slnx
+├── NetCoreApplicationTemplate.Template.csproj
+├── PACKAGE-README.md
 ├── README.md
+├── RELEASE.md
 └── SECURITY.md
 ```
+
 
 ## Solution Projects
 

@@ -3,15 +3,19 @@ message: "If you use this software, please cite it using the metadata below."
 title: "NetCoreApplicationTemplate"
 version: "1.0.0"
 date-released: "2026-06-01"
+repository-code: "https://github.com/cdcavell/NetCoreApplicationTemplate"
+url: "https://cdcavell.github.io/NetCoreApplicationTemplate/"
+type: software
+license: MIT
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.20373042"
+    description: "Zenodo Concept DOI"
 authors:
   - family-names: "Cavell"
     given-names: "Christopher D."
     orcid: "https://orcid.org/0009-0002-2113-0245"
 abstract: "NetCoreApplicationTemplate is a reusable ASP.NET Core application template for secure, maintainable, production-oriented .NET applications. It organizes common application infrastructure concerns including startup composition, middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, CI validation, and DocFX documentation. The project is intended as a practical baseline for small-to-medium web applications, internal line-of-business systems, and prototypes that may grow into production systems."
-type: software
-license: MIT
-repository-code: "https://github.com/cdcavell/NetCoreApplicationTemplate"
-url: "https://cdcavell.github.io/NetCoreApplicationTemplate/"
 keywords:
   - aspnetcore
   - dotnet

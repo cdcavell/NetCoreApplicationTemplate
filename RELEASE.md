@@ -103,7 +103,28 @@ Then confirm:
 - README/package usage instructions match the published package behavior.
 - The generated app can be started locally using documented instructions.
 
-### 7. Container smoke validation
+### 7. Visual Studio template validation
+
+After package publication, validate that the template also works through Visual Studio's
+Create a new project experience.
+
+Minimum Visual Studio smoke test:
+
+1. Install the published package using `dotnet new install CDCavell.NetCoreApplicationTemplate`.
+2. Restart Visual Studio.
+3. Create a new project from `.NET Core Application Template`.
+4. Validate at least the following option combinations:
+   - `authProvider = cookie`, `dbProvider = sqlite`
+   - `authProvider = cookie`, `dbProvider = sqlserver`
+   - `authProvider = none`, `dbProvider = none`
+5. Confirm the generated solution loads all expected projects.
+6. Confirm restore and build succeed from Visual Studio.
+7. Confirm the generated solution can also build from the command line.
+
+For generated solutions, confirm project references resolve correctly and no generated
+project references a project that Visual Studio failed to load.
+
+### 8. Container smoke validation
 
 If containers are published for v1.0.0, validate them after publication:
 
@@ -116,7 +137,7 @@ If containers are published for v1.0.0, validate them after publication:
 
 Skip this section only when no container image is published for the release.
 
-### 8. Rollback and hotfix guidance
+### 9. Rollback and hotfix guidance
 
 Stable public artifacts should not be overwritten after publication.
 
@@ -130,7 +151,7 @@ Use this guidance for critical post-release issues:
 - If documentation is incorrect but package artifacts are valid, patch the documentation and note the correction in the next release notes when appropriate.
 - If a security issue is discovered after release, create a hotfix branch from the release tag, apply the minimum safe fix, run the full release gate, and publish a patch release.
 
-## NuGet package identity and publish gate
+## 10. NuGet package identity and publish gate
 
 The stable package identity is:
 
@@ -149,7 +170,7 @@ Recommended order:
 5. Review the generated `.nupkg` metadata before publishing to NuGet.org.
 6. Publish the first NuGet.org package only after manual approval.
 
-## Package signing and contributor trust
+## 11. Package signing and contributor trust
 
 NuGet package signing is deferred for `v1.0.0` unless a repository signing certificate, signing owner, timestamping approach, and signing policy are added before release.
 
@@ -161,7 +182,7 @@ The publish workflow keeps the manual approval gate in place so unsigned package
 
 Before each stable release, confirm that [`SECURITY.md`](SECURITY.md) still reflects the current package-signing posture and that any trigger condition requiring a signing-policy review has been evaluated.
 
-## Zenodo archival sequence
+## 12. Zenodo archival sequence
 
 Zenodo archives GitHub releases created after the GitHub integration is enabled. Enable integration before the DOI-bearing release.
 
@@ -175,7 +196,7 @@ Recommended order:
 6. Create the stable `v1.0.0` release only after the dry-run DOI metadata is accepted.
 7. Add the Zenodo DOI badge and copyable citation block to README after the DOI is available.
 
-## Final release order
+## 13. Final release order
 
 Recommended stable release order:
 

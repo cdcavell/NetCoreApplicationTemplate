@@ -4,6 +4,35 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 1.0.0 - 2026-06-01
+
+### Added
+
+* Added the first stable `1.0.0` release baseline for the NetCoreApplicationTemplate package and repository.
+* Added final `v1.0.0` release-readiness closure tracking for release validation, documentation and metadata consistency, supply-chain/security evidence, consumer package validation, and intentional deferral review.
+* Added final release-candidate validation coverage for build, format, test, pack, coverage-report generation, and coverage-gate confirmation.
+* Added stable-release validation expectations for clean template installation, scaffolded project restore, build, test, and consumer documentation review.
+
+### Changed
+
+* Promoted the project from the `0.5.x` hardening stream to the stable `1.0.0` release line.
+* Consolidated the broad `v1.0.0` readiness epic into a concise final closure issue set so remaining release work is visible from one tracking view.
+* Updated release readiness posture around version consistency, package metadata, release notes, documentation links, citation metadata, and release artifact validation.
+* Confirmed NuGet package author signing remains intentionally deferred while the repository is solo-maintained, with official packages produced only through the maintainer-controlled release workflow.
+* Confirmed stable release guidance for GitHub Release publication, NuGet package validation, Zenodo archival sequencing, DocFX documentation publication, and clean-environment post-release smoke testing.
+
+### Security
+
+* Carried forward the global coverage gate and security-critical per-file coverage gate as part of the stable release baseline.
+* Preserved security-critical coverage expectations for centralized Problem Details handling, request classification, actor resolution, security headers, forwarded headers, rate limiting, persistence normalization, timestamp handling, and `ApplicationDbContext` save hooks.
+* Preserved release-governance controls for dependency review, vulnerability scanning, SBOM/provenance evidence, protected publish environments, and manual maintainer approval.
+* Preserved the release-blocking rule that any deferred work must not affect package correctness, publication safety, security posture, citation metadata, or consumer smoke-test behavior.
+
+### Validation
+
+* Locally validated Release build, formatting, test execution, and template package generation before the stable release-candidate review.
+* Confirmed the local coverage-gate verification path using ReportGenerator Cobertura output and the security-critical coverage threshold script.
+
 ## 0.5.9 - 2026-05-31
 
 ### Added

@@ -1,6 +1,6 @@
 # Release Checklist and v1.0.0 Release Candidate Runbook
 
-Use this checklist before publishing a stable template package or creating the future `v1.0.0` release.
+Use this checklist before publishing the stable `v1.0.0` template package and associated release artifacts.
 
 ## v1.0.0 release candidate runbook
 
@@ -132,13 +132,13 @@ Use this guidance for critical post-release issues:
 
 ## NuGet package identity and publish gate
 
-The intended stable package identity is:
+The stable package identity is:
 
 ```text
 CDCavell.NetCoreApplicationTemplate
 ```
 
-Reserve the package identity by publishing the first validated package to NuGet.org before the stable `v1.0.0` tag, or document a decision to use a different registry.
+Confirm package identity ownership and publish access.
 
 Recommended order:
 
@@ -189,7 +189,7 @@ Recommended stable release order:
 8. Tag `v1.0.0`.
 9. Confirm tag-triggered version consistency validation passes before approving protected publish environments.
 10. Approve protected publish environments only after reviewing generated artifacts.
-11. Update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
+11. Confirm or update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
 
 ## Rollback notes
 
@@ -228,14 +228,14 @@ Before creating a stable release:
 
 ## v1.0.0 blocker issue confirmation
 
-Before tagging `v1.0.0`, confirm all release-blocking issues tracked from parent issue #138 are closed, merged, or explicitly deferred with maintainer approval.
+Before tagging `v1.0.0`, confirm all release-blocking issues tracked from completed parent issue #138 and final closure tracker #271 are closed, merged, or explicitly deferred with maintainer approval.
 
 Minimum confirmation:
 
 - Parent issue #138 has no unresolved v1.0.0 blockers.
-- Every blocker issue referenced from #138 is either closed as completed or documented as deferred.
+- Final closure tracker #271 and its linked release-hardening issues are closed or explicitly deferred.
 - Deferred items do not affect package correctness, publication safety, security posture, citation metadata, or consumer smoke-test behavior.
-- The final release PR references #138 and summarizes the remaining release risk, if any.
+- The final release PR references #138 and #271 and summarizes the remaining release risk, if any.
 
 ## Maintainer review points for first public publication
 

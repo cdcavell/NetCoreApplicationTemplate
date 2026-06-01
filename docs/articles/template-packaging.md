@@ -13,7 +13,7 @@ Package-based validation is preferred because it verifies the actual distributio
 | Template short name | `netcoreapp-template` |
 | Template package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
-| Current package version | `0.5.9` |
+| Current package version | `1.0.0` |
 
 ## Consumer Scaffold Boundaries
 
@@ -85,7 +85,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 ## Install the Template Package
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.0.5.9.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.1.0.0.nupkg
 ```
 
 ## Create a New Project from the Template
@@ -108,6 +108,7 @@ The template intentionally exposes a small set of stable options for common scaf
 |:---|:---|:---|:---|
 | `--authProvider` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. Use `cookie` for the default cookie-authentication-ready baseline or `none` to generate the application with application authentication disabled by default. |
 | `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. Use `sqlite` for the default local development configuration, `sqlserver` for the SQL Server provider configuration, or `none` to generate the application with EF Core data access disabled. |
+| `--skipRestore` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 
 Example non-default scaffold:
 
@@ -195,16 +196,16 @@ Docker runtime validation is intentionally limited to Linux runners. The goal is
 
 ## Distribution Direction
 
-The intended stable distribution model is a published NuGet template package installable with `dotnet new install`.
+The stable distribution model is a published NuGet template package installable with `dotnet new install`.
 
-Future stable usage is expected to follow this pattern:
+Stable usage follows this pattern:
 
 ```powershell
 dotnet new install CDCavell.NetCoreApplicationTemplate
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
-Clone-and-modify remains valid for source review, contribution, and direct customization. However, after package publishing is available, the NuGet template package should be treated as the primary stable distribution path for normal template consumers.
+Clone-and-modify remains valid for source review, contribution, and direct customization. However, the NuGet template package is the primary stable distribution path for normal template consumers.
 
 After the `v1.0.0` release, changes to the template short name, package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
 

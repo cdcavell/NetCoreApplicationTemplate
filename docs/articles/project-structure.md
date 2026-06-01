@@ -242,7 +242,7 @@ The goal is not only to test individual methods, but to protect the template's b
 
 ## Documentation and Repository Metadata
 
-The repository includes documentation and governance files because the template is intended to be reused, cited, reviewed, and eventually packaged.
+The repository includes documentation and governance files because the template is intended to be reused, cited, reviewed, packaged, and distributed as a stable `dotnet new` template.
 
 Important repository-level files include:
 

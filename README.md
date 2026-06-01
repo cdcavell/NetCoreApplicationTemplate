@@ -422,7 +422,7 @@ Cavell, Christopher D. NetCoreApplicationTemplate. Version 1.0.0. Zenodo. MIT Li
 
 ## Roadmap
 
-The project is being developed toward a reusable .NET application template. Future work may include additional provider modules, stronger packaging support, template parameterization, expanded examples, and release-ready template distribution.
+The project is a reusable .NET application template with a stable `1.0.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
 
 See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
 

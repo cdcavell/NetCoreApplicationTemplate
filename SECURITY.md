@@ -82,7 +82,7 @@ Plaintext credentials are not allowed in workflow files, repository files, examp
 
 ## Package Signing and External Contributor Controls
 
-NuGet package signing is currently deferred for pre-`v1.0.0` releases and remains a release-readiness decision point until a project-controlled signing certificate, timestamping approach, signing owner, certificate storage process, and verification policy are documented.
+NuGet package author signing is deferred for `v1.0.0` while the repository remains solo-maintained and official package artifacts are produced only through the maintainer-controlled release workflow.
 
 Official package artifacts are produced only by the maintainer-controlled release workflow. External contributors do not publish NuGet packages directly and are not expected to sign generated `.nupkg` artifacts. If package signing is introduced later, release artifacts should be signed by a project-controlled certificate through the protected release workflow, not by individual contributors.
 
@@ -90,7 +90,7 @@ External contributor trust is handled separately from package signing. External 
 
 Revisit the package-signing decision when any of the following conditions occur:
 
-- Before publishing the stable `v1.0.0` NuGet package.
+- Before each stable NuGet package publication.
 - Before enabling fully automated package publication.
 - Before adding additional maintainers or package owners.
 - Before accepting external pull requests that affect workflows, package metadata, release automation, security policy, or template packaging.

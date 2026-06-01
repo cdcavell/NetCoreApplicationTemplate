@@ -196,16 +196,16 @@ Docker runtime validation is intentionally limited to Linux runners. The goal is
 
 ## Distribution Direction
 
-The intended stable distribution model is a published NuGet template package installable with `dotnet new install`.
+The stable distribution model is a published NuGet template package installable with `dotnet new install`.
 
-Future stable usage is expected to follow this pattern:
+Stable usage follows this pattern:
 
 ```powershell
 dotnet new install CDCavell.NetCoreApplicationTemplate
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
-Clone-and-modify remains valid for source review, contribution, and direct customization. However, after package publishing is available, the NuGet template package should be treated as the primary stable distribution path for normal template consumers.
+Clone-and-modify remains valid for source review, contribution, and direct customization. However, the NuGet template package is the primary stable distribution path for normal template consumers.
 
 After the `v1.0.0` release, changes to the template short name, package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
 

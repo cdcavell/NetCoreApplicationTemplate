@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 1.0.1 - 2026-06-01
+
+### Fixed
+
+* Add the Infrastructure project to template primaryOutputs so Visual Studio loads all generated projects when creating a new solution from the package.
+
 ## 1.0.0 - 2026-06-01
 
 ### Added

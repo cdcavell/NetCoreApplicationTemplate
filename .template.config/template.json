@@ -133,6 +133,9 @@
       "path": "ProjectTemplate.slnx"
     },
     {
+      "path": "src/ProjectTemplate.Infrastructure/ProjectTemplate.Infrastructure.csproj"
+    },
+    {
       "path": "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj"
     },
     {

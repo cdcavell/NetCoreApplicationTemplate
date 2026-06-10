@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 1.0.2 - 2026-06-09
+
+### Changed
+
+* Updated pinned GitHub Actions workflow dependencies used by CI, CodeQL analysis, documentation publishing, release automation, version consistency validation, container publishing, and template package publishing.
+* Updated `actions/checkout` from `6.0.2` to `6.0.3`.
+* Updated `actions/setup-dotnet` from `5.2.0` to `5.3.0`.
+* Updated `github/codeql-action` from `4.36.0` to `4.36.2`.
+
+### Maintenance
+
+* Normalized GitHub workflow file formatting after dependency updates without changing template source code, generated scaffold behavior, package metadata, or runtime application behavior.
+
+
 ## 1.0.1 - 2026-06-01
 
 ### Fixed

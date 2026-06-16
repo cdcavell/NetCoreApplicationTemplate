@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 1.0.3 - 2026-06-15
+
+### Changed
+
+* Updated centrally managed NuGet package versions used by the template, tests, persistence layer, authentication integrations, observability support, configuration abstractions, logging configuration, and test dependencies.
+* Updated Microsoft ASP.NET Core authentication and MVC testing packages from `10.0.8` to `10.0.9`.
+* Updated Microsoft Entity Framework Core packages from `10.0.8` to `10.0.9`.
+* Updated `Microsoft.Extensions.Configuration.Abstractions` from `10.0.8` to `10.0.9`.
+* Updated OpenTelemetry hosting/exporter packages from `1.15.3` to `1.16.0`.
+* Updated `Serilog.Settings.Configuration` from `10.0.0` to `10.0.1`.
+* Updated `System.Drawing.Common` from `10.0.8` to `10.0.9`.
+
+### Maintenance
+
+* Keeps the stable `1.0.x` line current with dependency maintenance only.
+* No template source code, generated scaffold structure, package identity, or documented runtime behavior changes are included in this patch release.
+
 ## 1.0.2 - 2026-06-09
 
 ### Changed

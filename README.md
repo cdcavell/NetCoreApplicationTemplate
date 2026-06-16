@@ -17,9 +17,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 1.0.2](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v1.0.2)__
+Current release: __[Release 1.0.3](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v1.0.3)__
 
-Tag: `v1.0.2`
+Tag: `v1.0.3`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -167,7 +167,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.1.0.2.nupkg
+dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.1.0.3.nupkg
 ```
 
 Generate a consumer project:
@@ -417,7 +417,7 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 1.0.2. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 1.0.3. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap

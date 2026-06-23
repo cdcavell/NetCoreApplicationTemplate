@@ -13,8 +13,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
-    <PackageReleaseNotes>Stable 1.0.3 release of the NetCoreApplicationTemplate dotnet new template, including the production-oriented ASP.NET Core baseline, template package validation, consumer scaffold support, documentation, coverage gates, and release-readiness hardening.</PackageReleaseNotes>
-    <VersionPrefix>1.0.3</VersionPrefix>
+    <PackageReleaseNotes>Stable 1.0.4 release of the NetCoreApplicationTemplate dotnet new template, including the production-oriented ASP.NET Core baseline, template package validation, consumer scaffold support, documentation, coverage gates, and release-readiness hardening.</PackageReleaseNotes>
+    <VersionPrefix>1.0.4</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 1.0.4 - 2026-06-22
+
+### Fixed
+
+* Added `SQLitePCLRaw.bundle_e_sqlite3` package reference to replace deprecated SQLite bundle usage.
+* Updated SQLite dependency path to use the supported bundled native SQLite provider.
+* Resolved dependency warning related to deprecated SQLite library usage.
+
+### Notes
+
+* This is a dependency maintenance release.
+* No application behavior, public APIs, or template structure were intentionally changed.
+
 ## 1.0.3 - 2026-06-15
 
 ### Changed

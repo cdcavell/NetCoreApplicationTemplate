@@ -8,7 +8,7 @@ This README is intended for NuGet package consumers. The full repository README 
 
 | Item | Value |
 |---|---|
-| Package ID | `CDCavell.NetCoreApplicationTemplate` |
+| Package ID | `NetCoreApplicationTemplate` |
 | Template short name | `netcoreapp-template` |
 | Default authentication provider | `cookie` |
 | Default data provider | `sqlite` |

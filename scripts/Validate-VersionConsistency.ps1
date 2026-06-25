@@ -164,7 +164,7 @@ if (-not [string]::IsNullOrWhiteSpace($templatePackageVersion)) {
 
 $escapedVersion = [regex]::Escape($ExpectedVersion)
 $escapedReleaseTag = [regex]::Escape('`v' + $ExpectedVersion + '`')
-$escapedPackageId = [regex]::Escape('CDCavell.NetCoreApplicationTemplate')
+$escapedPackageId = [regex]::Escape('NetCoreApplicationTemplate')
 
 $readme = Get-RequiredFileText 'README.md'
 Assert-Matches $readme "Current release:\s*__\[Release $escapedVersion\]\([^\)]*/releases/tag/v$escapedVersion\)__" 'README current-release block'
@@ -207,7 +207,7 @@ if (-not [string]::IsNullOrWhiteSpace($PackageDirectory)) {
     }
     else {
         $packages = @(Get-ChildItem -LiteralPath $packageDirectoryPath -Filter '*.nupkg' -File)
-        $expectedPackageName = "CDCavell.NetCoreApplicationTemplate.$ExpectedVersion.nupkg"
+        $expectedPackageName = "NetCoreApplicationTemplate.$ExpectedVersion.nupkg"
         $matchingPackages = @($packages | Where-Object { $_.Name -eq $expectedPackageName })
         $driftedPackages = @($packages | Where-Object { $_.Name -ne $expectedPackageName })
 

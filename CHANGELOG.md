@@ -4,6 +4,48 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.0.0 - 2026-06-25
+
+### Breaking Changes
+
+* Renamed the NuGet package from `CDCavell.NetCoreApplicationTemplate` to `NetCoreApplicationTemplate`.
+* Consumers should update package installation commands and references to use the new package ID.
+
+### Changed
+
+* Updated the public NuGet package identity to the simplified project-centered name `NetCoreApplicationTemplate`.
+* Updated package metadata to align with the new package ID.
+* Updated release metadata for the `2.0.0` package line.
+* Switched NuGet.org publication to **NuGet Trusted Publishing**, removing the need for a long-lived NuGet API key for public package publishing.
+* Updated the package publishing workflow to use GitHub Actions OIDC authentication for NuGet.org publishing.
+
+### Migration Notes
+
+Replace package installation commands such as:
+
+```powershell
+dotnet new install CDCavell.NetCoreApplicationTemplate
+```
+
+with:
+
+```powershell
+dotnet new install NetCoreApplicationTemplate
+```
+
+If the old package is already installed locally, uninstall it first:
+
+```powershell
+dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate
+```
+
+### Notes
+
+The previous `CDCavell.NetCoreApplicationTemplate` package should be treated as the legacy package identity and deprecated on NuGet with alternate package guidance pointing to `NetCoreApplicationTemplate`.
+
+This release does not change the project’s core purpose: providing a production-oriented ASP.NET Core application template with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.
+
 ## 1.0.4 - 2026-06-22
 
 ### Fixed

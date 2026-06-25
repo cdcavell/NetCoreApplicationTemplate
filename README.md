@@ -167,7 +167,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.1.0.4.nupkg
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.0.nupkg
 ```
 
 Generate a consumer project:
@@ -417,7 +417,7 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 1.0.4. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.0.0. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap

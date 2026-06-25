@@ -119,14 +119,22 @@ jobs:
             echo "url=https://api.nuget.org/v3/index.json" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: NuGet login
+        if: steps.source.outputs.url == 'https://api.nuget.org/v3/index.json'
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        id: nuget-login
+        with:
+          user: CDCavell
+          
       - name: Publish template package
         shell: bash
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_TRUSTED_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGE_SOURCE: ${{ steps.source.outputs.url }}
         run: |
           set -euo pipefail
+          shopt -s nullglob
 
           package=$(find ./artifacts/template-package -maxdepth 1 -name '*.nupkg' | head -n 1)
 
@@ -135,13 +143,13 @@ jobs:
             exit 1
           fi
 
-          api_key="$NUGET_API_KEY"
+          api_key="$NUGET_TRUSTED_API_KEY"
           if [ "$PACKAGE_SOURCE" = "https://nuget.pkg.github.com/cdcavell/index.json" ]; then
             api_key="$GITHUB_TOKEN"
           fi
 
           if [ -z "$api_key" ]; then
-            echo "Package source requires an API key. Configure NUGET_API_KEY or publish to GitHub Packages with GITHUB_TOKEN."
+            echo "Package source requires an API key. Configure NUGET_TRUSTED_API_KEY or publish to GitHub Packages with GITHUB_TOKEN."
             exit 1
           fi
 

@@ -18,12 +18,12 @@ This README is intended for NuGet package consumers. The full repository README 
 Install the template package from NuGet:
 
 ```powershell
-dotnet new install CDCavell.NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate
 ```
 
 ## For local package validation, install a packed package directly:
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.1.0.4.nupkg
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.0.nupkg
 ```
 
 ## Generate a project
@@ -81,12 +81,12 @@ dotnet test --configuration Release
 
 Install the newer package version with the same package identity:
 ```powershell
-dotnet new install CDCavell.NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate
 ```
 
 ## Uninstall
 ```powershell
-dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+dotnet new uninstall NetCoreApplicationTemplate
 ```
 
 ## Additional resources

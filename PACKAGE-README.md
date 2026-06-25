@@ -18,7 +18,7 @@ This README is intended for NuGet package consumers. The full repository README 
 Install the template package from NuGet:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate::2.0.0
 ```
 
 ## For local package validation, install a packed package directly:
@@ -81,7 +81,7 @@ dotnet test --configuration Release
 
 Install the newer package version with the same package identity:
 ```powershell
-dotnet new install NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate::2.0.0
 ```
 
 ## Uninstall

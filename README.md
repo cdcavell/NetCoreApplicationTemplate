@@ -156,6 +156,14 @@ The scaffolded consumer output intentionally includes:
 
 The scaffolded consumer output intentionally excludes repository-maintainer content such as `.github/`, DocFX documentation source, ADRs, release-management files, citation metadata, contribution policy, security policy, and repository badges.
 
+### Install from NuGet
+
+Install the published template package:
+
+```powershell
+dotnet new install NetCoreApplicationTemplate::2.0.0
+```
+
 ### Pack and Install Locally
 
 Pack the template package:
@@ -225,7 +233,7 @@ The non-default scaffold preserves the template's core guardrails, including str
 Update the installed template by installing a newer package version:
 
 ```powershell
-dotnet new install <path-or-package-id-for-new-version>
+dotnet new install NetCoreApplicationTemplate::2.0.0
 ```
 
 Uninstall the template package:
@@ -422,7 +430,7 @@ Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.0.0. Zenodo. MIT Li
 
 ## Roadmap
 
-The project is a reusable .NET application template with a stable `1.0.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
+The project is a reusable .NET application template with a stable `2.0.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
 
 See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
 

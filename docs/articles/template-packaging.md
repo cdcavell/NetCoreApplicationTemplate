@@ -11,9 +11,14 @@ Package-based validation is preferred because it verifies the actual distributio
 | Field | Value |
 |:---|:---|
 | Template short name | `netcoreapp-template` |
-| Template package ID | `CDCavell.NetCoreApplicationTemplate` |
+| Current NuGet package ID | `NetCoreApplicationTemplate` |
+| Previous NuGet package ID | `CDCavell.NetCoreApplicationTemplate` |
+| Template identity | `CDCavell.NetCoreApplicationTemplate.CSharp` |
+| Template group identity | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
-| Current package version | `1.0.2` |
+| Current package version | `2.0.0` |
+
+The `2.0.0` release moved the public NuGet package ID to `NetCoreApplicationTemplate`. The internal template identity and group identity remain unchanged for template metadata continuity.
 
 ## Consumer Scaffold Boundaries
 
@@ -72,7 +77,7 @@ When the public scaffold surface intentionally changes, regenerate the scaffold 
 ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal -Generate
 ```
 
-Review the manifest diff carefully before committing. Changes to root-level files, maintainer-only exclusions, template source boundaries, README content checks, or public scaffold folders should be treated as release-surface changes before `v1.0.0`.
+Review the manifest diff carefully before committing. Changes to root-level files, maintainer-only exclusions, template source boundaries, README content checks, or public scaffold folders should be treated as release-surface changes.
 
 ## Pack the Template Package
 
@@ -84,8 +89,16 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 
 ## Install the Template Package
 
+Install the published package from NuGet:
+
 ```powershell
-dotnet new install ./artifacts/template-package/CDCavell.NetCoreApplicationTemplate.1.0.2.nupkg
+dotnet new install NetCoreApplicationTemplate::2.0.0
+```
+
+Install a locally packed package:
+
+```powershell
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.0.nupkg
 ```
 
 ## Create a New Project from the Template
@@ -149,7 +162,7 @@ dotnet test --configuration Release
 Install the newer package version:
 
 ```powershell
-dotnet new install <path-or-package-id-for-new-version>
+dotnet new install NetCoreApplicationTemplate
 ```
 
 The .NET SDK updates the installed template package when the package identity matches and the new package version is higher.
@@ -157,7 +170,7 @@ The .NET SDK updates the installed template package when the package identity ma
 ## Uninstall the Template
 
 ```powershell
-dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+dotnet new uninstall NetCoreApplicationTemplate
 ```
 
 ## Local Repository Install
@@ -201,12 +214,12 @@ The stable distribution model is a published NuGet template package installable 
 Stable usage follows this pattern:
 
 ```powershell
-dotnet new install CDCavell.NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
 Clone-and-modify remains valid for source review, contribution, and direct customization. However, the NuGet template package is the primary stable distribution path for normal template consumers.
 
-After the `v1.0.0` release, changes to the template short name, package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
+Changes to the template short name, public package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
 
 See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.

@@ -16,7 +16,7 @@ The maintainer is responsible for:
 - Maintaining branch protection expectations for `main`.
 - Reviewing workflow, security, release, and template packaging changes.
 - Approving package publication through protected GitHub environments.
-- Managing NuGet package identity and publish credentials.
+- Managing NuGet package identity and publish access.
 - Managing GitHub release and Zenodo archival sequencing.
 - Reviewing vulnerability reports and coordinating security fixes.
 - Keeping release, support, and contribution documentation current.
@@ -31,9 +31,9 @@ Expected release behavior:
 
 - Patch releases may be created for security fixes, packaging corrections, documentation-critical fixes, or small compatible improvements.
 - Minor releases may be created for compatible template improvements, new supported options, or expanded documentation.
-- Major releases may be created for breaking template behavior, supported framework changes, major packaging changes, or significant governance changes.
-- Pre-1.0 releases remain preview-quality and may change more frequently.
-- `v1.0.0` represents the first stable support baseline for consumers.
+- Major releases may be created for breaking template behavior, supported framework changes, major packaging changes, package identity changes, or significant governance changes.
+- `v2.0.0` represents the current stable package identity baseline under the `NetCoreApplicationTemplate` NuGet package ID.
+- `v1.0.x` remains a legacy stable line under the previous `CDCavell.NetCoreApplicationTemplate` package identity.
 
 Release timing depends on issue readiness, CI health, package validation, documentation readiness, and maintainer availability.
 
@@ -43,7 +43,8 @@ Official release artifacts are published only by the maintainer-controlled relea
 
 Publishing ownership includes:
 
-- NuGet package publication for `CDCavell.NetCoreApplicationTemplate`.
+- NuGet package publication for `NetCoreApplicationTemplate`.
+- Legacy NuGet package guidance for `CDCavell.NetCoreApplicationTemplate` when needed.
 - GitHub Releases and release notes.
 - Zenodo archival metadata and DOI-bearing GitHub releases.
 - GitHub Container Registry publication when container releases are used.
@@ -77,7 +78,6 @@ Additional maintainers should not be added casually. Before expanding maintainer
 - Branch protection rules.
 - Environment protection rules.
 - NuGet and GitHub Packages publishing permissions.
-- Secret access.
 - CODEOWNERS coverage.
 - Security reporting and release ownership expectations.
 

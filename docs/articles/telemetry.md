@@ -15,7 +15,6 @@ Configuration is controlled through `appsettings.json`:
   "OpenTelemetry": {
     "Enabled": true,
     "ServiceName": "ProjectTemplate.Web",
-    "ServiceVersion": "0.4.0",
     "EnableTracing": true,
     "EnableMetrics": true,
     "EnableAspNetCoreInstrumentation": true,
@@ -40,9 +39,9 @@ http://localhost:4318
 
 The OTLP exporter can also be configured through standard OpenTelemetry environment variables such as `OTEL_EXPORTER_OTLP_ENDPOINT` and `OTEL_EXPORTER_OTLP_PROTOCOL`.
 
-## v1.0.0 Baseline
+## Runtime Baseline
 
-For `v1.0.0`, the telemetry baseline is:
+The telemetry baseline is:
 
 - OpenTelemetry service/resource registration.
 - ASP.NET Core request tracing instrumentation.

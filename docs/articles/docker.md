@@ -197,7 +197,7 @@ See [Container Release Publishing](container-publish.md) for the GHCR publish, s
 
 Applications generated from the template may adapt the Dockerfile for production deployment. Production consumers may pin image digests, use organization-approved base images, or apply additional hardening based on their deployment requirements.
 
-After the `v1.0.0` release, changes to documented image names, tag conventions, exposed ports, or runtime image strategy should be reviewed as release-surface changes.
+Stable-release changes to documented image names, tag conventions, exposed ports, or runtime image strategy should be reviewed as release-surface changes.
 
 See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
 

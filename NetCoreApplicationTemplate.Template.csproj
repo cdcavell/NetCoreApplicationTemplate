@@ -13,8 +13,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
-    <PackageReleaseNotes>Stable 2.0.0 release of the NetCoreApplicationTemplate dotnet new template. This release moves the public NuGet package ID from CDCavell.NetCoreApplicationTemplate to NetCoreApplicationTemplate while preserving the production-oriented ASP.NET Core baseline, template package validation, consumer scaffold support, documentation, coverage gates, and release-readiness hardening.</PackageReleaseNotes>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <PackageReleaseNotes>Patch 2.0.1 release of the NetCoreApplicationTemplate dotnet new template. This release refreshes post-2.0 documentation, updates repository/package branding assets, and confirms NuGet Trusted Publishing workflow permissions while preserving the stable 2.0 package identity and scaffold behavior.</PackageReleaseNotes>
+    <VersionPrefix>2.0.1</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

@@ -1,5 +1,18 @@
 # Assets and Licenses
 
+## Project-Created Assets
+
+The following repository branding assets are original project-created graphics distributed under this repository's MIT license:
+
+- `PACKAGE-ICON.png`
+- `docs/images/logo.png`
+- `docs/images/logo-256.png`
+- `docs/images/logo-128.png`
+- `docs/images/logo.svg`
+- `docs/images/favicon.ico`
+
+These assets intentionally avoid third-party logo artwork and trademark-restricted Microsoft/.NET branding. The icon uses an original blueprint, shield, scaffold, and code-bracket visual metaphor to represent a secure, extensible ASP.NET Core application template baseline.
+
 ### [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) License
 The following asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:
 ```
@@ -67,13 +80,13 @@ SOFTWARE.
 ```
 
 ## [coverlet.collector](https://www.nuget.org/packages/coverlet.collector)
-_Coverlet is a cross platform code coverage framework for .NET, with support for line, branch and method coverage. It works with [.NET Framework](https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/KnownIssues.md#badimageformatexception-net-framework-47x-48x) on Windows and .NET Core on all supported platforms._
+_Coverlet is a cross platform code coverage framework, with support for line, branch and method coverage. It works with [.NET Framework](https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/KnownIssues.md#badimageformatexception-net-framework-47x-48x) on Windows and .NET Core on all supported platforms._
 ## [Microsoft.AspNetCore.Mvc.Testing](https://www.nuget.org/packages/Microsoft.AspNetCore.Mvc.Testing/10.0.0)
 _`Microsoft.AspNetCore.Mvc.Testing` provides support for writing integration tests for ASP.NET Core apps that utilize MVC or Minimal APIs._
 ## [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/Microsoft.NET.Test.Sdk/17.14.1)
 _The MSbuild targets and properties for building .NET test projects._
 ## [Microsoft.AspNetCore.Authentication.OpenIdConnect](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.OpenIdConnect)
-_This package contains the OpenID Connect middleware for ASP.NET Core. It enables an application to support authentication using the OpenID Connect protocol, which is an identity layer on top of the OAuth 2.0 protocol. This middleware allows applications to authenticate users by redirecting them to an OpenID Connect provider (such as Azure AD, IdentityServer, etc.) and handling the authentication response._
+_This package contains the OpenID Connect middleware for ASP.NET Core. It enables an application to support authentication using the OpenID Connect protocol, which is an identity layer on top of the OAuth 2.0 protocol. This middleware allows applications to authenticate users by redirecting them to an OpenID Connect provider (such as Azure AD, IdentityServer, etc.) and handling the response._
 ## [Sustainsys.Saml2.AspNetCore2](https://www.nuget.org/packages/Sustainsys.Saml2.AspNetCore2)
 _Sustainsys.Saml2.AspNetCore2 is a library that provides support for integrating SAML2 authentication into ASP.NET Core 2 applications. It allows developers to authenticate users using SAML2 identity providers, enabling single sign-on (SSO) capabilities for their applications._
 ## [Microsoft.AspNetCore.Authentication.MicrosoftAccount](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.MicrosoftAccount)
@@ -95,6 +108,6 @@ _This package contains the abstractions for hosting in .NET applications. It pro
 ## [Microsoft.Extensions.Configuration.Abstractions](https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Abstractions)
 _This package contains the abstractions for configuration in .NET applications. It provides interfaces and base classes for working with configuration settings, allowing developers to read and manage configuration data from various sources (such as JSON files, environment variables, command-line arguments, etc.) in a consistent way across different types of applications._
 ## [Microsoft.SourceLink.GitHub](https://www.nuget.org/packages/Microsoft.SourceLink.GitHub)
-_This package provides Source Link support for GitHub repositories. Source Link is a technology that enables source code debugging of .NET assemblies by providing a mapping between the compiled code and the original source code. By using this package, developers can easily debug their applications and step into the source code hosted on GitHub, improving the debugging experience and making it easier to identify and fix issues in their code._
+_This package provides Source Link support for GitHub repositories. Source Link is a technology that enables source code debugging of .NET assemblies by providing a mapping between the compiled code and the original source code. By using this package, developers can easily debug their applications and step into the source code hosted on GitHub, improving the debugging experience and making it easier to identify and fix issues._
 ## [Microsoft.Extensions.Options.ConfigurationExtensions](https://www.nuget.org/packages/Microsoft.Extensions.Options.ConfigurationExtensions)
 _This package contains extensions for configuring options in .NET applications using configuration. It provides methods for binding configuration settings to options classes, allowing developers to easily manage and access configuration data in a strongly-typed manner. This package is commonly used in ASP.NET Core applications to configure services and application settings based on configuration sources such as JSON files, environment variables, or command-line arguments._

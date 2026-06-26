@@ -2,16 +2,11 @@
 
 ## Project-Created Assets
 
-The following repository branding assets are original project-created graphics distributed under this repository's MIT license:
+The following repository branding asset is an original project-created graphic distributed under this repository's MIT license:
 
-- `PACKAGE-ICON.png`
-- `docs/images/logo.png`
-- `docs/images/logo-256.png`
-- `docs/images/logo-128.png`
 - `docs/images/logo.svg`
-- `docs/images/favicon.ico`
 
-These assets intentionally avoid third-party logo artwork and trademark-restricted Microsoft/.NET branding. The icon uses an original blueprint, shield, scaffold, and code-bracket visual metaphor to represent a secure, extensible ASP.NET Core application template baseline.
+The icon uses an original blueprint, shield, scaffold, and code-bracket visual metaphor to represent a secure, extensible ASP.NET Core application template baseline.
 
 ### [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) License
 The following asset(s) are under [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0) license:

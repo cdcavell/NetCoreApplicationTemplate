@@ -193,7 +193,7 @@ This scaffold intentionally excludes repository-maintainer files such as GitHub 
 
 The upstream template package and documentation can be used for deeper implementation guidance:
 
-- NuGet package: `CDCavell.NetCoreApplicationTemplate`
+- NuGet package: `NetCoreApplicationTemplate`
 - GitHub repository: `cdcavell/NetCoreApplicationTemplate`
 - Published documentation: `https://cdcavell.github.io/NetCoreApplicationTemplate/`
 

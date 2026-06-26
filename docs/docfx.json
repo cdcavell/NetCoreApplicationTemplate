@@ -44,8 +44,8 @@
     "globalMetadata": {
       "_appName": ".NET Core Application Template",
       "_appTitle": ".NET Core Application Template Documentation",
-      "_appLogoPath": "images/logo.svg",
-      "_appFaviconPath": "images/logo.svg",
+      "_appLogoPath": "images/logo-docs.png",
+      "_appFaviconPath": "images/favicon.ico",
       "_enableSearch": true
     }
   }

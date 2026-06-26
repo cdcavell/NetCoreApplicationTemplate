@@ -2,7 +2,7 @@
 
 Welcome to the documentation for the .NET Core Application Template.
 
-This documentation describes the reusable ASP.NET Core application baseline provided by the repository. It is intended for developers who want to understand the project structure, local development workflow, configuration model, middleware pipeline, security posture, authentication options, data access setup, template packaging, and v1.0 documentation surface.
+This documentation describes the reusable ASP.NET Core application baseline provided by the repository. It is intended for developers who want to understand the project structure, local development workflow, configuration model, middleware pipeline, security posture, authentication options, data access setup, template packaging, and current release documentation surface.
 
 The template is designed as a production-oriented starting point for ASP.NET Core applications that need consistent defaults for:
 
@@ -25,9 +25,9 @@ Use this documentation as the detailed reference. The root `README.md` provides 
 ## Documentation Areas
 
 - [Getting Started](articles/getting-started.md)
-- __v1.0 Readiness__
+- __Release Readiness and Compatibility__
   - [v1.0 Migration Guide](articles/v1-migration-guide.md)
-  - [Public Surface v1.0](articles/public-surface-v1.md)
+  - [Public Surface](articles/public-surface-v1.md)
   - [Production Deployment Checklist](articles/production-deployment-checklist.md)
   - [Runtime Readiness](articles/runtime-readiness.md)
   - [Build Quality and Reproducibility](articles/build-quality.md)

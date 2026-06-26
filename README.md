@@ -17,9 +17,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 2.0.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v2.0.0)__
+Current release: __[Release 2.0.1](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v2.0.1)__
 
-Tag: `v2.0.0`
+Tag: `v2.0.1`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -161,7 +161,7 @@ The scaffolded consumer output intentionally excludes repository-maintainer cont
 Install the published template package:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate::2.0.0
+dotnet new install NetCoreApplicationTemplate::2.0.1
 ```
 
 ### Pack and Install Locally
@@ -175,7 +175,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.0.nupkg
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.1.nupkg
 ```
 
 Generate a consumer project:
@@ -233,7 +233,7 @@ The non-default scaffold preserves the template's core guardrails, including str
 Update the installed template by installing a newer package version:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate::2.0.0
+dotnet new install NetCoreApplicationTemplate::2.0.1
 ```
 
 Uninstall the template package:
@@ -423,12 +423,12 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.0.0. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.0.1. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap
 
-The project is a reusable .NET application template with a stable `2.0.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
+The project is a reusable .NET application template with a stable `2.0.1` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
 
 See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
 

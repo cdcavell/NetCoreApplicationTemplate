@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 title: "NetCoreApplicationTemplate"
-version: "2.0.0"
-date-released: "2026-06-22"
+version: "2.0.1"
+date-released: "2026-06-26"
 repository-code: "https://github.com/cdcavell/NetCoreApplicationTemplate"
 url: "https://cdcavell.github.io/NetCoreApplicationTemplate/"
 type: software

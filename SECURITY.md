@@ -6,7 +6,8 @@ Security fixes are applied to the current stable line unless otherwise noted in 
 
 | Version line | Supported | Notes |
 |:---|:---:|:---|
-| `1.0.x` | Yes | Supported after `v1.0.0` for reproducible security fixes and critical template defects. |
+| `2.0.x` | Yes | Current stable line under the `NetCoreApplicationTemplate` NuGet package identity. |
+| `1.0.x` | Best effort | Legacy stable line under the previous `CDCavell.NetCoreApplicationTemplate` NuGet package identity. Upgrade to the current stable package when practical. |
 | Pre-1.0 releases | Best effort | Preview releases are not guaranteed to receive backported security fixes. Upgrade to the current stable release when practical. |
 | Older releases | Best effort | Support depends on severity, reproducibility, release impact, and maintainer availability. |
 | `main` | Development | The development branch is not a supported release line. |
@@ -67,14 +68,14 @@ If a credential, token, key, certificate, connection string, or other secret is 
 
 Secrets scan reports should be stored outside tracked source control, preferably under ignored local paths such as `artifacts/security/`.
 
-## Repository Secrets and Publish Permissions
+## Repository Publish Permissions
 
-Repository and environment secrets must be scoped to the narrowest workflow that requires them.
+Repository and environment permissions must be scoped to the narrowest workflow that requires them.
 
-| Secret or permission | Intended use | Scope expectation |
+| Permission or credential | Intended use | Scope expectation |
 |:---|:---|:---|
 | `GITHUB_TOKEN` | Built-in workflow token | Use explicit workflow or job-level permissions. Default to `contents: read` unless a job needs more. |
-| `NUGET_API_KEY` | NuGet package publishing | Store only as a GitHub Actions secret or protected environment secret. Do not expose to pull requests from forks. Rotate after suspected exposure. |
+| GitHub Actions OIDC token | NuGet Trusted Publishing login for NuGet.org package publication | Grant `id-token: write` only to the package publication workflow/job that needs NuGet Trusted Publishing. |
 | Package publishing permissions | Package release workflow | Limit to release or manual publish workflows. Do not grant publish permissions to normal CI validation jobs. |
 | Release permissions | GitHub release automation | Grant `contents: write` only to the workflow/job that creates or updates releases. |
 
@@ -82,9 +83,9 @@ Plaintext credentials are not allowed in workflow files, repository files, examp
 
 ## Package Signing and External Contributor Controls
 
-NuGet package author signing is deferred for `v1.0.0` while the repository remains solo-maintained and official package artifacts are produced only through the maintainer-controlled release workflow.
+NuGet package author signing remains deferred while the repository remains solo-maintained and official package artifacts are produced only through the maintainer-controlled release workflow.
 
-Official package artifacts are produced only by the maintainer-controlled release workflow. External contributors do not publish NuGet packages directly and are not expected to sign generated `.nupkg` artifacts. If package signing is introduced later, release artifacts should be signed by a project-controlled certificate through the protected release workflow, not by individual contributors.
+NuGet.org publication uses NuGet Trusted Publishing through GitHub Actions OIDC for the current `NetCoreApplicationTemplate` package line. Official package artifacts are produced only by the maintainer-controlled release workflow. External contributors do not publish NuGet packages directly and are not expected to sign generated `.nupkg` artifacts. If package signing is introduced later, release artifacts should be signed by a project-controlled certificate through the protected release workflow, not by individual contributors.
 
 External contributor trust is handled separately from package signing. External contributions should enter through pull requests, required CI checks, Code Owner review when owned paths change, branch protection, dependency review, CodeQL/security scanning, and maintainer approval before merge. Signed commits may be required later if the repository moves beyond the solo-maintainer profile.
 

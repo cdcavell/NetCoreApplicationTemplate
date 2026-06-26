@@ -1,6 +1,6 @@
 # Runtime Readiness Baseline
 
-This page summarizes the runtime foundations that are considered part of the `v1.0.0` readiness baseline. It is intended as a review map across observability, error handling, authentication, authorization, and request protection.
+This page summarizes the runtime foundations that are considered part of the current stable readiness baseline. It is intended as a review map across observability, error handling, authentication, authorization, and request protection.
 
 ## Baseline Registration
 
@@ -120,4 +120,4 @@ No new implementation gaps were identified during this documentation pass. Remai
 - Environment-specific authentication provider configuration.
 - Production rate-limit values and partitioning strategy.
 
-If any of these become template-level requirements before `v1.0.0`, they should be split into dedicated implementation issues rather than being folded into release checklist work.
+If any of these become template-level requirements, they should be split into dedicated implementation issues rather than being folded into release checklist work.

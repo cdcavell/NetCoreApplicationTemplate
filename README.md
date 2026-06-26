@@ -265,9 +265,9 @@ Detailed documentation is maintained in the `docs` folder and published with Doc
 Documentation areas include:
 
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
-- __v1.0 Readiness__
+- __Release Readiness and Compatibility__
   - [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
-  - [Public Surface v1.0](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/public-surface-v1.html)
+  - [Public Surface](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/public-surface-v1.html)
   - [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
   - [Runtime Readiness](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/runtime-readiness.html)
   - [Build Quality and Reproducibility](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/build-quality.html)
@@ -346,8 +346,6 @@ Pull requests targeting `main` require passing CI and Code Owner review for owne
 ├── .dockerignore
 ├── .editorconfig
 ├── .gitattributes
-├── .gitignore
-├── ASSETS-LICENSES.md
 ├── CHANGELOG.md
 ├── CITATION.cff
 ├── CONTRIBUTING.md

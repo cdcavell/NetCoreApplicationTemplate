@@ -1,43 +1,45 @@
-# Release Checklist and v1.0.0 Release Candidate Runbook
+# Release Checklist and Runbook
 
-Use this checklist before publishing the stable `v1.0.0` template package and associated release artifacts.
+Use this checklist before publishing a stable NetCoreApplicationTemplate package, GitHub Release, documentation update, Zenodo archive, or related release artifact.
 
-## v1.0.0 release candidate runbook
+This runbook is intentionally version-neutral. The current stable NuGet package identity is `NetCoreApplicationTemplate`; `CDCavell.NetCoreApplicationTemplate` is the legacy 1.0 package identity.
 
-Use this runbook before creating the stable `v1.0.0` tag or any future stable release tag that publishes public artifacts.
+## 1. Release Branch Preparation
 
-### 1. Release branch preparation
+1. Confirm `main` is green in CI before creating the release branch.
+2. Create a release branch from the current `main` head.
+3. Confirm all planned release-readiness issues are merged before opening the release PR.
+4. Avoid feature work on the release branch unless it directly addresses release validation, documentation, packaging, or blocking defects.
+5. Use a release-candidate tag, dry-run workflow, or pre-release GitHub Release before creating a DOI-bearing stable release when release automation, NuGet publication, Zenodo metadata, signing, SBOM generation, container publication, or documentation publication has changed since the previous release.
 
-&emsp;**1.** Confirm `main` is green in CI before creating the release branch.<br />
-&emsp;**2.** Create a release branch from the current `main` head.<br />
+Example:
 
 ```powershell
-    git checkout main
-    git pull
-    git checkout -b release/v1.0.0
+git checkout main
+git pull
+git checkout -b release/vMAJOR.MINOR.PATCH
 ```
-&emsp;**3.** Confirm all planned release-readiness issues are merged before opening the release PR.<br />
-&emsp;**4.** Avoid new feature work on the release branch unless it directly addresses release validation, documentation, packaging, or blocking defects.<br />
-&emsp;**5.** Use a release-candidate tag, dry-run workflow, or pre-release GitHub Release before creating the stable DOI-bearing release when release automation, NuGet publication, Zenodo metadata, signing, SBOM generation, or documentation publication has changed since the previous release.<br />
 
-### 2. Release gate validation
+## 2. Release Gate Validation
 
 Complete these checks before tagging a stable release:
+
 - Confirm CI passes on the release branch.
 - Confirm CodeQL/security scanning passes.
 - Confirm dependency/audit scanning has no unresolved release-blocking findings.
 - Run `./scripts/Validate-VersionConsistency.ps1`.
 - Confirm the version in `Directory.Build.props`, `NetCoreApplicationTemplate.Template.csproj`, `CITATION.cff`, README examples, package documentation, and the latest `CHANGELOG.md` heading is aligned.
-- Confirm tag/version agreement checks added for release drift prevention are part of the release gate.
+- Confirm tag/version agreement checks are part of the release gate.
 - Run the release build quality commands documented in `docs/articles/build-quality.md`.
 - Run the template smoke-test workflow against the release branch or release-candidate tag.
 - Confirm scaffolded output matches `eng/scaffold-manifest.default.json`.
 - Confirm scaffolded output contains no maintainer-only files.
-- Confirm the template package ID remains CDCavell.NetCoreApplicationTemplate.
+- Confirm the template package ID remains `NetCoreApplicationTemplate` unless the release is intentionally changing package identity.
 
-### 3. Artifact confirmation
+## 3. Artifact Confirmation
 
 Before approving publication, review generated artifacts from the release workflow:
+
 - `.nupkg`
 - `.snupkg`, if produced
 - Container image digest, if containers are published
@@ -50,42 +52,69 @@ Before approving publication, review generated artifacts from the release workfl
 - Generated documentation artifacts
 - DOI / Zenodo archive record, when available
 
-Confirm artifact names, versions, repository URLs, license metadata, authorship metadata, and package descriptions are accurate before publication.
+Confirm artifact names, versions, repository URLs, license metadata, authorship metadata, package descriptions, package IDs, and release notes are accurate before publication.
 
-### 4. Package signing policy confirmation
+## 4. NuGet Publication Policy
+
+The current public package identity is:
+
+```text
+NetCoreApplicationTemplate
+```
+
+The previous package identity is legacy:
+
+```text
+CDCavell.NetCoreApplicationTemplate
+```
+
+Current NuGet.org publication uses NuGet Trusted Publishing through GitHub Actions OIDC. Avoid introducing long-lived NuGet API keys for normal NuGet.org publication unless the publishing model changes and the security policy is updated.
+
+Recommended order:
+
+1. Confirm NuGet Trusted Publishing is configured for the current package identity.
+2. Confirm the `template-package-publish` GitHub environment requires deliberate maintainer approval.
+3. Run the `Publish Template Package` workflow manually with `skip_publish` enabled to confirm packing and artifact generation.
+4. Review generated `.nupkg` metadata before publishing to NuGet.org.
+5. Publish only after manual approval.
+6. Confirm the published NuGet package page, README, package icon, package version, package ID, repository URL, license, authorship metadata, and tags render correctly.
+
+## 5. Package Signing Policy Confirmation
 
 Before publication, confirm one of the following is true:
-- Package signing remains intentionally deferred for this release.
+
+- Package author signing remains intentionally deferred for this release.
 - A project-controlled signing certificate, timestamping approach, and signing policy are configured and documented.
 
 External contributors are not expected to sign release packages. Official packages should be produced only by the maintainer-controlled release workflow.
 
-### 5. GitHub Release, Zenodo, and documentation validation
+## 6. GitHub Release, Zenodo, and Documentation Validation
 
 After creating the release candidate or stable release:
 
-&emsp;**1.** Confirm the GitHub Release points to the expected tag.<br />
-&emsp;**2.** Confirm attached artifacts are present and versioned correctly.<br />
-&emsp;**3.** Confirm Zenodo receives the intended release only after integration is enabled.<br />
-&emsp;**4.** Confirm Zenodo metadata matches `CITATION.cff` and `.zenodo.json`.<br />
-&emsp;**5.** Confirm the DocFX documentation workflow completes.<br />
-&emsp;**6.** Confirm the published GitHub Pages documentation loads successfully.<br />    
-&emsp;**7.** Confirm release badges and documentation links in README resolve correctly.<br />
-&emsp;**8.** Confirm the v1.0 migration guide is current.<br />
-&emsp;**9.** Confirm the production deployment checklist is current.<br />
-&emsp;**10.** Confirm release notes link to the migration guide and production deployment checklist.<br />
+1. Confirm the GitHub Release points to the expected tag.
+2. Confirm attached artifacts are present and versioned correctly.
+3. Confirm Zenodo receives the intended release only after integration is enabled.
+4. Confirm Zenodo metadata matches `CITATION.cff` and `.zenodo.json`.
+5. Confirm the DocFX documentation workflow completes.
+6. Confirm the published GitHub Pages documentation loads successfully.
+7. Confirm release badges and documentation links in README resolve correctly.
+8. Confirm installation instructions use the current package identity.
+9. Confirm the production deployment checklist is current.
+10. Confirm release notes link to the production deployment checklist, package page, documentation site, and DOI/archive record when available.
 
-### 6. Clean-environment post-release validation
+## 7. Clean-Environment Post-Release Validation
 
 After package publication, validate the published package from a clean environment rather than relying only on the repository workspace.
 
 Recommended smoke test:
-```powershell
-mkdir C:\Temp\NetCoreApplicationTemplate-v1-smoke
-cd C:\Temp\NetCoreApplicationTemplate-v1-smoke
 
-dotnet new uninstall CDCavell.NetCoreApplicationTemplate
-dotnet new install CDCavell.NetCoreApplicationTemplate
+```powershell
+mkdir C:\Temp\NetCoreApplicationTemplate-smoke
+cd C:\Temp\NetCoreApplicationTemplate-smoke
+
+dotnet new uninstall NetCoreApplicationTemplate
+dotnet new install NetCoreApplicationTemplate
 
 dotnet new netcoreapp-template -n SmokeTestApp
 cd SmokeTestApp
@@ -103,14 +132,13 @@ Then confirm:
 - README/package usage instructions match the published package behavior.
 - The generated app can be started locally using documented instructions.
 
-### 7. Visual Studio template validation
+## 8. Visual Studio Template Validation
 
-After package publication, validate that the template also works through Visual Studio's
-Create a new project experience.
+After package publication, validate that the template also works through Visual Studio's Create a new project experience.
 
 Minimum Visual Studio smoke test:
 
-1. Install the published package using `dotnet new install CDCavell.NetCoreApplicationTemplate`.
+1. Install the published package using `dotnet new install NetCoreApplicationTemplate`.
 2. Restart Visual Studio.
 3. Create a new project from `.NET Core Application Template`.
 4. Validate at least the following option combinations:
@@ -121,12 +149,11 @@ Minimum Visual Studio smoke test:
 6. Confirm restore and build succeed from Visual Studio.
 7. Confirm the generated solution can also build from the command line.
 
-For generated solutions, confirm project references resolve correctly and no generated
-project references a project that Visual Studio failed to load.
+For generated solutions, confirm project references resolve correctly and no generated project references a project that Visual Studio failed to load.
 
-### 8. Container smoke validation
+## 9. Container Smoke Validation
 
-If containers are published for v1.0.0, validate them after publication:
+If containers are published for the release, validate them after publication:
 
 - Confirm image tags match the release version.
 - Confirm image digest/checksum information is available where applicable.
@@ -137,7 +164,7 @@ If containers are published for v1.0.0, validate them after publication:
 
 Skip this section only when no container image is published for the release.
 
-### 9. Rollback and hotfix guidance
+## 10. Rollback and Hotfix Guidance
 
 Stable public artifacts should not be overwritten after publication.
 
@@ -146,96 +173,42 @@ Use this guidance for critical post-release issues:
 - If the release fails before public publication, fix the workflow or release branch and rerun validation.
 - If the GitHub Release is created but no downstream public artifact has been published, correct the release or recreate the tag only if it will not confuse consumers.
 - If a NuGet package is published with incorrect metadata or behavior, publish a corrected patch version.
-- If Zenodo metadata is incorrect before the DOI-bearing stable release, correct repository metadata before creating the stable release.
+- If Zenodo metadata is incorrect before a DOI-bearing stable release, correct repository metadata before creating the stable release.
 - If Zenodo has already archived the stable release, prefer a follow-up corrective release rather than rewriting history.
 - If documentation is incorrect but package artifacts are valid, patch the documentation and note the correction in the next release notes when appropriate.
 - If a security issue is discovered after release, create a hotfix branch from the release tag, apply the minimum safe fix, run the full release gate, and publish a patch release.
 
-## 10. NuGet package identity and publish gate
+## 11. Zenodo Archival Sequence
 
-The stable package identity is:
-
-```text
-CDCavell.NetCoreApplicationTemplate
-```
-
-Confirm package identity ownership and publish access.
+Zenodo archives GitHub releases created after the GitHub integration is enabled.
 
 Recommended order:
 
-1. Configure the repository secret `NUGET_API_KEY` with the least privilege available for package publication.
-2. Configure the `template-package-publish` GitHub environment with required reviewers.
-3. Run the `Publish Template Package` workflow manually with `skip_publish` enabled to confirm packing and artifact generation.
-4. Run a dry-run publication path against GitHub Packages or another safe feed.
-5. Review the generated `.nupkg` metadata before publishing to NuGet.org.
-6. Publish the first NuGet.org package only after manual approval.
-
-## 11. Package signing and contributor trust
-
-NuGet package signing is deferred for `v1.0.0` unless a repository signing certificate, signing owner, timestamping approach, and signing policy are added before release.
-
-External contributors are not expected to sign NuGet package artifacts. Official packages are produced only by the repository owner / maintainer-controlled release workflow. If package signing is introduced later, generated `.nupkg` artifacts should be signed by a project-controlled release certificate, not by individual contributors.
-
-External contributions must enter through pull requests, pass required CI checks, and receive maintainer review before merge. Verified signed commits are encouraged, but package publication remains restricted to the protected release workflow.
-
-The publish workflow keeps the manual approval gate in place so unsigned package publication remains intentional rather than automatic.
-
-Before each stable release, confirm that [`SECURITY.md`](SECURITY.md) still reflects the current package-signing posture and that any trigger condition requiring a signing-policy review has been evaluated.
-
-## 12. Zenodo archival sequence
-
-Zenodo archives GitHub releases created after the GitHub integration is enabled. Enable integration before the DOI-bearing release.
-
-Recommended order:
-
-1. Enable the GitHub repository in Zenodo.
+1. Confirm the GitHub repository is enabled in Zenodo.
 2. Confirm `CITATION.cff` and `.zenodo.json` metadata are current.
-3. Create a dry-run release tag after Zenodo integration is enabled.
+3. Create a dry-run release tag when release metadata has changed materially.
 4. Review the generated Zenodo DOI record and metadata.
 5. Correct `CITATION.cff` or `.zenodo.json` if the DOI record is incomplete or misleading.
-6. Create the stable `v1.0.0` release only after the dry-run DOI metadata is accepted.
-7. Add the Zenodo DOI badge and copyable citation block to README after the DOI is available.
+6. Create the stable release only after DOI metadata is acceptable.
+7. Add or update the Zenodo DOI badge and citation block after the DOI/archive record is available.
 
-## 13. Final release order
-
-Recommended stable release order:
-
-1. Merge release-readiness work to `main`.
-2. Confirm CI, CodeQL, template smoke tests, scaffold manifest validation, documentation build, version consistency validation, and package workflow dry-run pass.
-3. Confirm NuGet package identity reservation or documented registry decision.
-4. Confirm package signing remains deferred or verify the configured signing certificate and signing policy.
-5. Confirm Zenodo integration is enabled.
-6. Create a dry-run release tag and verify NuGet/Zenodo outputs.
-7. Correct metadata if necessary.
-8. Tag `v1.0.0`.
-9. Confirm tag-triggered version consistency validation passes before approving protected publish environments.
-10. Approve protected publish environments only after reviewing generated artifacts.
-11. Confirm or update README with final NuGet install command, Zenodo DOI badge, and copyable citation block.
-
-## Rollback notes
-
-- If NuGet publication fails before package upload, fix the workflow or secret and rerun.
-- If a package is published with incorrect metadata, publish a corrected patch version rather than overwriting history.
-- If Zenodo metadata is wrong, update repository metadata before creating the stable DOI-bearing release.
-- If the release tag is wrong, prefer a corrected follow-up tag unless no public artifacts were created.
-
-## Version source of truth
+## 12. Version Source of Truth
 
 Before publishing a stable release, confirm every public version marker agrees with the intended release version.
 
-| Surface | Source / location | Expected v1.0.0 behavior |
+| Surface | Source / location | Expected behavior |
 |---|---|---|
 | Assembly/package version | `Directory.Build.props` | `VersionPrefix`, `AssemblyVersion`, and `FileVersion` match the release version. |
-| Template package metadata | Template package project file | Package metadata resolves to the same version as the release tag. |
-| Git tag | GitHub release tag | Stable releases use `vMAJOR.MINOR.PATCH`, for example `v1.0.0`. |
+| Template package metadata | `NetCoreApplicationTemplate.Template.csproj` | Package metadata resolves to the same version as the release tag. |
+| Git tag | GitHub release tag | Stable releases use `vMAJOR.MINOR.PATCH`. |
 | NuGet package | Published `.nupkg` metadata | Package version matches the Git tag without the leading `v`. |
 | Container image | Published image tags | Version tag matches the Git tag without the leading `v`; digest is recorded. |
 | Changelog | `CHANGELOG.md` | Latest heading matches the release version and date. |
 | Citation metadata | `CITATION.cff` and `.zenodo.json` | Metadata reflects the stable release and DOI/archive expectations. |
 | GitHub Release | Release title/body/assets | Release notes, attached assets, and links match the release tag. |
-| Documentation | README and DocFX pages | Install commands, badges, release links, and citation guidance match the published release. |
+| Documentation | README and DocFX pages | Install commands, badges, release links, package identity, and citation guidance match the published release. |
 
-## Changelog and release note process
+## 13. Changelog and Release Note Process
 
 Before creating a stable release:
 
@@ -244,23 +217,10 @@ Before creating a stable release:
 3. Group entries under headings such as `Added`, `Changed`, `Fixed`, and `Security`.
 4. Confirm the changelog includes user-facing package, container, documentation, metadata, and security-governance changes.
 5. Use the changelog section as the starting point for GitHub Release notes.
-6. Add links from the GitHub Release notes to the migration guide, production deployment checklist, package page, documentation site, and DOI/archive record when available.
+6. Add links from the GitHub Release notes to the production deployment checklist, package page, documentation site, and DOI/archive record when available.
 7. Do not describe unpublished artifacts as available until they have been validated after publication.
 
-## v1.0.0 blocker issue confirmation
-
-Before tagging `v1.0.0`, confirm all release-blocking issues tracked from completed parent issue #138 and final closure tracker #271 are closed, merged, or explicitly deferred with maintainer approval.
-
-Minimum confirmation:
-
-- Parent issue #138 has no unresolved v1.0.0 blockers.
-- Final closure tracker #271 and its linked release-hardening issues are closed or explicitly deferred.
-- Deferred items do not affect package correctness, publication safety, security posture, citation metadata, or consumer smoke-test behavior.
-- The final release PR references #138 and #271 and summarizes the remaining release risk, if any.
-
-## Maintainer review points for first public publication
-
-The first stable package and first stable container publication require explicit maintainer review before protected publish environments are approved.
+## 14. Maintainer Review Points
 
 Review before NuGet publication:
 

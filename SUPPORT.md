@@ -14,9 +14,9 @@ Use GitHub issues for:
 
 Use the private vulnerability reporting process described in [SECURITY.md](SECURITY.md) for suspected vulnerabilities.
 
-## Support Expectations After v1.0.0
+## Support Expectations
 
-After `v1.0.0`, support is provided on a best-effort basis by the repository maintainer.
+Support is provided on a best-effort basis by the repository maintainer for the current stable release line.
 
 Users can expect:
 
@@ -30,7 +30,7 @@ Users should not expect:
 
 - Guaranteed service-level agreements or response times.
 - Private consulting, production incident response, or environment-specific debugging.
-- Backports to every historical pre-1.0 release.
+- Backports to every historical release line.
 - Support for heavily modified downstream applications unless the issue reproduces from the template baseline.
 - Support for unsupported .NET SDK versions or package versions outside the documented release line.
 
@@ -38,9 +38,10 @@ Users should not expect:
 
 | Version line | Support expectation |
 |:---|:---|
-| `1.0.x` | Supported after `v1.0.0` for reproducible defects and security fixes. |
+| `2.0.x` | Current stable line. Supported for reproducible defects, security fixes, package identity corrections, and documentation fixes. |
+| `1.0.x` | Legacy stable line under the previous NuGet package identity. Best effort unless a release note states otherwise. |
 | Pre-1.0 releases | Best effort only. Consumers should upgrade to the current stable release when practical. |
-| Older 1.x releases after a newer minor release | Best effort unless a release note states otherwise. |
+| Older stable releases after a newer minor or major release | Best effort unless a release note states otherwise. |
 | Unreleased `main` branch | Development line only. Behavior may change before the next release. |
 
 ## Issue Triage

@@ -25,6 +25,8 @@
   items:
     - name: Project Structure
       href: project-structure.md
+    - name: Optional Application and Domain Layers
+      href: optional-application-domain-layers.md
     - name: Configuration
       href: configuration.md
     - name: Deployment Notes

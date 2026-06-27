@@ -17,9 +17,9 @@ This repository provides a working application baseline with common infrastructu
 ## Current Release
 
 <!-- BEGIN LATEST_RELEASE -->
-Current release: __[Release 2.0.1](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v2.0.1)__
+Current release: __[Release 2.1.0](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/tag/v2.1.0)__
 
-Tag: `v2.0.1`
+Tag: `v2.1.0`
 <!-- END LATEST_RELEASE -->
 
 ## Project Goals
@@ -161,7 +161,7 @@ The scaffolded consumer output intentionally excludes repository-maintainer cont
 Install the published template package:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate::2.0.1
+dotnet new install NetCoreApplicationTemplate::2.1.0
 ```
 
 ### Pack and Install Locally
@@ -175,7 +175,7 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the generated package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.0.1.nupkg
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.1.0.nupkg
 ```
 
 Generate a consumer project:
@@ -229,11 +229,10 @@ dotnet test --configuration Release
 
 The non-default scaffold preserves the template's core guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
 
-
 Update the installed template by installing a newer package version:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate::2.0.1
+dotnet new install NetCoreApplicationTemplate::2.1.0
 ```
 
 Uninstall the template package:
@@ -275,6 +274,7 @@ Documentation areas include:
   - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 - __Application Basics__
   - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
+  - [Optional Application and Domain Layers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/optional-application-domain-layers.html)
   - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
   - [Deployment Notes](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
   - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
@@ -291,6 +291,7 @@ Documentation areas include:
   - [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
 - __Authentication and Authorization__
   - [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+  - [Production Authentication Hardening](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication-hardening.html)
   - [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
 - [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
 - [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
@@ -423,12 +424,12 @@ If you use this repository, please cite it using the metadata in [`CITATION.cff`
 - Suggested plain-text citation:
 
 ```text
-Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.0.1. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.1.0. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
 ## Roadmap
 
-The project is a reusable .NET application template with a stable `2.0.1` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
+The project is a reusable .NET application template with a stable `2.1.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
 
 See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
 

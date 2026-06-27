@@ -147,7 +147,8 @@ public sealed partial class ApplicationDbContext(
                     cancellationToken)).ConfigureAwait(false);
         }
 
-        List<AuditEntry> auditEntries = OnBeforeSaveChanges();
+        List<AuditEntry> auditEntries = await OnBeforeSaveChangesAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         int result = await SaveChangesWithConcurrencyHandlingAsync(
             () => base.SaveChangesAsync(
@@ -278,6 +279,32 @@ public sealed partial class ApplicationDbContext(
 
     private List<AuditEntry> OnBeforeSaveChanges()
     {
+        List<AuditEntry> auditEntries = CreateAuditEntries();
+
+        foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
+        {
+            _auditStore.Append(this, auditEntry.ToAuditRecord());
+        }
+
+        return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
+    }
+
+    private async Task<List<AuditEntry>> OnBeforeSaveChangesAsync(CancellationToken cancellationToken)
+    {
+        List<AuditEntry> auditEntries = CreateAuditEntries();
+
+        foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
+        {
+            await _auditStore
+                .AppendAsync(this, auditEntry.ToAuditRecord(), cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
+    }
+
+    private List<AuditEntry> CreateAuditEntries()
+    {
         ChangeTracker.DetectChanges();
         var auditEntries = new List<AuditEntry>();
         foreach (EntityEntry entry in ChangeTracker.Entries())
@@ -337,14 +364,7 @@ public sealed partial class ApplicationDbContext(
             }
         }
 
-        // Save audit entities that have all the modifications
-        foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
-        {
-            _auditStore.Append(this, auditEntry.ToAuditRecord());
-        }
-
-        // keep a list of entries where the value of some properties are unknown at this step
-        return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
+        return auditEntries;
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(

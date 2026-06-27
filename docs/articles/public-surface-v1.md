@@ -1,22 +1,23 @@
-# Public Surface v1.0
+# Public Surface
 
-This article defines the public compatibility surface for the `v1.0.0` release of the .NET Core Application Template.
+This article defines the public compatibility surface for the current stable .NET Core Application Template release line.
 
 After `v1.0.0`, this document should be used with [ADR-0003](../adr/0003-record-release-surface-and-distribution-strategy.md), [Release Checklist](https://github.com/cdcavell/NetCoreApplicationTemplate/blob/main/RELEASE.md), and the [v1.0 Migration Guide](v1-migration-guide.md) to decide whether a future change is SemVer-major, SemVer-minor, SemVer-patch, or internal-only.
 
 ## Purpose
 
-The v1.0 public surface is the set of template behaviors, generated artifacts, configuration keys, routes, conventions, and distribution identifiers that consumers may reasonably depend on after the stable release.
+The public surface is the set of template behaviors, generated artifacts, configuration keys, routes, conventions, and distribution identifiers that consumers may reasonably depend on after a stable release.
 
 A change is breaking when it causes an application generated from the previous stable version to require code, configuration, deployment, or usage changes that were not clearly optional.
 
 ## Package and Template Identity
 
-The following identifiers are part of the v1.0 public surface.
+The following identifiers are part of the stable public surface.
 
 | Surface | Committed value |
 |:---|:---|
-| NuGet package ID | `CDCavell.NetCoreApplicationTemplate` |
+| Current NuGet package ID | `NetCoreApplicationTemplate` |
+| Previous NuGet package ID | `CDCavell.NetCoreApplicationTemplate` |
 | Template identity | `CDCavell.NetCoreApplicationTemplate.CSharp` |
 | Template group identity | `CDCavell.NetCoreApplicationTemplate` |
 | Template name | `.NET Core Application Template` |
@@ -24,11 +25,13 @@ The following identifiers are part of the v1.0 public surface.
 | Source replacement name | `ProjectTemplate` |
 | Preferred name directory | `true` |
 
-Changing, removing, or repurposing these values after `v1.0.0` is a breaking change unless the old value remains supported through an intentional compatibility path.
+The `2.0.0` release moved the public NuGet package ID to `NetCoreApplicationTemplate`. The internal template identity and group identity remain unchanged for template metadata continuity.
+
+Changing, removing, or repurposing these values after a stable release is a breaking change unless the old value remains supported through an intentional compatibility path.
 
 ## Template Symbols and Defaults
 
-The following template symbols are part of the v1.0 public surface.
+The following template symbols are part of the public surface.
 
 | Symbol | Type | Default | Supported values | Contract |
 |:---|:---|:---|:---|:---|
@@ -42,7 +45,7 @@ Adding a new optional symbol with a safe default is normally a minor change.
 
 ## Generated Output Structure
 
-The following generated structure is part of the v1.0 public surface.
+The following generated structure is part of the public surface.
 
 ```text
 /
@@ -81,7 +84,7 @@ Adding optional folders, examples, or additional projects without disrupting the
 
 ## Configuration Surface
 
-The following root configuration sections are part of the v1.0 public surface.
+The following root configuration sections are part of the public surface.
 
 |Section|Contract|
 |:---|:---|
@@ -90,7 +93,7 @@ The following root configuration sections are part of the v1.0 public surface.
 |`Serilog`|Defines default structured logging configuration.|
 |`ProjectTemplate`|Contains application-owned template configuration.|
 
-The following ProjectTemplate:* sections are part of the v1.0 public surface.
+The following ProjectTemplate:* sections are part of the public surface.
 
 |Section|Contract|
 |:---|:---|
@@ -102,7 +105,7 @@ The following ProjectTemplate:* sections are part of the v1.0 public surface.
 |`ProjectTemplate:Authentication`|Cookie authentication and external provider configuration.|
 |`ProjectTemplate:ClaimsTransformation`|Claim normalization and provider mapping behavior.|
 |`ProjectTemplate:Authorization`|Application role and permission claim conventions.|
-|`ProjectTemplate:DataAccess`|Data provider, connection string name, and auditing defaults.|
+|`ProjectTemplate:DataAccess`|Data provider, connection string name, auditing defaults, and audit storage mode.|
 |`ProjectTemplate:ApiVersioning`|API versioning defaults and supported readers.|
 
 Breaking changes include renaming or removing documented keys, changing value types, changing defaults in a way that materially changes runtime behavior, or moving settings to a different section without compatibility support.
@@ -111,11 +114,28 @@ Adding optional keys with safe defaults is normally a minor change.
 
 Correcting descriptions, examples, comments, or validation messages without behavior changes is normally a patch change.
 
+### Data Access and Audit Storage Defaults
+
+The `ProjectTemplate:DataAccess` section is part of the public configuration surface.
+
+The following defaults are part of the stable runtime contract when data access is enabled:
+
+| Setting | Default behavior |
+|:---|:---|
+| `Provider` | Uses `Sqlite` for local development. |
+| `ConnectionStringName` | Resolves `ApplicationDatabase` unless a template option or configuration override selects another connection string name. |
+| `Auditing:Enabled` | Enables audit record creation by default. |
+| `Auditing:StorageMode` | Uses `Local` by default. |
+
+Supported audit storage mode names are `Local`, `Outbox`, and `ExternalSink`. `Local` is the built-in implementation. `Outbox` and `ExternalSink` are extension modes that require a consuming application to register a custom `IApplicationAuditStore` implementation.
+
+Changing the default local audit behavior, removing the local audit store, or changing the meaning of an audit storage mode is a public-surface change. Adding a new optional storage mode with a safe default is normally a minor change.
+
 ### Security Header Defaults
 
-The `ProjectTemplate:SecurityHeaders` section is part of the v1.0 public configuration surface.
+The `ProjectTemplate:SecurityHeaders` section is part of the public configuration surface.
 
-The following defaults are part of the v1.0 runtime contract when security headers are enabled:
+The following defaults are part of the runtime contract when security headers are enabled:
 
 | Header | Default behavior |
 |:---|:---|
@@ -129,13 +149,13 @@ The following defaults are part of the v1.0 runtime contract when security heade
 | `Content-Security-Policy` | Emits the configured `ContentSecurityPolicy` value when `EnableContentSecurityPolicy` is `true`. |
 | `X-XSS-Protection` | Not emitted because it is obsolete. |
 
-Changing required default headers, changing documented default values, removing validation, or changing the meaning of documented security-header options is a breaking change after `v1.0.0` unless a compatibility path is provided.
+Changing required default headers, changing documented default values, removing validation, or changing the meaning of documented security-header options is a breaking change after a stable release unless a compatibility path is provided.
 
 Adding new optional security headers or new configuration options with safe defaults is normally a minor change.
 
 ## Route and Endpoint Conventions
 
-The following endpoint conventions are part of the v1.0 public surface.
+The following endpoint conventions are part of the public surface.
 
 |Endpoint or convention|Contract|
 |:---|:---|
@@ -147,13 +167,13 @@ The following endpoint conventions are part of the v1.0 public surface.
 |`/api/v{version}/<resource>`|Canonical API versioning route convention.|
 |`X-API-Version`|Supported secondary API version reader.|
 
-Changing or removing these conventions after `v1.0.0` is breaking unless the previous convention continues to work or a clear migration path is provided.
+Changing or removing these conventions after a stable release is breaking unless the previous convention continues to work or a clear migration path is provided.
 
 Adding new endpoints or optional route forms while preserving existing routes is normally a minor change.
 
 ## Middleware Ordering Contract
 
-The v1.0 middleware order is part of the public runtime contract because it affects proxy behavior, logging, error handling, security headers, routing, CORS, rate limiting, authentication, authorization, and endpoint mapping.
+The middleware order is part of the public runtime contract because it affects proxy behavior, logging, error handling, security headers, routing, CORS, rate limiting, authentication, authorization, and endpoint mapping.
 
 The committed order is:
 
@@ -218,35 +238,3 @@ The following changes are normally internal-only when they do not affect generat
 
 - Refactoring private implementation details.
 - Reorganizing repository-only documentation that is not included in generated output.
-- Updating CI implementation details without changing release outputs.
-- Improving tests without changing generated behavior.
-- Updating comments or formatting.
-- Rebuilding against compatible patch-level dependencies.
-- Improving maintainability without changing documented keys, routes, defaults, generated structure, or package identity.
-
-## Breaking Change Test
-
-When classification is ambiguous, ask:
-
-> Would an application generated from the previous stable version break, require reconfiguration, require a deployment change, or require consumers to learn a new documented usage pattern?
-
-If yes, the change is probably SemVer-major unless the old behavior remains supported.
-
-If the change only adds optional capability, it is probably SemVer-minor.
-
-If the change corrects behavior without changing the documented contract, it is probably SemVer-patch.
-
-If the change affects only repository internals and not generated or documented consumer behavior, it is internal-only.
-
-## Related Documents
-- [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md)
-- [v1.0 Migration Guide](v1-migration-guide.md)
-- [Template Packaging](template-packaging.md)
-- [Project Structure](project-structure.md)
-- [Configuration](configuration.md)
-- [Middleware Pipeline](middleware.md)
-- [Health Checks](health-checks.md)
-- [Error Handling](error-handling.md)
-- [Container Release Publishing](container-publish.md)
-- [Security Headers](security-headers.md)
-- [Coverage Report](../coverage/index.html)

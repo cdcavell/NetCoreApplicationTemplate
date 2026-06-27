@@ -28,7 +28,8 @@ Data access behavior is configured under `ProjectTemplate:DataAccess`:
     "Provider": "Sqlite",
     "ConnectionStringName": "ApplicationDatabase",
     "Auditing": {
-      "Enabled": true
+      "Enabled": true,
+      "StorageMode": "Local"
     }
   }
 }
@@ -40,6 +41,7 @@ The configuration values are:
 |`Provider`|Selects the data access mode. Supported values are `Sqlite`, `SqlServer`, `None`, and `Disabled`. The default local development provider is `Sqlite`.|
 |`ConnectionStringName`|Identifies which named connection string should be resolved from `ConnectionStrings` when data access is enabled. This value is not required when `Provider` is `None` or `Disabled`.|
 |`Auditing:Enabled`|Enables or disables EF Core audit record creation during `SaveChanges` and `SaveChangesAsync` when EF Core data access is enabled.|
+|`Auditing:StorageMode`|Selects the audit storage path. The built-in default is `Local`. `Outbox` and `ExternalSink` are extension modes for consuming applications that register a custom `IApplicationAuditStore`.|
 
 By default, the application uses:
 
@@ -47,6 +49,7 @@ By default, the application uses:
 ProjectTemplate:DataAccess:Provider = Sqlite
 ProjectTemplate:DataAccess:ConnectionStringName = ApplicationDatabase
 ProjectTemplate:DataAccess:Auditing:Enabled = true
+ProjectTemplate:DataAccess:Auditing:StorageMode = Local
 ```
 
 With the default configuration, the application resolves:
@@ -226,13 +229,14 @@ Audit records may include:
 - Application context
 - UTC timestamp
 
-Auditing is enabled by default:
+Auditing is enabled by default and uses local audit storage by default:
 
 ```json
 "ProjectTemplate": {
   "DataAccess": {
     "Auditing": {
-      "Enabled": true
+      "Enabled": true,
+      "StorageMode": "Local"
     }
   }
 }
@@ -249,11 +253,50 @@ To disable audit record creation:
 }
 ```
 
-When the application starts, the data access startup log records the configured provider, connection string name, and EF Core auditing status. If data access is disabled, the startup log reports that EF Core services were not registered.
+When the application starts, the data access startup log records the configured provider, connection string name, EF Core auditing status, and audit storage mode. If data access is disabled, the startup log reports that EF Core services were not registered.
 
-When auditing is enabled, audit records are written to the application database. The template does not include automatic pruning, retention, archival, legal hold, masking, export, or purge behavior for audit records.
+When auditing is enabled with `StorageMode` set to `Local`, audit records are written to the application database through the local EF Core audit record table. The template does not include automatic pruning, retention, archival, legal hold, masking, export, or purge behavior for audit records.
 
 Consuming applications are responsible for deciding how audit records are retained, archived, masked, purged, or moved to long-term storage. Before enabling auditing in production, review whether audited values may contain sensitive or regulated data.
+
+### Audit Storage Extension Path
+
+The template owns a small audit storage seam through `IApplicationAuditStore`.
+
+`LocalApplicationAuditStore` is the built-in default implementation. It appends audit records to `ApplicationDbContext.AuditRecords` and leaves persistence under the existing `ApplicationDbContext.SaveChanges` / `SaveChangesAsync` flow.
+
+Supported storage mode names are:
+
+|Storage mode|Behavior|
+|:--|:--|
+|`Local`|Built-in default. Audit records are stored in the application database through the local EF Core audit record table.|
+|`Outbox`|Extension mode for applications that want to capture audit records into an outbox table or durable handoff before later export. A custom `IApplicationAuditStore` registration is required.|
+|`ExternalSink`|Extension mode for applications that want to send or adapt audit records to an external sink, governance package, SIEM pipeline, or companion package such as AsiBackbone. A custom `IApplicationAuditStore` registration is required.|
+
+A custom audit store can be registered in dependency injection before or after the template's data-access registration. The last registered `IApplicationAuditStore` wins under normal ASP.NET Core dependency injection behavior.
+
+For non-local modes, provide a custom store intentionally:
+
+```csharp
+services.AddScoped<IApplicationAuditStore, MyApplicationAuditStore>();
+```
+
+Then configure the desired mode:
+
+```json
+"ProjectTemplate": {
+  "DataAccess": {
+    "Auditing": {
+      "Enabled": true,
+      "StorageMode": "ExternalSink"
+    }
+  }
+}
+```
+
+The local mode is the safest default because audit records are captured through the same EF Core save pipeline as the application data. Outbox and external sink modes create a scaling boundary, but the consuming application owns failure handling, retry behavior, delivery guarantees, sensitive-data minimization, retention, and whether audit writes should block the primary data save.
+
+Use an outbox-style store when audit durability should remain local first but export can happen later. Use an external sink adapter when another package or platform owns the downstream governance/audit workflow.
 
 ## Persisted String Canonicalization
 

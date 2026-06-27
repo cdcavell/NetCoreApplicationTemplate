@@ -22,7 +22,8 @@ internal sealed partial class DataAccessStartupLogger(
             logger,
             options.Value.Provider,
             options.Value.ConnectionStringName,
-            options.Value.Auditing.Enabled ? "enabled" : "disabled");
+            options.Value.Auditing.Enabled ? "enabled" : "disabled",
+            options.Value.Auditing.StorageMode);
 
         return Task.CompletedTask;
     }
@@ -35,12 +36,13 @@ internal sealed partial class DataAccessStartupLogger(
     [LoggerMessage(
         EventId = 19100,
         Level = LogLevel.Information,
-        Message = "Data access configured. Provider: {Provider}; ConnectionStringName: {ConnectionStringName}; EF Core auditing: {AuditingStatus}.")]
+        Message = "Data access configured. Provider: {Provider}; ConnectionStringName: {ConnectionStringName}; EF Core auditing: {AuditingStatus}; AuditStorageMode: {AuditStorageMode}.")]
     private static partial void LogDataAccessConfiguration(
         ILogger logger,
         string provider,
         string connectionStringName,
-        string auditingStatus);
+        string auditingStatus,
+        string auditStorageMode);
 
     [LoggerMessage(
         EventId = 19101,

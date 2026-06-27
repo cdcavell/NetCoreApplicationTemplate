@@ -15,6 +15,8 @@ This gives applications a working local authentication baseline while keeping ex
 
 To enable an external provider, keep application authentication enabled and set only the required provider configuration to enabled. For example, OIDC requires `ProjectTemplate:Authentication:Providers:OpenIdConnect:Enabled` to be set to `true` along with valid authority, client ID, and client secret values.
 
+Before enabling any real provider in production, review the [Production Authentication Hardening Checklist](authentication-hardening.md). Generated provider settings are starter configuration and must be bound to the consuming application's production URLs, provider registrations, claims contract, token policy, secret-management approach, session behavior, and MFA expectations.
+
 ### OpenID Connect
 
 The application includes standards-based OpenID Connect authentication support.

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.Entities;
 using ProjectTemplate.Infrastructure.Data.Options;
 
@@ -15,13 +16,17 @@ public sealed partial class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     ILogger<ApplicationDbContext> logger,
     ICurrentActorAccessor currentActorAccessor,
-    IOptions<DataAccessOptions> dataAccessOptions
+    IOptions<DataAccessOptions> dataAccessOptions,
+    IApplicationAuditStore? auditStore = null
 )
     : DbContext(options)
 {
     private readonly ILogger<ApplicationDbContext> _logger = logger;
     private readonly ICurrentActorAccessor _currentActorAccessor = currentActorAccessor;
     private readonly bool _auditOptions = dataAccessOptions.Value.Auditing.Enabled;
+    private readonly IApplicationAuditStore _auditStore = ResolveAuditStore(
+        dataAccessOptions.Value.Auditing,
+        auditStore);
 
     /// <summary>
     /// Gets the audit records for the application.
@@ -270,6 +275,7 @@ public sealed partial class ApplicationDbContext(
     {
         return propertyName.EndsWith("Utc", StringComparison.Ordinal);
     }
+
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         ChangeTracker.DetectChanges();
@@ -334,7 +340,7 @@ public sealed partial class ApplicationDbContext(
         // Save audit entities that have all the modifications
         foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
         {
-            AuditRecords.Add(auditEntry.ToAuditRecord());
+            _auditStore.Append(this, auditEntry.ToAuditRecord());
         }
 
         // keep a list of entries where the value of some properties are unknown at this step
@@ -368,7 +374,7 @@ public sealed partial class ApplicationDbContext(
             }
 
             // Save the audit entry.
-            AuditRecords.Add(auditEntry.ToAuditRecord());
+            _auditStore.Append(this, auditEntry.ToAuditRecord());
 
         }
 
@@ -404,8 +410,8 @@ public sealed partial class ApplicationDbContext(
             }
 
             // Save the audit entry.
-            await AuditRecords
-                .AddAsync(auditEntry.ToAuditRecord(), cancellationToken)
+            await _auditStore
+                .AppendAsync(this, auditEntry.ToAuditRecord(), cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -496,5 +502,25 @@ public sealed partial class ApplicationDbContext(
             LogOptimisticConcurrencyConflict(_logger, exception.Entries.Count, exception);
             throw;
         }
+    }
+
+    private static IApplicationAuditStore ResolveAuditStore(
+        DataAuditingOptions auditingOptions,
+        IApplicationAuditStore? auditStore)
+    {
+        ArgumentNullException.ThrowIfNull(auditingOptions);
+
+        if (auditStore is not null)
+        {
+            return auditStore;
+        }
+
+        if (!auditingOptions.Enabled || AuditStorageModes.IsLocal(auditingOptions.StorageMode))
+        {
+            return new LocalApplicationAuditStore();
+        }
+
+        throw new InvalidOperationException(
+            $"Application audit storage mode '{AuditStorageModes.Normalize(auditingOptions.StorageMode)}' requires an {nameof(IApplicationAuditStore)} registration.");
     }
 }

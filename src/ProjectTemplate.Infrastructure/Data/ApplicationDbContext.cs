@@ -59,7 +59,7 @@ public sealed partial class ApplicationDbContext(
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         ConfigureDataEntityDefaults(modelBuilder);
         ConfigureTimestampDefaults(modelBuilder);
 
@@ -71,7 +71,7 @@ public sealed partial class ApplicationDbContext(
     {
         ArgumentNullException.ThrowIfNull(optionsBuilder);
 
-        optionsBuilder
+        _ = optionsBuilder
             .LogTo(message => LogEfCoreMessage(_logger, message), LogLevel.Trace)
             .EnableDetailedErrors();
 
@@ -449,7 +449,7 @@ public sealed partial class ApplicationDbContext(
                 continue;
             }
 
-            modelBuilder.Entity(entityType.ClrType)
+            _ = modelBuilder.Entity(entityType.ClrType)
                 .Property<string>(nameof(DataEntity.ConcurrencyStamp))
                 .HasMaxLength(64)
                 .IsRequired()

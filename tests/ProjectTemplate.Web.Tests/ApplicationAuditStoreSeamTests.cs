@@ -31,7 +31,7 @@ public sealed class ApplicationAuditStoreSeamTests
             CreatedOnUtc = new DateTime(2026, 6, 27, 8, 0, 0, DateTimeKind.Utc)
         };
 
-        await context.ExternalLoginAccounts.AddAsync(account, TestContext.Current.CancellationToken);
+        _ = await context.ExternalLoginAccounts.AddAsync(account, TestContext.Current.CancellationToken);
         _ = await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         AuditRecord capturedRecord = Assert.Single(auditStore.Records);
@@ -75,9 +75,9 @@ public sealed class ApplicationAuditStoreSeamTests
 
     private sealed class CapturingApplicationAuditStore : IApplicationAuditStore
     {
-        private readonly List<AuditRecord> records = [];
+        private readonly List<AuditRecord> _records = [];
 
-        public IReadOnlyList<AuditRecord> Records => records;
+        public IReadOnlyList<AuditRecord> Records => _records;
 
         public int SyncAppendCount { get; private set; }
 
@@ -91,7 +91,7 @@ public sealed class ApplicationAuditStoreSeamTests
             ArgumentNullException.ThrowIfNull(auditRecord);
 
             SyncAppendCount++;
-            records.Add(auditRecord);
+            _records.Add(auditRecord);
         }
 
         public ValueTask AppendAsync(
@@ -104,7 +104,7 @@ public sealed class ApplicationAuditStoreSeamTests
             cancellationToken.ThrowIfCancellationRequested();
 
             AsyncAppendCount++;
-            records.Add(auditRecord);
+            _records.Add(auditRecord);
 
             return ValueTask.CompletedTask;
         }

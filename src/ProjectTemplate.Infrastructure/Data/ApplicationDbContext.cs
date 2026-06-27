@@ -85,6 +85,11 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
+        if (!ChangeTracker.HasChanges())
+        {
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
         ApplyPersistedStringCanonicalization();
         ApplyLookupStringNormalization();
         ApplyTimestampNormalization();
@@ -117,6 +122,13 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
+        if (!ChangeTracker.HasChanges())
+        {
+            return await base.SaveChangesAsync(
+                acceptAllChangesOnSuccess,
+                cancellationToken).ConfigureAwait(false);
+        }
+
         ApplyPersistedStringCanonicalization();
         ApplyLookupStringNormalization();
         ApplyTimestampNormalization();

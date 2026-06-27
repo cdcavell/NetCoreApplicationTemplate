@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectTemplate.Infrastructure.Data;
+using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.Extensions;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 
@@ -33,6 +34,9 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         ICurrentActorAccessor actorAccessor = scope.ServiceProvider
             .GetRequiredService<ICurrentActorAccessor>();
 
+        IApplicationAuditStore auditStore = scope.ServiceProvider
+            .GetRequiredService<IApplicationAuditStore>();
+
         using ApplicationDbContext context = scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
 
@@ -42,6 +46,7 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         using ApplicationDbContext factoryContext = dbContextFactory.CreateDbContext();
 
         Assert.Equal(SystemCurrentActorAccessor.ActorName, actorAccessor.CurrentActor);
+        Assert.IsType<LocalApplicationAuditStore>(auditStore);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", context.Database.ProviderName);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", factoryContext.Database.ProviderName);
     }
@@ -65,6 +70,7 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         using ServiceProvider serviceProvider = services.BuildServiceProvider();
 
         Assert.Null(serviceProvider.GetService<ICurrentActorAccessor>());
+        Assert.Null(serviceProvider.GetService<IApplicationAuditStore>());
         Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
         Assert.Null(serviceProvider.GetService<IDbContextFactory<ApplicationDbContext>>());
         Assert.Null(serviceProvider.GetService<IExternalLoginAccountResolver>());

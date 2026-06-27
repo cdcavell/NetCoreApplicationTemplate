@@ -5,7 +5,7 @@ namespace ProjectTemplate.Web.Extensions;
 
 /// <summary>
 /// Provides extension methods to configure the application's middleware pipeline
-/// with a predefined ordering suitable for this template.
+/// with a predefined, order-sensitive sequence suitable for this template.
 /// </summary>
 public static class PipelineExtensions
 {
@@ -19,6 +19,9 @@ public static class PipelineExtensions
     /// <returns>The same <see cref="WebApplication"/> instance for chaining.</returns>
     public static WebApplication UseApplicationPipeline(this WebApplication app)
     {
+        // Keep this sequence aligned with ADR-0002 and the middleware documentation.
+        // Move order-sensitive middleware only after reviewing the documented invariants.
+
         // 1. Proxy/load balancer correction must happen early.
         app.UseApplicationForwardedHeaders();
 
@@ -58,4 +61,3 @@ public static class PipelineExtensions
         return app;
     }
 }
-

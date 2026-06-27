@@ -6,7 +6,7 @@ namespace ProjectTemplate.Infrastructure.Data.Auditing;
 /// Defines the template-owned storage seam for application audit records.
 /// </summary>
 /// <remarks>
-/// The default implementation stores audit records locally through <see cref="ApplicationDbContext" />.
+/// The default implementation stores audit records locally through <see cref="Data.ApplicationDbContext" />.
 /// Consuming applications may replace this contract with an outbox writer, external sink, or companion governance/audit adapter.
 /// </remarks>
 public interface IApplicationAuditStore

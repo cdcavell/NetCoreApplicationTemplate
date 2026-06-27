@@ -4,6 +4,31 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.1.0 - 2026-06-27
+
+### Added
+
+* Added optional application and domain layer guidance for consumers who outgrow the default `Web` / `Infrastructure` split.
+* Added production authentication hardening guidance covering provider configuration, HTTPS/proxy behavior, redirect and callback URLs, cookie security, claims translation, token handling, session behavior, and provider smoke testing.
+* Added middleware ordering rationale and documented order-sensitive invariants for the centralized application pipeline.
+* Added a template-owned `IApplicationAuditStore` seam for application audit records.
+* Added `ProjectTemplate:DataAccess:Auditing:StorageMode` with `Local` as the built-in default and `Outbox` / `ExternalSink` as explicit extension-mode names.
+* Added focused tests for default local audit store registration, audit storage mode configuration, custom audit store behavior, and sync no-op save behavior.
+
+### Changed
+
+* Routed synchronous and asynchronous audit record creation through the audit store seam while preserving local EF Core audit storage by default.
+* Short-circuited `ApplicationDbContext.SaveChanges` and `SaveChangesAsync` when the EF Core change tracker has no pending changes.
+* Refreshed configuration, data-access, public-surface, and example appsettings documentation to align with the audit storage configuration shape.
+* Updated article index and documentation navigation coverage for newer guidance pages.
+* Reformatted documentation image assets for consistent repository and documentation display.
+
+### Notes
+
+* This is a minor release because it adds optional extension points and documentation while preserving the stable `2.x` package identity, template short name, template options, and default scaffold behavior.
+* Local audit storage remains the default. `Outbox` and `ExternalSink` modes require a consuming application to register a custom `IApplicationAuditStore` implementation.
+* Existing consumers do not need to change configuration unless they intentionally adopt a non-local audit storage mode.
+
 ## 2.0.1 - 2026-06-26
 
 ### Changed

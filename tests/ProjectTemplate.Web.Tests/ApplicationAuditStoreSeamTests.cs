@@ -36,6 +36,8 @@ public sealed class ApplicationAuditStoreSeamTests
 
         AuditRecord capturedRecord = Assert.Single(auditStore.Records);
 
+        Assert.Equal(1, auditStore.AsyncAppendCount);
+        Assert.Equal(0, auditStore.SyncAppendCount);
         Assert.Equal("ExternalLoginAccounts", capturedRecord.Entity);
         Assert.Equal(EntityState.Added.ToString(), capturedRecord.State);
         Assert.Equal("AuditSeamActor", capturedRecord.ModifiedBy);
@@ -77,6 +79,10 @@ public sealed class ApplicationAuditStoreSeamTests
 
         public IReadOnlyList<AuditRecord> Records => records;
 
+        public int SyncAppendCount { get; private set; }
+
+        public int AsyncAppendCount { get; private set; }
+
         public void Append(
             ApplicationDbContext dbContext,
             AuditRecord auditRecord)
@@ -84,6 +90,7 @@ public sealed class ApplicationAuditStoreSeamTests
             ArgumentNullException.ThrowIfNull(dbContext);
             ArgumentNullException.ThrowIfNull(auditRecord);
 
+            SyncAppendCount++;
             records.Add(auditRecord);
         }
 
@@ -96,6 +103,7 @@ public sealed class ApplicationAuditStoreSeamTests
             ArgumentNullException.ThrowIfNull(auditRecord);
             cancellationToken.ThrowIfCancellationRequested();
 
+            AsyncAppendCount++;
             records.Add(auditRecord);
 
             return ValueTask.CompletedTask;

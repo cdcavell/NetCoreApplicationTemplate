@@ -105,6 +105,7 @@ $env:AllowedHosts = "example.com"
 $env:ConnectionStrings__ApplicationSqlServer = "Server=tcp:sql.example.com,1433;Database=Application;Encrypt=True;TrustServerCertificate=False;"
 $env:ProjectTemplate__DataAccess__Provider = "SqlServer"
 $env:ProjectTemplate__DataAccess__ConnectionStringName = "ApplicationSqlServer"
+$env:ProjectTemplate__DataAccess__Auditing__StorageMode = "Local"
 $env:ProjectTemplate__SecurityHeaders__EnableContentSecurityPolicy = "true"
 $env:ProjectTemplate__RateLimiting__GlobalFixedWindow__PermitLimit = "120"
 ```
@@ -114,6 +115,7 @@ For Linux shells or container environments, the same keys are usually set withou
 ```bash
 export ASPNETCORE_ENVIRONMENT="Production"
 export ProjectTemplate__DataAccess__Provider="SqlServer"
+export ProjectTemplate__DataAccess__Auditing__StorageMode="Local"
 export ProjectTemplate__RateLimiting__GlobalFixedWindow__PermitLimit="120"
 ```
 
@@ -157,7 +159,11 @@ SQLite development example:
   "ProjectTemplate": {
     "DataAccess": {
       "Provider": "Sqlite",
-      "ConnectionStringName": "ApplicationDatabase"
+      "ConnectionStringName": "ApplicationDatabase",
+      "Auditing": {
+        "Enabled": true,
+        "StorageMode": "Local"
+      }
     }
   }
 }
@@ -173,13 +179,19 @@ SQL Server production-style example:
   "ProjectTemplate": {
     "DataAccess": {
       "Provider": "SqlServer",
-      "ConnectionStringName": "ApplicationSqlServer"
+      "ConnectionStringName": "ApplicationSqlServer",
+      "Auditing": {
+        "Enabled": true,
+        "StorageMode": "Local"
+      }
     }
   }
 }
 ```
 
 In production, the actual `ApplicationSqlServer` connection string should come from the environment or secret store.
+
+`ProjectTemplate:DataAccess:Auditing:StorageMode` defaults to `Local`. `Outbox` and `ExternalSink` are supported extension-mode names, but they require a custom `IApplicationAuditStore` registration supplied by the consuming application.
 
 ## Configuration Validation
 
@@ -208,6 +220,7 @@ Before production release, review:
 [ ] AllowedHosts matches the public host names.
 [ ] Forwarded header settings match the proxy or load balancer topology.
 [ ] Production connection strings come from environment or secret storage.
+[ ] Data access provider, audit storage mode, and audit retention/export expectations are documented.
 [ ] External authentication provider secrets are not committed.
 [ ] Content Security Policy values are tested against deployed assets and auth flows.
 [ ] Rate limit values are tuned for expected traffic.

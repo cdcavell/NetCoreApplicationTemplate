@@ -530,17 +530,11 @@ public sealed partial class ApplicationDbContext(
     {
         ArgumentNullException.ThrowIfNull(auditingOptions);
 
-        if (auditStore is not null)
-        {
-            return auditStore;
-        }
-
-        if (!auditingOptions.Enabled || AuditStorageModes.IsLocal(auditingOptions.StorageMode))
-        {
-            return new LocalApplicationAuditStore();
-        }
-
-        throw new InvalidOperationException(
+        return auditStore is not null
+            ? auditStore
+            : !auditingOptions.Enabled || AuditStorageModes.IsLocal(auditingOptions.StorageMode)
+            ? (IApplicationAuditStore)new LocalApplicationAuditStore()
+            : throw new InvalidOperationException(
             $"Application audit storage mode '{AuditStorageModes.Normalize(auditingOptions.StorageMode)}' requires an {nameof(IApplicationAuditStore)} registration.");
     }
 }

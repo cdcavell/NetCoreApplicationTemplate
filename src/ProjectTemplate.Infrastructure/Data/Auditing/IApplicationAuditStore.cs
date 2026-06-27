@@ -1,4 +1,3 @@
-using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Entities;
 
 namespace ProjectTemplate.Infrastructure.Data.Auditing;

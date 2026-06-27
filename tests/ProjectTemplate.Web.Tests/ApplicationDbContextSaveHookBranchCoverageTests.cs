@@ -117,6 +117,36 @@ public sealed class ApplicationDbContextSaveHookBranchCoverageTests
     }
 
     [Fact]
+    public async Task SaveChanges_UnchangedEntity_DoesNotCreateAuditRecordOrChangeStamp()
+    {
+        await using SqliteConnection connection = await CreateOpenConnectionAsync();
+
+        Guid accountId = await SeedExternalLoginAccountAsync(
+            connection,
+            providerName: "Microsoft",
+            providerUserId: "unchanged-sync-user",
+            displayName: "Unchanged Sync User",
+            email: "unchanged.sync@example.com");
+
+        await using ApplicationDbContext context = CreateContext(connection, auditingEnabled: true);
+
+        ExternalLoginAccount account = await context.ExternalLoginAccounts
+            .SingleAsync(item => item.Id == accountId, TestContext.Current.CancellationToken);
+
+        string originalStamp = account.ConcurrencyStamp;
+
+        int result = context.SaveChanges();
+
+        Assert.Equal(0, result);
+        Assert.Equal(originalStamp, account.ConcurrencyStamp);
+
+        int auditRecordCount = await context.AuditRecords
+            .CountAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(0, auditRecordCount);
+    }
+
+    [Fact]
     public async Task SaveChangesAsync_UnchangedEntity_DoesNotCreateAuditRecordOrChangeStamp()
     {
         await using SqliteConnection connection = await CreateOpenConnectionAsync();

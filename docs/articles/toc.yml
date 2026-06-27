@@ -61,6 +61,8 @@
   items:
     - name: Authentication
       href: authentication.md
+    - name: Production Authentication Hardening
+      href: authentication-hardening.md
     - name: Authorization
       href: authorization.md
 

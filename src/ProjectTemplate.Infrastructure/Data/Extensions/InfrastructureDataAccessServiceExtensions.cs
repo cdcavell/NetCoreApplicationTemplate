@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;
 
@@ -30,6 +31,8 @@ public static class InfrastructureDataAccessServiceExtensions
             .Validate(options => DataAccessOptions.IsDisabledProvider(options.Provider)
                 || !string.IsNullOrWhiteSpace(options.ConnectionStringName),
                 "ProjectTemplate:DataAccess:ConnectionStringName must not be empty when data access is enabled.")
+            .Validate(options => AuditStorageModes.IsSupported(options.Auditing.StorageMode),
+                "ProjectTemplate:DataAccess:Auditing:StorageMode must be Local, Outbox, or ExternalSink.")
             .ValidateOnStart();
 
         DataAccessRegistration registration = ResolveDataAccessRegistration(configuration);
@@ -40,6 +43,11 @@ public static class InfrastructureDataAccessServiceExtensions
         }
 
         services.TryAddScoped<ICurrentActorAccessor, SystemCurrentActorAccessor>();
+
+        if (AuditStorageModes.IsLocal(registration.AuditStorageMode))
+        {
+            services.TryAddScoped<IApplicationAuditStore, LocalApplicationAuditStore>();
+        }
 
         services.AddDbContext<ApplicationDbContext>(options => ConfigureProvider(
                 options,
@@ -67,6 +75,7 @@ public static class InfrastructureDataAccessServiceExtensions
 
         string provider = dataAccessOptions.Provider?.Trim() ?? string.Empty;
         string connectionStringName = dataAccessOptions.ConnectionStringName?.Trim() ?? string.Empty;
+        string auditStorageMode = AuditStorageModes.Normalize(dataAccessOptions.Auditing.StorageMode);
 
         if (string.IsNullOrWhiteSpace(provider))
         {
@@ -74,9 +83,15 @@ public static class InfrastructureDataAccessServiceExtensions
                 "Application data access provider was not configured.");
         }
 
+        if (!AuditStorageModes.IsSupported(auditStorageMode))
+        {
+            throw new InvalidOperationException(
+                "Application audit storage mode was not configured with a supported value.");
+        }
+
         if (DataAccessOptions.IsDisabledProvider(provider))
         {
-            return DataAccessRegistration.Disabled(provider);
+            return DataAccessRegistration.Disabled(provider, auditStorageMode);
         }
 
         if (string.IsNullOrWhiteSpace(connectionStringName))
@@ -91,7 +106,8 @@ public static class InfrastructureDataAccessServiceExtensions
 
         return DataAccessRegistration.Enabled(
             provider,
-            connectionString);
+            connectionString,
+            auditStorageMode);
     }
 
     private static void ConfigureProvider(
@@ -118,19 +134,22 @@ public static class InfrastructureDataAccessServiceExtensions
     private readonly record struct DataAccessRegistration(
         string Provider,
         string ConnectionString,
+        string AuditStorageMode,
         bool IsDisabled)
     {
         public static DataAccessRegistration Enabled(
             string provider,
-            string connectionString)
+            string connectionString,
+            string auditStorageMode)
         {
-            return new DataAccessRegistration(provider, connectionString, false);
+            return new DataAccessRegistration(provider, connectionString, auditStorageMode, false);
         }
 
         public static DataAccessRegistration Disabled(
-            string provider)
+            string provider,
+            string auditStorageMode)
         {
-            return new DataAccessRegistration(provider, string.Empty, true);
+            return new DataAccessRegistration(provider, string.Empty, auditStorageMode, true);
         }
     }
 }

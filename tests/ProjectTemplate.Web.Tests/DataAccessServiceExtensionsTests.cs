@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data;
+using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;
 using ProjectTemplate.Web.Extensions;
@@ -309,6 +310,78 @@ public sealed class DataAccessServiceExtensionsTests
             .Value;
 
         Assert.True(options.Auditing.Enabled);
+    }
+
+    /// <summary>
+    /// Verifies that local audit storage is the default storage mode.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_AuditStorageModeNotConfigured_DefaultsToLocal()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:"
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.Equal(AuditStorageModes.Local, options.Auditing.StorageMode);
+        Assert.IsType<LocalApplicationAuditStore>(serviceProvider.GetRequiredService<IApplicationAuditStore>());
+    }
+
+    /// <summary>
+    /// Verifies that non-local audit storage modes bind for consuming applications that provide a custom store.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_AuditStorageModeConfigured_BindsAuditOptions()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:",
+                ["ProjectTemplate:DataAccess:Auditing:StorageMode"] = AuditStorageModes.ExternalSink
+            });
+
+        using ServiceProvider serviceProvider = CreateServiceProvider(configuration);
+
+        DataAccessOptions options = serviceProvider
+            .GetRequiredService<IOptions<DataAccessOptions>>()
+            .Value;
+
+        Assert.Equal(AuditStorageModes.ExternalSink, options.Auditing.StorageMode);
+        Assert.Null(serviceProvider.GetService<IApplicationAuditStore>());
+    }
+
+    /// <summary>
+    /// Verifies that unsupported audit storage modes fail fast.
+    /// </summary>
+    [Fact]
+    public void AddApplicationDataAccess_UnsupportedAuditStorageMode_ThrowsInvalidOperationException()
+    {
+        IConfiguration configuration = CreateConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ApplicationDatabase"] = "Data Source=:memory:",
+                ["ProjectTemplate:DataAccess:Provider"] = "Sqlite",
+                ["ProjectTemplate:DataAccess:ConnectionStringName"] = "ApplicationDatabase",
+                ["ProjectTemplate:DataAccess:Auditing:StorageMode"] = "Unknown"
+            });
+
+        ServiceCollection services = new();
+        services.AddLogging();
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+            () => services.AddApplicationDataAccess(configuration));
+
+        Assert.Contains(
+            "audit storage mode",
+            exception.Message,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static ServiceProvider CreateServiceProvider(IConfiguration configuration)

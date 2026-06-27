@@ -229,7 +229,6 @@ dotnet test --configuration Release
 
 The non-default scaffold preserves the template's core guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
 
-
 Update the installed template by installing a newer package version:
 
 ```powershell
@@ -275,6 +274,7 @@ Documentation areas include:
   - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 - __Application Basics__
   - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
+  - [Optional Application and Domain Layers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/optional-application-domain-layers.html)
   - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
   - [Deployment Notes](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
   - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
@@ -291,6 +291,7 @@ Documentation areas include:
   - [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
 - __Authentication and Authorization__
   - [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+  - [Production Authentication Hardening](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication-hardening.html)
   - [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
 - [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
 - [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
@@ -358,3 +359,84 @@ Pull requests targeting `main` require passing CI and Code Owner review for owne
 ├── README.md
 └── SECURITY.md
 ```
+
+## Local Documentation Build
+
+Restore local tools:
+
+```powershell
+dotnet tool restore
+```
+
+Build the DocFX site:
+
+```powershell
+dotnet tool run docfx -- docs/docfx.json
+```
+
+Serve the generated site locally:
+
+```powershell
+dotnet tool run docfx -- serve docs/_site
+```
+
+## GitHub Actions
+
+The repository currently includes workflows for:
+
+- Restoring dependencies.
+- Building the solution in Release configuration.
+- Verifying formatting.
+- Running tests.
+- Generating test result and coverage artifacts.
+- Enforcing a 75% minimum line coverage threshold in CI.
+- Failing CI when coverage regresses below the threshold.
+- Packing the template package.
+- Installing the generated `.nupkg` into a clean SDK environment.
+- Scaffolding a consumer project with `dotnet new netcoreapp-template`.
+- Validating expected consumer files and excluded maintainer files.
+- Building and testing scaffolded output on Linux, Windows, and macOS.
+- Running CodeQL analysis.
+- Building and publishing DocFX documentation to GitHub Pages.
+
+Template smoke testing runs on pull requests, supported branch pushes, manual workflow dispatch, and release-style version tags matching `v*.*.*`.
+
+See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html), [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html), and [ADR-0003](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for details.
+
+## Versioning
+
+This project follows Semantic Versioning using the format:
+
+```text
+MAJOR.MINOR.PATCH
+```
+
+Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
+
+See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
+
+## Citation
+
+If you use this repository, please cite it using the metadata in [`CITATION.cff`](./CITATION.cff) or one of the following: 
+
+- Author ORCID: [0009-0002-2113-0245](https://orcid.org/0009-0002-2113-0245)
+- Zenodo Concept DOI: [10.5281/zenodo.20373042](https://doi.org/10.5281/zenodo.20373042)
+- Suggested plain-text citation:
+
+```text
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.1.0. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+```
+
+## Roadmap
+
+The project is a reusable .NET application template with a stable `2.1.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
+
+See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
+
+## License
+
+This project is licensed under the MIT License.
+
+See [LICENSE.txt](LICENSE.txt) for full license details.
+
+Third-party assets, libraries, templates, icons, fonts, images, or other externally sourced materials used by this project are documented in [ASSETS-LICENSES.md](ASSETS-LICENSES.md).

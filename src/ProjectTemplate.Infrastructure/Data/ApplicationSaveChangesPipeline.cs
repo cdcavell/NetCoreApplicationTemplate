@@ -45,19 +45,21 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
 
         _pendingAuditEntries = [];
 
-        if (!dbContext.ChangeTracker.HasChanges())
+        IReadOnlyList<EntityEntry> entries = GetSavePipelineEntries(dbContext);
+
+        if (entries.Count == 0)
         {
             return false;
         }
 
-        ApplyPersistedStringCanonicalization(dbContext);
-        ApplyLookupStringNormalization(dbContext);
-        ApplyTimestampNormalization(dbContext);
-        ApplyConcurrencyStamps(dbContext);
+        ApplyPersistedStringCanonicalization(entries);
+        ApplyLookupStringNormalization(entries);
+        ApplyTimestampNormalization(entries);
+        ApplyConcurrencyStamps(entries);
 
         if (_auditOptions)
         {
-            _pendingAuditEntries = OnBeforeSaveChanges(dbContext);
+            _pendingAuditEntries = OnBeforeSaveChanges(dbContext, entries);
         }
 
         return true;
@@ -73,19 +75,24 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
 
         _pendingAuditEntries = [];
 
-        if (!dbContext.ChangeTracker.HasChanges())
+        IReadOnlyList<EntityEntry> entries = GetSavePipelineEntries(dbContext);
+
+        if (entries.Count == 0)
         {
             return false;
         }
 
-        ApplyPersistedStringCanonicalization(dbContext);
-        ApplyLookupStringNormalization(dbContext);
-        ApplyTimestampNormalization(dbContext);
-        ApplyConcurrencyStamps(dbContext);
+        ApplyPersistedStringCanonicalization(entries);
+        ApplyLookupStringNormalization(entries);
+        ApplyTimestampNormalization(entries);
+        ApplyConcurrencyStamps(entries);
 
         if (_auditOptions)
         {
-            _pendingAuditEntries = await OnBeforeSaveChangesAsync(dbContext, cancellationToken)
+            _pendingAuditEntries = await OnBeforeSaveChangesAsync(
+                    dbContext,
+                    entries,
+                    cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -139,11 +146,18 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         return true;
     }
 
-    private static void ApplyPersistedStringCanonicalization(ApplicationDbContext dbContext)
+    private static IReadOnlyList<EntityEntry> GetSavePipelineEntries(ApplicationDbContext dbContext)
     {
         dbContext.ChangeTracker.DetectChanges();
 
-        foreach (EntityEntry entry in dbContext.ChangeTracker.Entries())
+        return [.. dbContext.ChangeTracker
+            .Entries()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)];
+    }
+
+    private static void ApplyPersistedStringCanonicalization(IEnumerable<EntityEntry> entries)
+    {
+        foreach (EntityEntry entry in entries)
         {
             if (entry.Entity is AuditRecord ||
                 entry.State is not (EntityState.Added or EntityState.Modified))
@@ -180,44 +194,51 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         }
     }
 
-    private static void ApplyLookupStringNormalization(ApplicationDbContext dbContext)
+    private static void ApplyLookupStringNormalization(IEnumerable<EntityEntry> entries)
     {
-        dbContext.ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry<ExternalLoginAccount> entry in dbContext.ChangeTracker.Entries<ExternalLoginAccount>())
+        foreach (EntityEntry entry in entries)
         {
-            if (entry.State is not (EntityState.Added or EntityState.Modified))
+            if (entry.Entity is not ExternalLoginAccount account ||
+                entry.State is not (EntityState.Added or EntityState.Modified))
             {
                 continue;
             }
 
-            ExternalLoginAccount account = entry.Entity;
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.ProviderName),
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName));
 
-            account.ProviderName =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName);
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.NormalizedProviderName),
+                PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName));
 
-            account.NormalizedProviderName =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName);
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.ProviderUserId),
+                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId));
 
-            account.ProviderUserId =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId);
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.DisplayName),
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName));
 
-            account.DisplayName =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName);
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.Email),
+                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email));
 
-            account.Email =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email);
-
-            account.NormalizedEmail =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email);
+            SetPropertyCurrentValue(
+                entry,
+                nameof(ExternalLoginAccount.NormalizedEmail),
+                PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email));
         }
     }
 
-    private static void ApplyTimestampNormalization(ApplicationDbContext dbContext)
+    private static void ApplyTimestampNormalization(IEnumerable<EntityEntry> entries)
     {
-        dbContext.ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry entry in dbContext.ChangeTracker.Entries())
+        foreach (EntityEntry entry in entries)
         {
             if (entry.State is not (EntityState.Added or EntityState.Modified))
             {
@@ -250,17 +271,22 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         }
     }
 
-    private static void ApplyConcurrencyStamps(ApplicationDbContext dbContext)
+    private static void ApplyConcurrencyStamps(IEnumerable<EntityEntry> entries)
     {
-        dbContext.ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry<DataEntity> entry in dbContext.ChangeTracker.Entries<DataEntity>())
+        foreach (EntityEntry entry in entries)
         {
+            if (entry.Entity is not DataEntity entity)
+            {
+                continue;
+            }
+
+            PropertyEntry concurrencyStampProperty = entry.Property(nameof(DataEntity.ConcurrencyStamp));
+
             if (entry.State == EntityState.Added)
             {
-                if (string.IsNullOrWhiteSpace(entry.Entity.ConcurrencyStamp))
+                if (string.IsNullOrWhiteSpace(entity.ConcurrencyStamp))
                 {
-                    entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
+                    concurrencyStampProperty.CurrentValue = DataEntity.NewConcurrencyStamp();
                 }
 
                 continue;
@@ -268,7 +294,7 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
 
             if (entry.State == EntityState.Modified)
             {
-                entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
+                concurrencyStampProperty.CurrentValue = DataEntity.NewConcurrencyStamp();
             }
         }
     }
@@ -278,9 +304,11 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         return propertyName.EndsWith("Utc", StringComparison.Ordinal);
     }
 
-    private List<AuditEntry> OnBeforeSaveChanges(ApplicationDbContext dbContext)
+    private List<AuditEntry> OnBeforeSaveChanges(
+        ApplicationDbContext dbContext,
+        IEnumerable<EntityEntry> entries)
     {
-        List<AuditEntry> auditEntries = CreateAuditEntries(dbContext);
+        List<AuditEntry> auditEntries = CreateAuditEntries(entries);
 
         foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
         {
@@ -292,9 +320,10 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
 
     private async ValueTask<List<AuditEntry>> OnBeforeSaveChangesAsync(
         ApplicationDbContext dbContext,
+        IEnumerable<EntityEntry> entries,
         CancellationToken cancellationToken)
     {
-        List<AuditEntry> auditEntries = CreateAuditEntries(dbContext);
+        List<AuditEntry> auditEntries = CreateAuditEntries(entries);
 
         foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
         {
@@ -306,12 +335,11 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
     }
 
-    private List<AuditEntry> CreateAuditEntries(ApplicationDbContext dbContext)
+    private List<AuditEntry> CreateAuditEntries(IEnumerable<EntityEntry> entries)
     {
-        dbContext.ChangeTracker.DetectChanges();
         var auditEntries = new List<AuditEntry>();
 
-        foreach (EntityEntry entry in dbContext.ChangeTracker.Entries())
+        foreach (EntityEntry entry in entries)
         {
             if (entry.Entity is AuditRecord ||
                 entry.State == EntityState.Detached ||
@@ -373,6 +401,14 @@ public sealed class ApplicationSaveChangesPipeline : IApplicationSaveChangesPipe
         }
 
         return auditEntries;
+    }
+
+    private static void SetPropertyCurrentValue(
+        EntityEntry entry,
+        string propertyName,
+        object? value)
+    {
+        entry.Property(propertyName).CurrentValue = value;
     }
 
     private static void CompleteTemporaryAuditProperties(AuditEntry auditEntry)

@@ -1,3 +1,5 @@
+![.NET Core Application Social Preview](https://raw.githubusercontent.com/cdcavell/NetCoreApplicationTemplate/main/docs/images/social-preview.png)
+
 # .NET Core Application Template
 
 A reusable dotnet new template for creating a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.

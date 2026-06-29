@@ -17,7 +17,8 @@ public sealed partial class ApplicationDbContext(
     ICurrentActorAccessor currentActorAccessor,
     IOptions<DataAccessOptions> dataAccessOptions,
     IApplicationAuditStore? auditStore = null,
-    IApplicationSaveChangesPipeline? saveChangesPipeline = null
+    IApplicationSaveChangesPipeline? saveChangesPipeline = null,
+    ApplicationSaveChangesInterceptor? saveChangesInterceptor = null
 )
     : DbContext(options)
 {
@@ -27,6 +28,7 @@ public sealed partial class ApplicationDbContext(
             currentActorAccessor,
             dataAccessOptions,
             auditStore);
+    private readonly ApplicationSaveChangesInterceptor? _configuredSaveChangesInterceptor = saveChangesInterceptor;
 
     /// <summary>
     /// Gets the audit records for the application.
@@ -71,8 +73,12 @@ public sealed partial class ApplicationDbContext(
     {
         ArgumentNullException.ThrowIfNull(optionsBuilder);
 
+        ApplicationSaveChangesInterceptor interceptor =
+            _configuredSaveChangesInterceptor ?? new ApplicationSaveChangesInterceptor(_saveChangesPipeline);
+
         _ = optionsBuilder
             .LogTo(message => LogEfCoreMessage(_logger, message), LogLevel.Trace)
+            .AddInterceptors(interceptor)
             .EnableDetailedErrors();
 
         base.OnConfiguring(optionsBuilder);
@@ -90,22 +96,8 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
-        bool hasChanges = _saveChangesPipeline.ApplyBeforeSaveChanges(this);
-
-        if (!hasChanges)
-        {
-            return base.SaveChanges(acceptAllChangesOnSuccess);
-        }
-
-        int result = SaveChangesWithConcurrencyHandling(
+        return SaveChangesWithConcurrencyHandling(
             () => base.SaveChanges(acceptAllChangesOnSuccess));
-
-        if (_saveChangesPipeline.ApplyAfterSaveChanges(this))
-        {
-            _ = base.SaveChanges();
-        }
-
-        return result;
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -115,36 +107,14 @@ public sealed partial class ApplicationDbContext(
             cancellationToken);
     }
 
-    public override async Task<int> SaveChangesAsync(
+    public override Task<int> SaveChangesAsync(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        bool hasChanges = await _saveChangesPipeline
-            .ApplyBeforeSaveChangesAsync(this, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!hasChanges)
-        {
-            return await base.SaveChangesAsync(
-                acceptAllChangesOnSuccess,
-                cancellationToken).ConfigureAwait(false);
-        }
-
-        int result = await SaveChangesWithConcurrencyHandlingAsync(
+        return SaveChangesWithConcurrencyHandlingAsync(
             () => base.SaveChangesAsync(
                 acceptAllChangesOnSuccess,
-                cancellationToken)).ConfigureAwait(false);
-
-        if (await _saveChangesPipeline
-            .ApplyAfterSaveChangesAsync(this, cancellationToken)
-            .ConfigureAwait(false))
-        {
-            _ = await base
-                .SaveChangesAsync(cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        return result;
+                cancellationToken));
     }
 
     private static bool IsUtcTimestampProperty(string propertyName)

@@ -12,3 +12,6 @@
 
 - name: Record Release Surface and Distribution Strategy
   href: 0003-record-release-surface-and-distribution-strategy.md
+
+- name: Keep Composite SaveChanges Interceptor
+  href: 0004-keep-composite-savechanges-interceptor.md

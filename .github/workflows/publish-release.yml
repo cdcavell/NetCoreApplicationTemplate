@@ -17,6 +17,8 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: main
+          fetch-depth: 0
+          clean: true
 
       - name: Update README release section
         shell: bash
@@ -69,3 +71,5 @@ jobs:
           branch: docs/update-latest-release
           base: main
           delete-branch: true
+          add-paths: |
+            README.md

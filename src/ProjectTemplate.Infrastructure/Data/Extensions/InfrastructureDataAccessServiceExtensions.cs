@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;
@@ -48,6 +49,12 @@ public static class InfrastructureDataAccessServiceExtensions
         {
             services.TryAddScoped<IApplicationAuditStore, LocalApplicationAuditStore>();
         }
+
+        services.TryAddScoped<IApplicationSaveChangesPipeline>(serviceProvider =>
+            new ApplicationSaveChangesPipeline(
+                serviceProvider.GetRequiredService<ICurrentActorAccessor>(),
+                serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),
+                serviceProvider.GetService<IApplicationAuditStore>()));
 
         services.AddDbContext<ApplicationDbContext>(options => ConfigureProvider(
                 options,

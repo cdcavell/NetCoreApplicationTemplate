@@ -257,3 +257,188 @@ Package-based install remains the preferred validation path because it more clos
 ## Documentation
 
 Detailed documentation is maintained in the `docs` folder and published with DocFX.
+
+- [Documentation source](docs/index.md)
+- [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
+- [Architecture Decision Records](https://cdcavell.github.io/NetCoreApplicationTemplate/adr/)
+- Generated API reference is available through the published documentation navigation.
+
+Documentation areas include:
+
+- [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
+- __Release Readiness and Compatibility__
+  - [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
+  - [Public Surface](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/public-surface-v1.html)
+  - [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
+  - [Runtime Readiness](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/runtime-readiness.html)
+  - [Build Quality and Reproducibility](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/build-quality.html)
+  - [Container Release Publishing](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/container-publish.html)
+  - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
+- __Application Basics__
+  - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
+  - [Optional Application and Domain Layers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/optional-application-domain-layers.html)
+  - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
+  - [Deployment Notes](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
+  - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
+- __Middleware Pipeline__
+  - [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
+  - [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
+  - [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)
+  - [Forwarded Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/forwarded-headers.html)
+  - [Rate Limiting](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/rate-limiting.html)
+  - [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
+- [API Versioning](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/api-versioning.html)
+- __Observability__
+  - [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
+  - [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
+- __Authentication and Authorization__
+  - [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+  - [Production Authentication Hardening](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication-hardening.html)
+  - [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
+- [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
+- [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
+
+## Repository Governance
+
+Repository-level guidance is maintained in root-level files:
+
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [Third-Party Asset Notices](ASSETS-LICENSES.md)
+
+Pull requests targeting `main` require passing CI and Code Owner review for owned paths; stale approvals are dismissed when new reviewable commits are pushed.
+
+## Repository Structure
+
+```text
+/
+├── .github/
+│   ├── workflows/
+│   │   └── GitHub Actions CI and documentation publishing workflows
+│   ├── ISSUE_TEMPLATE/
+│   │   └── Issue templates
+│   ├── dependabot.yml
+│   └── pull_request_template.md
+│
+├── .template.config/
+│   └── dotnet new template metadata
+│
+├── .template.content/
+│   └── consumer scaffold content
+│
+├── docs/
+│   ├── adr/
+│   │   └── Architecture decision records
+│   ├── articles/
+│   │   └── DocFX conceptual documentation
+│   ├── images/
+│   │   └── Documentation and README images
+│   └── docfx.json
+│
+├── scripts/
+│   └── Utility scripts for setup, build, or maintenance
+│
+├── src/
+│   ├── ProjectTemplate.Infrastructure/
+│   └── ProjectTemplate.Web/
+│
+├── tests/
+│   └── ProjectTemplate.Web.Tests/
+│
+├── .dockerignore
+├── .editorconfig
+├── .gitattributes
+├── CHANGELOG.md
+├── CITATION.cff
+├── CONTRIBUTING.md
+├── Dockerfile
+├── docker-compose.yml
+├── LICENSE.txt
+├── NetCoreApplicationTemplate.slnx
+├── NetCoreApplicationTemplate.Template.csproj
+├── PACKAGE-README.md
+├── README.md
+└── SECURITY.md
+```
+
+## Local Documentation Build
+
+Restore local tools:
+
+```powershell
+dotnet tool restore
+```
+
+Build the DocFX site:
+
+```powershell
+dotnet tool run docfx -- docs/docfx.json
+```
+
+Serve the generated site locally:
+
+```powershell
+dotnet tool run docfx -- serve docs/_site
+```
+
+## GitHub Actions
+
+The repository currently includes workflows for:
+
+- Restoring dependencies.
+- Building the solution in Release configuration.
+- Verifying formatting.
+- Running tests.
+- Generating test result and coverage artifacts.
+- Enforcing a 75% minimum line coverage threshold in CI.
+- Failing CI when coverage regresses below the threshold.
+- Packing the template package.
+- Installing the generated `.nupkg` into a clean SDK environment.
+- Scaffolding a consumer project with `dotnet new netcoreapp-template`.
+- Validating expected consumer files and excluded maintainer files.
+- Building and testing scaffolded output on Linux, Windows, and macOS.
+- Running CodeQL analysis.
+- Building and publishing DocFX documentation to GitHub Pages.
+
+Template smoke testing runs on pull requests, supported branch pushes, manual workflow dispatch, and release-style version tags matching `v*.*.*`.
+
+See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html), [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html), and [ADR-0003](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for details.
+
+## Versioning
+
+This project follows Semantic Versioning using the format:
+
+```text
+MAJOR.MINOR.PATCH
+```
+
+Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
+
+See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
+
+## Citation
+
+If you use this repository, please cite it using the metadata in [`CITATION.cff`](./CITATION.cff) or one of the following: 
+
+- Author ORCID: [0009-0002-2113-0245](https://orcid.org/0009-0002-2113-0245)
+- Zenodo Concept DOI: [10.5281/zenodo.20373042](https://doi.org/10.5281/zenodo.20373042)
+- Suggested plain-text citation:
+
+```text
+Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.2.0. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
+```
+
+## Roadmap
+
+The project is a reusable .NET application template with a stable `2.2.0` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
+
+See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
+
+## License
+
+This project is licensed under the MIT License.
+
+See [LICENSE.txt](LICENSE.txt) for full license details.
+
+Third-party assets, libraries, templates, icons, fonts, images, or other externally sourced materials used by this project are documented in [ASSETS-LICENSES.md](ASSETS-LICENSES.md).

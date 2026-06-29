@@ -55,6 +55,7 @@ public static class InfrastructureDataAccessServiceExtensions
                 serviceProvider.GetRequiredService<ICurrentActorAccessor>(),
                 serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),
                 serviceProvider.GetService<IApplicationAuditStore>()));
+        services.TryAddScoped<ApplicationSaveChangesInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>(options => ConfigureProvider(
                 options,

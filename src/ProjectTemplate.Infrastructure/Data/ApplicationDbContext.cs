@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,16 +16,17 @@ public sealed partial class ApplicationDbContext(
     ILogger<ApplicationDbContext> logger,
     ICurrentActorAccessor currentActorAccessor,
     IOptions<DataAccessOptions> dataAccessOptions,
-    IApplicationAuditStore? auditStore = null
+    IApplicationAuditStore? auditStore = null,
+    IApplicationSaveChangesPipeline? saveChangesPipeline = null
 )
     : DbContext(options)
 {
     private readonly ILogger<ApplicationDbContext> _logger = logger;
-    private readonly ICurrentActorAccessor _currentActorAccessor = currentActorAccessor;
-    private readonly bool _auditOptions = dataAccessOptions.Value.Auditing.Enabled;
-    private readonly IApplicationAuditStore _auditStore = ResolveAuditStore(
-        dataAccessOptions.Value.Auditing,
-        auditStore);
+    private readonly IApplicationSaveChangesPipeline _saveChangesPipeline =
+        saveChangesPipeline ?? new ApplicationSaveChangesPipeline(
+            currentActorAccessor,
+            dataAccessOptions,
+            auditStore);
 
     /// <summary>
     /// Gets the audit records for the application.
@@ -90,28 +90,22 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
-        if (!ChangeTracker.HasChanges())
+        ApplicationSaveChangesPipelineState pipelineState =
+            _saveChangesPipeline.ApplyBeforeSaveChanges(this);
+
+        if (!pipelineState.HasChanges)
         {
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        ApplyPersistedStringCanonicalization();
-        ApplyLookupStringNormalization();
-        ApplyTimestampNormalization();
-        ApplyConcurrencyStamps();
-
-        if (!_auditOptions)
-        {
-            return SaveChangesWithConcurrencyHandling(
-                () => base.SaveChanges(acceptAllChangesOnSuccess));
-        }
-
-        List<AuditEntry> auditEntries = OnBeforeSaveChanges();
-
         int result = SaveChangesWithConcurrencyHandling(
             () => base.SaveChanges(acceptAllChangesOnSuccess));
 
-        _ = OnAfterSaveChanges(auditEntries);
+        if (pipelineState.HasPendingAuditEntries)
+        {
+            _saveChangesPipeline.ApplyAfterSaveChanges(this, pipelineState);
+            _ = base.SaveChanges();
+        }
 
         return result;
     }
@@ -127,317 +121,40 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        if (!ChangeTracker.HasChanges())
+        ApplicationSaveChangesPipelineState pipelineState =
+            await _saveChangesPipeline
+                .ApplyBeforeSaveChangesAsync(this, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (!pipelineState.HasChanges)
         {
             return await base.SaveChangesAsync(
                 acceptAllChangesOnSuccess,
                 cancellationToken).ConfigureAwait(false);
         }
 
-        ApplyPersistedStringCanonicalization();
-        ApplyLookupStringNormalization();
-        ApplyTimestampNormalization();
-        ApplyConcurrencyStamps();
-
-        if (!_auditOptions)
-        {
-            return await SaveChangesWithConcurrencyHandlingAsync(
-                () => base.SaveChangesAsync(
-                    acceptAllChangesOnSuccess,
-                    cancellationToken)).ConfigureAwait(false);
-        }
-
-        List<AuditEntry> auditEntries = await OnBeforeSaveChangesAsync(cancellationToken)
-            .ConfigureAwait(false);
-
         int result = await SaveChangesWithConcurrencyHandlingAsync(
             () => base.SaveChangesAsync(
                 acceptAllChangesOnSuccess,
                 cancellationToken)).ConfigureAwait(false);
 
-        _ = await OnAfterSaveChangesAsync(auditEntries, cancellationToken)
-            .ConfigureAwait(false);
+        if (pipelineState.HasPendingAuditEntries)
+        {
+            await _saveChangesPipeline
+                .ApplyAfterSaveChangesAsync(this, pipelineState, cancellationToken)
+                .ConfigureAwait(false);
+
+            _ = await base
+                .SaveChangesAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         return result;
-    }
-
-    private void ApplyPersistedStringCanonicalization()
-    {
-        ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry entry in ChangeTracker.Entries())
-        {
-            if (entry.Entity is AuditRecord ||
-                entry.State is not (EntityState.Added or EntityState.Modified))
-            {
-                continue;
-            }
-
-            foreach (PropertyEntry property in entry.Properties)
-            {
-                if (property.Metadata.ClrType != typeof(string) ||
-                    property.Metadata.IsPrimaryKey() ||
-                    property.Metadata.IsConcurrencyToken)
-                {
-                    continue;
-                }
-
-                if (entry.State == EntityState.Modified && !property.IsModified)
-                {
-                    continue;
-                }
-
-                if (property.CurrentValue is not string currentValue)
-                {
-                    continue;
-                }
-
-                string canonicalValue = PersistenceStringCanonicalizer.Canonicalize(currentValue);
-
-                if (!string.Equals(canonicalValue, currentValue, StringComparison.Ordinal))
-                {
-                    property.CurrentValue = canonicalValue;
-                }
-            }
-        }
-    }
-
-    private void ApplyLookupStringNormalization()
-    {
-        ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry<ExternalLoginAccount> entry in ChangeTracker.Entries<ExternalLoginAccount>())
-        {
-            if (entry.State is not (EntityState.Added or EntityState.Modified))
-            {
-                continue;
-            }
-
-            ExternalLoginAccount account = entry.Entity;
-
-            account.ProviderName =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName);
-
-            account.NormalizedProviderName =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName);
-
-            account.ProviderUserId =
-                PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId);
-
-            account.DisplayName =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName);
-
-            account.Email =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email);
-
-            account.NormalizedEmail =
-                PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email);
-        }
-    }
-
-    private void ApplyTimestampNormalization()
-    {
-        ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry entry in ChangeTracker.Entries())
-        {
-            if (entry.State is not (EntityState.Added or EntityState.Modified))
-            {
-                continue;
-            }
-
-            foreach (PropertyEntry property in entry.Properties)
-            {
-                if (!IsUtcTimestampProperty(property.Metadata.Name))
-                {
-                    continue;
-                }
-
-                Type propertyType = Nullable.GetUnderlyingType(property.Metadata.ClrType)
-                    ?? property.Metadata.ClrType;
-
-                if (propertyType == typeof(DateTime) &&
-                    property.CurrentValue is DateTime dateTimeValue)
-                {
-                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeValue);
-                    continue;
-                }
-
-                if (propertyType == typeof(DateTimeOffset) &&
-                    property.CurrentValue is DateTimeOffset dateTimeOffsetValue)
-                {
-                    property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeOffsetValue);
-                }
-            }
-        }
     }
 
     private static bool IsUtcTimestampProperty(string propertyName)
     {
         return propertyName.EndsWith("Utc", StringComparison.Ordinal);
-    }
-
-    private List<AuditEntry> OnBeforeSaveChanges()
-    {
-        List<AuditEntry> auditEntries = CreateAuditEntries();
-
-        foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
-        {
-            _auditStore.Append(this, auditEntry.ToAuditRecord());
-        }
-
-        return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
-    }
-
-    private async Task<List<AuditEntry>> OnBeforeSaveChangesAsync(CancellationToken cancellationToken)
-    {
-        List<AuditEntry> auditEntries = CreateAuditEntries();
-
-        foreach (AuditEntry auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
-        {
-            await _auditStore
-                .AppendAsync(this, auditEntry.ToAuditRecord(), cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        return [.. auditEntries.Where(_ => _.HasTemporaryProperties)];
-    }
-
-    private List<AuditEntry> CreateAuditEntries()
-    {
-        ChangeTracker.DetectChanges();
-        var auditEntries = new List<AuditEntry>();
-        foreach (EntityEntry entry in ChangeTracker.Entries())
-        {
-            if (entry.Entity is AuditRecord || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
-            {
-                continue;
-            }
-
-            AuditEntry auditEntry = new(entry)
-            {
-                TableName = entry.Metadata.GetTableName() ?? string.Empty,
-                ModifiedBy = _currentActorAccessor.CurrentActor,
-                ModifiedOnUtc = PersistenceTimestamp.UtcNow(),
-                State = entry.State.ToString()
-            };
-            auditEntries.Add(auditEntry);
-
-            foreach (PropertyEntry property in entry.Properties)
-            {
-                if (property.IsTemporary)
-                {
-                    // value will be generated by the database, get the value after saving
-                    auditEntry.TemporaryProperties.Add(property);
-                    continue;
-                }
-
-                string propertyName = property.Metadata.Name;
-                if (property.Metadata.IsPrimaryKey())
-                {
-                    auditEntry.KeyValues[propertyName] = property.CurrentValue ?? string.Empty;
-                    continue;
-                }
-
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        auditEntry.CurrentValues[propertyName] = property.CurrentValue ?? string.Empty;
-                        break;
-
-                    case EntityState.Deleted:
-                        auditEntry.OriginalValues[propertyName] = property.OriginalValue ?? string.Empty;
-                        break;
-
-                    case EntityState.Modified:
-                        if (property.IsModified)
-                        {
-                            auditEntry.OriginalValues[propertyName] = property.OriginalValue ?? string.Empty;
-                            auditEntry.CurrentValues[propertyName] = property.CurrentValue ?? string.Empty;
-                        }
-                        break;
-                    case EntityState.Detached:
-                    case EntityState.Unchanged:
-                    default:
-                        break;
-                }
-            }
-        }
-
-        return auditEntries;
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Style",
-        "IDE0002:Simplify Member Access",
-        Justification = "The base call intentionally bypasses the overridden SaveChanges audit pipeline.")]
-    private int OnAfterSaveChanges(List<AuditEntry> auditEntries)
-    {
-        if (auditEntries == null || auditEntries.Count == 0)
-        {
-            return 0;
-        }
-
-        foreach (AuditEntry auditEntry in auditEntries)
-        {
-            // Get the final value of the temporary properties
-            foreach (PropertyEntry prop in auditEntry.TemporaryProperties)
-            {
-                if (prop.Metadata.IsPrimaryKey())
-                {
-                    auditEntry.KeyValues[prop.Metadata.Name] = prop.CurrentValue ?? string.Empty;
-                }
-                else
-                {
-                    auditEntry.CurrentValues[prop.Metadata.Name] = prop.CurrentValue ?? string.Empty;
-                }
-            }
-
-            // Save the audit entry.
-            _auditStore.Append(this, auditEntry.ToAuditRecord());
-
-        }
-
-        return base.SaveChanges();
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Style",
-        "IDE0002:Simplify Member Access",
-        Justification = "The base call intentionally bypasses the overridden SaveChanges audit pipeline.")]
-    private async Task<int> OnAfterSaveChangesAsync(
-        List<AuditEntry> auditEntries,
-        CancellationToken cancellationToken)
-    {
-        if (auditEntries == null || auditEntries.Count == 0)
-        {
-            return 0;
-        }
-
-        foreach (AuditEntry auditEntry in auditEntries)
-        {
-            // Get the final value of the temporary properties
-            foreach (PropertyEntry prop in auditEntry.TemporaryProperties)
-            {
-                if (prop.Metadata.IsPrimaryKey())
-                {
-                    auditEntry.KeyValues[prop.Metadata.Name] = prop.CurrentValue ?? string.Empty;
-                }
-                else
-                {
-                    auditEntry.CurrentValues[prop.Metadata.Name] = prop.CurrentValue ?? string.Empty;
-                }
-            }
-
-            // Save the audit entry.
-            await _auditStore
-                .AppendAsync(this, auditEntry.ToAuditRecord(), cancellationToken)
-                .ConfigureAwait(false);
-        }
-
-        return await base
-            .SaveChangesAsync(cancellationToken)
-            .ConfigureAwait(false);
     }
 
     private static void ConfigureDataEntityDefaults(ModelBuilder modelBuilder)
@@ -475,29 +192,6 @@ public sealed partial class ApplicationDbContext(
         }
     }
 
-    private void ApplyConcurrencyStamps()
-    {
-        ChangeTracker.DetectChanges();
-
-        foreach (EntityEntry<DataEntity> entry in ChangeTracker.Entries<DataEntity>())
-        {
-            if (entry.State == EntityState.Added)
-            {
-                if (string.IsNullOrWhiteSpace(entry.Entity.ConcurrencyStamp))
-                {
-                    entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
-                }
-
-                continue;
-            }
-
-            if (entry.State == EntityState.Modified)
-            {
-                entry.Entity.ConcurrencyStamp = DataEntity.NewConcurrencyStamp();
-            }
-        }
-    }
-
     private int SaveChangesWithConcurrencyHandling(Func<int> saveChanges)
     {
         try
@@ -522,19 +216,5 @@ public sealed partial class ApplicationDbContext(
             LogOptimisticConcurrencyConflict(_logger, exception.Entries.Count, exception);
             throw;
         }
-    }
-
-    private static IApplicationAuditStore ResolveAuditStore(
-        DataAuditingOptions auditingOptions,
-        IApplicationAuditStore? auditStore)
-    {
-        ArgumentNullException.ThrowIfNull(auditingOptions);
-
-        return auditStore is not null
-            ? auditStore
-            : !auditingOptions.Enabled || AuditStorageModes.IsLocal(auditingOptions.StorageMode)
-            ? (IApplicationAuditStore)new LocalApplicationAuditStore()
-            : throw new InvalidOperationException(
-            $"Application audit storage mode '{AuditStorageModes.Normalize(auditingOptions.StorageMode)}' requires an {nameof(IApplicationAuditStore)} registration.");
     }
 }

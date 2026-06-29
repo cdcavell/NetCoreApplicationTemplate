@@ -4,6 +4,31 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.2.0 - 2026-06-29
+
+### Added
+
+* Added `IApplicationSaveChangesPipeline` and `ApplicationSaveChangesPipeline` to move EF Core save preparation out of `ApplicationDbContext` and into an application-owned persistence pipeline.
+* Added `ApplicationSaveChangesInterceptor` as the composite EF Core save lifecycle interceptor for invoking the save pipeline through `SavingChanges` / `SavingChangesAsync` and `SavedChanges` / `SavedChangesAsync` hooks.
+* Added EF Core save pipeline documentation covering default pipeline order, extension seams, audit lifecycle safety, and the decision to keep a composite interceptor by default.
+* Added ADR 0004 documenting the decision to keep the composite SaveChanges interceptor until a concrete consumer or maintenance need justifies specialized interceptors.
+* Added tests that verify sync and async save-pipeline invocation through `ApplicationDbContext`.
+* Added branch-focused tests for `ApplicationSaveChangesInterceptor`, including constructor null-guard, non-`ApplicationDbContext`, and bounded after-save follow-up branches.
+
+### Changed
+
+* Reduced repeated EF Core `ChangeTracker` inspection by materializing Added/Modified/Deleted entries once and reusing that list across string canonicalization, lookup normalization, timestamp normalization, concurrency stamping, and audit entry creation.
+* Reduced `ApplicationDbContext` save overrides to optimistic-concurrency exception handling around EF Core's native save flow.
+* Kept `ConcurrencyStamp` as the default application-managed optimistic concurrency token and documented why that remains the portable SQLite / SQL Server baseline.
+* Updated package icon and favicon image assets used for repository, NuGet package, and documentation branding.
+* Updated release metadata, package README examples, template packaging docs, citation metadata, and Zenodo metadata for `2.2.0`.
+
+### Notes
+
+* This is a minor release because it introduces and documents a clearer EF Core save-pipeline extension seam while preserving the stable `2.x` package identity, template short name, template options, and default scaffold behavior.
+* The default generated scaffold continues to use the same package identity, template identity, authentication options, data-access options, and local SQLite development path.
+* SQL Server-only consumers may still replace the application-managed concurrency token with provider-native rowversion behavior when appropriate, but the template default remains provider-portable.
+
 ## 2.1.0 - 2026-06-27
 
 ### Added

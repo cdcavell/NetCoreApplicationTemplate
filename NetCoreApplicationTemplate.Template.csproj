@@ -13,8 +13,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
-    <PackageReleaseNotes>Minor 2.1.0 release of the NetCoreApplicationTemplate dotnet new template. This release adds an optional template-owned audit storage seam, documents audit storage extension paths, improves no-op SaveChanges handling, expands production authentication and middleware guidance, adds optional application/domain layering guidance, and refreshes documentation/image assets while preserving the stable 2.x package identity and default scaffold behavior.</PackageReleaseNotes>
-    <VersionPrefix>2.1.0</VersionPrefix>
+    <PackageReleaseNotes>Minor 2.2.0 release of the NetCoreApplicationTemplate dotnet new template. This release refactors EF Core SaveChanges preparation into an application-owned save pipeline invoked through a composite SaveChangesInterceptor, reduces repeated ChangeTracker enumeration, documents the EF Core save pipeline extension model, clarifies application-managed concurrency stamp portability, and refreshes package/documentation image assets while preserving the stable 2.x package identity and default scaffold behavior.</PackageReleaseNotes>
+    <VersionPrefix>2.2.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

@@ -90,10 +90,9 @@ public sealed partial class ApplicationDbContext(
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess = true)
     {
-        ApplicationSaveChangesPipelineState pipelineState =
-            _saveChangesPipeline.ApplyBeforeSaveChanges(this);
+        bool hasChanges = _saveChangesPipeline.ApplyBeforeSaveChanges(this);
 
-        if (!pipelineState.HasChanges)
+        if (!hasChanges)
         {
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
@@ -101,9 +100,8 @@ public sealed partial class ApplicationDbContext(
         int result = SaveChangesWithConcurrencyHandling(
             () => base.SaveChanges(acceptAllChangesOnSuccess));
 
-        if (pipelineState.HasPendingAuditEntries)
+        if (_saveChangesPipeline.ApplyAfterSaveChanges(this))
         {
-            _saveChangesPipeline.ApplyAfterSaveChanges(this, pipelineState);
             _ = base.SaveChanges();
         }
 
@@ -121,12 +119,11 @@ public sealed partial class ApplicationDbContext(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        ApplicationSaveChangesPipelineState pipelineState =
-            await _saveChangesPipeline
-                .ApplyBeforeSaveChangesAsync(this, cancellationToken)
-                .ConfigureAwait(false);
+        bool hasChanges = await _saveChangesPipeline
+            .ApplyBeforeSaveChangesAsync(this, cancellationToken)
+            .ConfigureAwait(false);
 
-        if (!pipelineState.HasChanges)
+        if (!hasChanges)
         {
             return await base.SaveChangesAsync(
                 acceptAllChangesOnSuccess,
@@ -138,12 +135,10 @@ public sealed partial class ApplicationDbContext(
                 acceptAllChangesOnSuccess,
                 cancellationToken)).ConfigureAwait(false);
 
-        if (pipelineState.HasPendingAuditEntries)
+        if (await _saveChangesPipeline
+            .ApplyAfterSaveChangesAsync(this, cancellationToken)
+            .ConfigureAwait(false))
         {
-            await _saveChangesPipeline
-                .ApplyAfterSaveChangesAsync(this, pipelineState, cancellationToken)
-                .ConfigureAwait(false);
-
             _ = await base
                 .SaveChangesAsync(cancellationToken)
                 .ConfigureAwait(false);

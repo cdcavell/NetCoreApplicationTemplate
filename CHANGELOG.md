@@ -13,6 +13,7 @@ This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 * Added EF Core save pipeline documentation covering default pipeline order, extension seams, audit lifecycle safety, and the decision to keep a composite interceptor by default.
 * Added ADR 0004 documenting the decision to keep the composite SaveChanges interceptor until a concrete consumer or maintenance need justifies specialized interceptors.
 * Added tests that verify sync and async save-pipeline invocation through `ApplicationDbContext`.
+* Added branch-focused tests for `ApplicationSaveChangesInterceptor`, including constructor null-guard, non-`ApplicationDbContext`, and bounded after-save follow-up branches.
 
 ### Changed
 

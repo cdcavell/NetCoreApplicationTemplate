@@ -13,8 +13,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
-    <PackageReleaseNotes>Minor 2.2.0 release of the NetCoreApplicationTemplate dotnet new template. This release refactors EF Core SaveChanges preparation into an application-owned save pipeline invoked through a composite SaveChangesInterceptor, reduces repeated ChangeTracker enumeration, documents the EF Core save pipeline extension model, clarifies application-managed concurrency stamp portability, and refreshes package/documentation image assets while preserving the stable 2.x package identity and default scaffold behavior.</PackageReleaseNotes>
-    <VersionPrefix>2.2.0</VersionPrefix>
+    <PackageReleaseNotes>Minor 2.3.0 release of the NetCoreApplicationTemplate dotnet new template. This release hardens rate-limit client partition fallback behavior when RemoteIpAddress is unavailable, adds explicit configuration for shared unknown-client partitioning, logs fallback usage, and expands forwarded-header documentation around trusted proxy configuration and middleware ordering while preserving the stable 2.x package identity and default scaffold purpose.</PackageReleaseNotes>
+    <VersionPrefix>2.3.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

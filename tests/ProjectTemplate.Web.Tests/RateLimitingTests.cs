@@ -1,9 +1,11 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProjectTemplate.Web.Extensions;
 using ProjectTemplate.Web.Options;
@@ -165,6 +167,8 @@ public sealed class RateLimitingTests
         {
             ["ProjectTemplate:RateLimiting:Enabled"] = "true",
             ["ProjectTemplate:RateLimiting:UseGlobalLimiter"] = "true",
+            ["ProjectTemplate:RateLimiting:UseSharedUnknownClientPartition"] = "true",
+            ["ProjectTemplate:RateLimiting:UnknownClientPartitionKey"] = "configured-unknown-client",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:PermitLimit"] = "7",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:WindowSeconds"] = "30",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:QueueLimit"] = "2",
@@ -181,6 +185,8 @@ public sealed class RateLimitingTests
 
         Assert.True(options.Enabled);
         Assert.True(options.UseGlobalLimiter);
+        Assert.True(options.UseSharedUnknownClientPartition);
+        Assert.Equal("configured-unknown-client", options.UnknownClientPartitionKey);
 
         Assert.Equal(7, options.GlobalFixedWindow.PermitLimit);
         Assert.Equal(30, options.GlobalFixedWindow.WindowSeconds);
@@ -192,6 +198,101 @@ public sealed class RateLimitingTests
 
         Assert.Equal(3, options.ConcurrencyPolicy.PermitLimit);
         Assert.Equal(1, options.ConcurrencyPolicy.QueueLimit);
+    }
+
+    /// <summary>
+    /// Verifies that client rate limiting uses the resolved remote IP address when available.
+    /// </summary>
+    [Fact]
+    public void GetClientPartitionKey_ReturnsRemoteIpAddress_WhenAvailable()
+    {
+        DefaultHttpContext httpContext = new();
+        httpContext.Connection.RemoteIpAddress = IPAddress.Parse("203.0.113.10");
+        TestLogger logger = new();
+
+        string partitionKey = RateLimitingServiceExtensions.GetClientPartitionKey(
+            httpContext,
+            new ApplicationRateLimitingOptions(),
+            logger);
+
+        Assert.Equal("203.0.113.10", partitionKey);
+        Assert.Empty(logger.Entries);
+    }
+
+    /// <summary>
+    /// Verifies that unresolved client IP addresses use a per-request fallback partition by default.
+    /// </summary>
+    [Fact]
+    public void GetClientPartitionKey_UsesPerRequestFallback_WhenRemoteIpAddressIsUnavailableByDefault()
+    {
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-331"
+        };
+        TestLogger logger = new();
+
+        string partitionKey = RateLimitingServiceExtensions.GetClientPartitionKey(
+            httpContext,
+            new ApplicationRateLimitingOptions(),
+            logger);
+
+        LogEntry entry = Assert.Single(logger.Entries);
+
+        Assert.Equal("unknown-client:trace-331", partitionKey);
+        Assert.Equal(LogLevel.Warning, entry.Level);
+        Assert.Equal(6002, entry.EventId.Id);
+        Assert.Contains("RemoteIpAddress was unavailable", entry.Message, StringComparison.Ordinal);
+        Assert.Contains("PerRequest", entry.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that unresolved client IP addresses only share a fallback partition when explicitly configured.
+    /// </summary>
+    [Fact]
+    public void GetClientPartitionKey_UsesSharedFallback_WhenExplicitlyConfigured()
+    {
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-331-shared"
+        };
+        TestLogger logger = new();
+        ApplicationRateLimitingOptions options = new()
+        {
+            UseSharedUnknownClientPartition = true,
+            UnknownClientPartitionKey = "configured-unknown-client"
+        };
+
+        string partitionKey = RateLimitingServiceExtensions.GetClientPartitionKey(
+            httpContext,
+            options,
+            logger);
+
+        LogEntry entry = Assert.Single(logger.Entries);
+
+        Assert.Equal("configured-unknown-client", partitionKey);
+        Assert.Equal(LogLevel.Warning, entry.Level);
+        Assert.Equal(6002, entry.EventId.Id);
+        Assert.Contains("Shared", entry.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that startup validation fails when the unknown client fallback partition key is empty.
+    /// </summary>
+    [Fact]
+    public void RateLimiting_EmptyUnknownClientPartitionKey_FailsStartup()
+    {
+        OptionsValidationException exception =
+            AssertRateLimitingOptionsValidationFails(
+                new Dictionary<string, string?>
+                {
+                    ["ProjectTemplate:RateLimiting:Enabled"] = "true",
+                    ["ProjectTemplate:RateLimiting:UnknownClientPartitionKey"] = " "
+                });
+
+        Assert.Contains(
+            "ProjectTemplate:RateLimiting:UnknownClientPartitionKey must not be empty",
+            exception.Message,
+            StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -309,6 +410,46 @@ public sealed class RateLimitingTests
         return exception.InnerException is null
             ? null
             : FindOptionsValidationException(exception.InnerException);
+    }
+
+    private sealed class TestLogger : ILogger
+    {
+        public List<LogEntry> Entries { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull
+        {
+            return NullScope.Instance;
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add(new LogEntry(
+                logLevel,
+                eventId,
+                formatter(state, exception)));
+        }
+    }
+
+    private sealed record LogEntry(LogLevel Level, EventId EventId, string Message);
+
+    private sealed class NullScope : IDisposable
+    {
+        public static NullScope Instance { get; } = new();
+
+        public void Dispose()
+        {
+        }
     }
 
     private sealed class TestHostEnvironment : IHostEnvironment

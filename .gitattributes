@@ -77,8 +77,8 @@
 *.json      text eol=crlf
 *.jsonc     text eol=crlf
 *.xml       text eol=crlf
-*.yml       text eol=crlf
-*.yaml      text eol=crlf
+*.yml       text eol=lf
+*.yaml      text eol=lf
 *.toml      text eol=crlf
 *.ini       text eol=crlf
 *.env       text eol=crlf
@@ -115,8 +115,8 @@ Dockerfile      text eol=lf
 # GitHub / CI files (Windows/Visual Studio-oriented files)
 ###############################################################################
 
-.github/**/*.yml   text eol=crlf
-.github/**/*.yaml  text eol=crlf
+.github/**/*.yml   text eol=lf
+.github/**/*.yaml  text eol=lf
 
 
 ###############################################################################

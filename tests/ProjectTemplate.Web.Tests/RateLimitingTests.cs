@@ -31,6 +31,7 @@ public sealed class RateLimitingTests
         {
             ["ProjectTemplate:RateLimiting:Enabled"] = "true",
             ["ProjectTemplate:RateLimiting:UseGlobalLimiter"] = "true",
+            ["ProjectTemplate:RateLimiting:UseSharedUnknownClientPartition"] = "true",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:PermitLimit"] = "1",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:WindowSeconds"] = "60",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:QueueLimit"] = "0"
@@ -56,6 +57,7 @@ public sealed class RateLimitingTests
         {
             ["ProjectTemplate:RateLimiting:Enabled"] = "true",
             ["ProjectTemplate:RateLimiting:UseGlobalLimiter"] = "false",
+            ["ProjectTemplate:RateLimiting:UseSharedUnknownClientPartition"] = "true",
             ["ProjectTemplate:RateLimiting:FixedWindowPolicy:PermitLimit"] = "1",
             ["ProjectTemplate:RateLimiting:FixedWindowPolicy:WindowSeconds"] = "60",
             ["ProjectTemplate:RateLimiting:FixedWindowPolicy:QueueLimit"] = "0"
@@ -111,6 +113,7 @@ public sealed class RateLimitingTests
         {
             ["ProjectTemplate:RateLimiting:Enabled"] = "true",
             ["ProjectTemplate:RateLimiting:UseGlobalLimiter"] = "true",
+            ["ProjectTemplate:RateLimiting:UseSharedUnknownClientPartition"] = "true",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:PermitLimit"] = "1",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:WindowSeconds"] = "60",
             ["ProjectTemplate:RateLimiting:GlobalFixedWindow:QueueLimit"] = "0"
@@ -384,32 +387,6 @@ public sealed class RateLimitingTests
             provider
                 .GetRequiredService<IOptions<ApplicationRateLimitingOptions>>()
                 .Value);
-    }
-
-    private static OptionsValidationException? FindOptionsValidationException(Exception exception)
-    {
-        if (exception is OptionsValidationException optionsValidationException)
-        {
-            return optionsValidationException;
-        }
-
-        if (exception is AggregateException aggregateException)
-        {
-            foreach (Exception innerException in aggregateException.Flatten().InnerExceptions)
-            {
-                OptionsValidationException? foundException =
-                    FindOptionsValidationException(innerException);
-
-                if (foundException is not null)
-                {
-                    return foundException;
-                }
-            }
-        }
-
-        return exception.InnerException is null
-            ? null
-            : FindOptionsValidationException(exception.InnerException);
     }
 
     private sealed class TestLogger : ILogger

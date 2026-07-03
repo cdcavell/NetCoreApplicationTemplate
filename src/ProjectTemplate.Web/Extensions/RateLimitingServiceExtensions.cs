@@ -30,6 +30,8 @@ public static partial class RateLimitingServiceExtensions
 
             options.Enabled = defaultOptions.Enabled;
             options.UseGlobalLimiter = defaultOptions.UseGlobalLimiter;
+            options.UseSharedUnknownClientPartition = defaultOptions.UseSharedUnknownClientPartition;
+            options.UnknownClientPartitionKey = defaultOptions.UnknownClientPartitionKey;
 
             options.GlobalFixedWindow.PermitLimit = defaultOptions.GlobalFixedWindow.PermitLimit;
             options.GlobalFixedWindow.WindowSeconds = defaultOptions.GlobalFixedWindow.WindowSeconds;
@@ -46,6 +48,8 @@ public static partial class RateLimitingServiceExtensions
         services
             .AddOptions<ApplicationRateLimitingOptions>()
             .Bind(configuration.GetSection(ApplicationRateLimitingOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.UnknownClientPartitionKey),
+                "ProjectTemplate:RateLimiting:UnknownClientPartitionKey must not be empty.")
             .Validate(options => options.GlobalFixedWindow.PermitLimit > 0,
                 "ProjectTemplate:RateLimiting:GlobalFixedWindow:PermitLimit must be greater than zero.")
             .Validate(options => options.GlobalFixedWindow.WindowSeconds > 0,
@@ -122,13 +126,13 @@ public static partial class RateLimitingServiceExtensions
                 {
                     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                         RateLimitPartition.GetFixedWindowLimiter(
-                            partitionKey: GetClientPartitionKey(httpContext),
+                            partitionKey: GetClientPartitionKey(httpContext, rateLimitingOptions),
                             factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.GlobalFixedWindow)));
                 }
 
                 options.AddPolicy(ApplicationRateLimitingPolicyNames.Fixed, httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: GetClientPartitionKey(httpContext),
+                        partitionKey: GetClientPartitionKey(httpContext, rateLimitingOptions),
                         factory: _ => CreateFixedWindowRateLimiterOptions(rateLimitingOptions.FixedWindowPolicy)));
 
                 options.AddPolicy(ApplicationRateLimitingPolicyNames.Concurrency, httpContext =>
@@ -181,9 +185,49 @@ public static partial class RateLimitingServiceExtensions
         };
     }
 
-    private static string GetClientPartitionKey(HttpContext httpContext)
+    private static string GetClientPartitionKey(
+        HttpContext httpContext,
+        ApplicationRateLimitingOptions options)
     {
-        return httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-client";
+        ILogger logger = httpContext.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("Template.Web.RateLimiting");
+
+        return GetClientPartitionKey(httpContext, options, logger);
+    }
+
+    internal static string GetClientPartitionKey(
+        HttpContext httpContext,
+        ApplicationRateLimitingOptions options,
+        ILogger logger)
+    {
+        string? remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+
+        if (!string.IsNullOrWhiteSpace(remoteIpAddress))
+        {
+            return remoteIpAddress;
+        }
+
+        string fallbackPartitionKey = string.IsNullOrWhiteSpace(options.UnknownClientPartitionKey)
+            ? "unknown-client"
+            : options.UnknownClientPartitionKey.Trim();
+        string fallbackMode = options.UseSharedUnknownClientPartition ? "Shared" : "PerRequest";
+        string fallbackDiscriminator = string.IsNullOrWhiteSpace(httpContext.TraceIdentifier)
+            ? Guid.NewGuid().ToString("N")
+            : httpContext.TraceIdentifier;
+
+        if (!options.UseSharedUnknownClientPartition)
+        {
+            fallbackPartitionKey = $"{fallbackPartitionKey}:{fallbackDiscriminator}";
+        }
+
+        LogRateLimitingClientPartitionFallback(
+            logger,
+            fallbackMode,
+            fallbackPartitionKey,
+            fallbackDiscriminator);
+
+        return fallbackPartitionKey;
     }
 
     private static string GetEndpointPartitionKey(HttpContext httpContext)
@@ -209,5 +253,15 @@ public static partial class RateLimitingServiceExtensions
         string? remoteIpAddress,
         string? endpoint,
         double? retryAfterSeconds,
+        string traceIdentifier);
+
+    [LoggerMessage(
+        EventId = 6002,
+        Level = LogLevel.Warning,
+        Message = "Rate limiting used fallback client partition because RemoteIpAddress was unavailable. FallbackMode: {FallbackMode}; PartitionKey: {PartitionKey}; TraceIdentifier: {TraceIdentifier}. Verify forwarded headers and trusted proxy configuration when running behind a proxy or load balancer.")]
+    private static partial void LogRateLimitingClientPartitionFallback(
+        ILogger logger,
+        string fallbackMode,
+        string partitionKey,
         string traceIdentifier);
 }

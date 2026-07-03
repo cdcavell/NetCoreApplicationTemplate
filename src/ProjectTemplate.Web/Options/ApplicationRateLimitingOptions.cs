@@ -22,6 +22,17 @@ public sealed class ApplicationRateLimitingOptions
     public bool UseGlobalLimiter { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether requests without a resolved client IP address
+    /// should use one shared fallback partition key.
+    /// </summary>
+    public bool UseSharedUnknownClientPartition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the base fallback partition key used when the client IP address cannot be resolved.
+    /// </summary>
+    public string UnknownClientPartitionKey { get; set; } = "unknown-client";
+
+    /// <summary>
     /// Gets or sets the global fixed-window rate limiting options.
     /// </summary>
     public FixedWindowRateLimitingOptions GlobalFixedWindow { get; set; } = new()

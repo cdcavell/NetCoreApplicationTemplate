@@ -4,6 +4,29 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.3.0 - 2026-07-03
+
+### Added
+
+* Added `UseSharedUnknownClientPartition` to make shared unknown-client rate-limit partitioning an explicit opt-in behavior.
+* Added `UnknownClientPartitionKey` so the unresolved-client fallback partition key can be configured.
+* Added warning logging when client IP partitioning falls back because `HttpContext.Connection.RemoteIpAddress` is unavailable.
+* Added tests covering resolved client IP partitioning, default per-request fallback partitioning, explicit shared fallback partitioning, fallback warning logging, option binding, and fallback-key validation.
+
+### Changed
+
+* Changed unresolved-client rate-limit fallback behavior from a silent shared `"unknown-client"` bucket to a per-request fallback partition by default.
+* Preserved client rate-limit partitioning against `HttpContext.Connection.RemoteIpAddress` rather than parsing raw `X-Forwarded-For` headers inside the rate limiter.
+* Updated rate-limiting documentation to cover fallback partition behavior, production tuning, and forwarded-header trust requirements.
+* Updated forwarded-header documentation to emphasize `KnownProxies` / `KnownNetworks`, middleware ordering, and the risk of trusting raw forwarded headers directly.
+* Updated release metadata, package README examples, template packaging docs, citation metadata, and Zenodo metadata for `2.3.0`.
+
+### Notes
+
+* This is a minor release because it adds a new rate-limit configuration surface and changes unresolved-client fallback behavior while preserving the stable `2.x` package identity, template short name, template options, and default scaffold purpose.
+* Production deployments behind proxies, load balancers, ingress controllers, CDNs, or gateways should verify forwarded-header trust configuration so rate limiting and request logging see the corrected client IP address.
+* Set `ProjectTemplate:RateLimiting:UseSharedUnknownClientPartition` to `true` only when unresolved clients should intentionally share the configured unknown-client fallback bucket.
+
 ## 2.2.0 - 2026-06-29
 
 ### Added

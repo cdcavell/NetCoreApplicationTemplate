@@ -16,7 +16,7 @@ Package-based validation is preferred because it verifies the actual distributio
 | Template identity | `CDCavell.NetCoreApplicationTemplate.CSharp` |
 | Template group identity | `CDCavell.NetCoreApplicationTemplate` |
 | Source replacement token | `ProjectTemplate` |
-| Current package version | `2.2.0` |
+| Current package version | `2.3.0` |
 
 The `2.0.0` release moved the public NuGet package ID to `NetCoreApplicationTemplate`. The internal template identity and group identity remain unchanged for template metadata continuity.
 
@@ -92,13 +92,13 @@ dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release
 Install the published package from NuGet:
 
 ```powershell
-dotnet new install NetCoreApplicationTemplate::2.2.0
+dotnet new install NetCoreApplicationTemplate::2.3.0
 ```
 
 Install a locally packed package:
 
 ```powershell
-dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.2.0.nupkg
+dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.3.0.nupkg
 ```
 
 ## Create a New Project from the Template
@@ -217,9 +217,3 @@ Stable usage follows this pattern:
 dotnet new install NetCoreApplicationTemplate
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
-
-Clone-and-modify remains valid for source review, contribution, and direct customization. However, the NuGet template package is the primary stable distribution path for normal template consumers.
-
-Changes to the template short name, public package identity, template parameters, symbols, or source-name replacement behavior should be reviewed as release-surface changes.
-
-See [ADR-0003: Record Release Surface and Distribution Strategy](../adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.

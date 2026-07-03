@@ -26,6 +26,7 @@ The application supports:
 - JSON rejection responses.
 - `429 Too Many Requests` responses when limits are exceeded.
 - Logging for rejected requests.
+- Warning logging when client IP partitioning must use the unknown-client fallback path.
 
 Rejected requests return a response similar to:
 
@@ -45,6 +46,8 @@ Rate limiting values can be configured from `appsettings.json`:
   "RateLimiting": {
     "Enabled": true,
     "UseGlobalLimiter": true,
+    "UseSharedUnknownClientPartition": false,
+    "UnknownClientPartitionKey": "unknown-client",
     "GlobalFixedWindow": {
       "PermitLimit": 60,
       "WindowSeconds": 60,
@@ -64,6 +67,25 @@ Rate limiting values can be configured from `appsettings.json`:
 ```
 
 These defaults are intentionally conservative and should be reviewed before production use.
+
+## Client Partitioning and Unknown-Client Fallback
+
+The fixed-window limiters partition clients by `HttpContext.Connection.RemoteIpAddress`. The template intentionally relies on ASP.NET Core Forwarded Headers Middleware to correct that value when the application runs behind a trusted reverse proxy, load balancer, ingress controller, CDN, or gateway.
+
+The rate limiter does **not** parse or trust raw `X-Forwarded-For` values directly. Raw forwarded headers are client-controllable unless ASP.NET Core has first validated them through trusted `KnownProxies` or `KnownNetworks` configuration.
+
+When `RemoteIpAddress` is unavailable, the default behavior is to use a per-request fallback partition based on `UnknownClientPartitionKey` and the request trace identifier. This avoids silently collapsing unrelated unresolved clients into one shared bucket.
+
+Set `UseSharedUnknownClientPartition` to `true` only when you intentionally want every unresolved client to share the configured `UnknownClientPartitionKey` bucket:
+
+```json
+"RateLimiting": {
+  "UseSharedUnknownClientPartition": true,
+  "UnknownClientPartitionKey": "unknown-client"
+}
+```
+
+A warning is emitted whenever this fallback path is used. In production, treat that warning as a signal to review forwarded-header configuration, proxy trust settings, and middleware ordering.
 
 ## Endpoint-Specific Policies
 
@@ -111,15 +133,20 @@ If a policy needs authenticated user, tenant, role, or permission data, review m
 
 ## Middleware Order
 
-The application pipeline applies rate limiting after routing:
+Forwarded headers must run before middleware that depends on client IP. The application pipeline applies forwarded headers early and rate limiting after routing:
 
 ```csharp
+app.UseApplicationForwardedHeaders();
+app.UseApplicationRequestLogging();
+
+// ...
+
 app.UseRouting();
-
 app.UseCors();
-
 app.UseRateLimiter();
 ```
+
+This ordering lets request logging and rate limiting see the corrected `RemoteIpAddress` when trusted proxy configuration is correct.
 
 If a future policy depends on the authenticated user identity, rate limiting may need to move after authentication so user-specific partitioning can be applied.
 
@@ -137,5 +164,6 @@ This keeps production endpoints unchanged while allowing the tests to verify:
 - JSON `429 Too Many Requests` rejection responses.
 - Disabled rate limiting behavior.
 - Configuration binding for application rate limiting options.
+- Client IP partition fallback behavior when `RemoteIpAddress` is unavailable.
 
 See [Runtime Readiness Baseline](runtime-readiness.md) for the consolidated release-readiness view.

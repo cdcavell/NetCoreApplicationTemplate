@@ -98,9 +98,10 @@ internal sealed class ProblemDetailsExceptionHandler(
         return exception switch
         {
             BadHttpRequestException => StatusCodes.Status400BadRequest,
-            ArgumentException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status403Forbidden,
             TimeoutException => StatusCodes.Status503ServiceUnavailable,
+            // Plain ArgumentException is intentionally treated as an internal failure. Broad argument failures can
+            // represent server-side developer bugs; request-level failures should use explicit client-input types.
             _ => StatusCodes.Status500InternalServerError
         };
     }

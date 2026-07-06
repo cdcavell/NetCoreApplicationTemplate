@@ -20,7 +20,7 @@ public sealed class ProblemDetailsExceptionHandlerTests
             { ProblemDetailsExceptionCase.BadHttpRequest, StatusCodes.Status400BadRequest, "Bad Request" },
             { ProblemDetailsExceptionCase.Argument, StatusCodes.Status500InternalServerError, "Internal Server Error" },
             { ProblemDetailsExceptionCase.UnauthorizedAccess, StatusCodes.Status403Forbidden, "Forbidden" },
-            { ProblemDetailsExceptionCase.Timeout, StatusCodes.Status503ServiceUnavailable, "Service Available" },
+            { ProblemDetailsExceptionCase.Timeout, StatusCodes.Status503ServiceUnavailable, "Service Unavailable" },
             { ProblemDetailsExceptionCase.Unknown, StatusCodes.Status500InternalServerError, "Internal Server Error" }
         };
 

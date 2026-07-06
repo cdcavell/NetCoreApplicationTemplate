@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Entities;
-using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Web.Tests;
 
@@ -140,20 +139,10 @@ public sealed class ApplicationSaveChangesInterceptorBranchCoverageTests
             .UseSqlite(connection)
             .Options;
 
-        DataAccessOptions dataAccessOptions = new()
-        {
-            Auditing = new DataAuditingOptions
-            {
-                Enabled = false
-            }
-        };
-
         return new ApplicationDbContext(
             options,
             NullLogger<ApplicationDbContext>.Instance,
-            new TestCurrentActorAccessor(),
-            Microsoft.Extensions.Options.Options.Create(dataAccessOptions),
-            saveChangesPipeline: saveChangesPipeline);
+            saveChangesPipeline);
     }
 
     private static ExternalLoginAccount CreatePersistableAccount(string providerUserId)
@@ -236,11 +225,6 @@ public sealed class ApplicationSaveChangesInterceptorBranchCoverageTests
             _afterSaveShouldReturnTrue = false;
             return true;
         }
-    }
-
-    private sealed class TestCurrentActorAccessor : ICurrentActorAccessor
-    {
-        public string CurrentActor => "InterceptorBranchTestActor";
     }
 
     private sealed class NonApplicationDbContext(DbContextOptions<NonApplicationDbContext> options)

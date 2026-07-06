@@ -65,12 +65,15 @@ public sealed class ApplicationAuditStoreSeamTests
             }
         };
 
-        return new ApplicationDbContext(
-            options,
-            NullLogger<ApplicationDbContext>.Instance,
+        IApplicationSaveChangesPipeline saveChangesPipeline = new ApplicationSaveChangesPipeline(
             new TestCurrentActorAccessor(),
             Microsoft.Extensions.Options.Options.Create(dataAccessOptions),
             auditStore);
+
+        return new ApplicationDbContext(
+            options,
+            NullLogger<ApplicationDbContext>.Instance,
+            saveChangesPipeline);
     }
 
     private sealed class CapturingApplicationAuditStore : IApplicationAuditStore

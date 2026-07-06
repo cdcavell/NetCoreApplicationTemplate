@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Entities;
-using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Web.Tests;
 
@@ -59,6 +58,23 @@ public sealed class ApplicationDbContextSavePipelineTests
         Assert.Equal(1, saveChangesPipeline.AfterSaveChangesAsyncCallCount);
     }
 
+    [Fact]
+    public async Task Constructor_WithNullSaveChangesPipeline_ThrowsArgumentNullException()
+    {
+        await using SqliteConnection connection = await CreateOpenConnectionAsync();
+
+        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => new ApplicationDbContext(
+            options,
+            NullLogger<ApplicationDbContext>.Instance,
+            saveChangesPipeline: null!));
+
+        Assert.Equal("saveChangesPipeline", exception.ParamName);
+    }
+
     private static async Task<SqliteConnection> CreateOpenConnectionAsync()
     {
         SqliteConnection connection = new("Data Source=:memory:");
@@ -91,20 +107,10 @@ public sealed class ApplicationDbContextSavePipelineTests
             .UseSqlite(connection)
             .Options;
 
-        DataAccessOptions dataAccessOptions = new()
-        {
-            Auditing = new DataAuditingOptions
-            {
-                Enabled = false
-            }
-        };
-
         return new ApplicationDbContext(
             options,
             NullLogger<ApplicationDbContext>.Instance,
-            new TestCurrentActorAccessor(),
-            Microsoft.Extensions.Options.Options.Create(dataAccessOptions),
-            saveChangesPipeline: saveChangesPipeline);
+            saveChangesPipeline);
     }
 
     private sealed class TrackingSaveChangesPipeline : IApplicationSaveChangesPipeline
@@ -158,10 +164,5 @@ public sealed class ApplicationDbContextSavePipelineTests
 
             return ValueTask.FromResult(false);
         }
-    }
-
-    private sealed class TestCurrentActorAccessor : ICurrentActorAccessor
-    {
-        public string CurrentActor => "PipelineTestActor";
     }
 }

@@ -164,11 +164,14 @@ public sealed class ExternalLoginAccountNormalizationTests
             }
         };
 
+        IApplicationSaveChangesPipeline saveChangesPipeline = new ApplicationSaveChangesPipeline(
+            new TestCurrentActorAccessor(),
+            Microsoft.Extensions.Options.Options.Create(dataAccessOptions));
+
         return new ApplicationDbContext(
             options,
             NullLogger<ApplicationDbContext>.Instance,
-            new TestCurrentActorAccessor(),
-            Microsoft.Extensions.Options.Options.Create(dataAccessOptions));
+            saveChangesPipeline);
     }
 
     private sealed class TestCurrentActorAccessor : ICurrentActorAccessor

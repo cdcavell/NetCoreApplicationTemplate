@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.Entities;
-using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Infrastructure.Data;
 
@@ -14,20 +11,14 @@ namespace ProjectTemplate.Infrastructure.Data;
 public sealed partial class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
     ILogger<ApplicationDbContext> logger,
-    ICurrentActorAccessor currentActorAccessor,
-    IOptions<DataAccessOptions> dataAccessOptions,
-    IApplicationAuditStore? auditStore = null,
-    IApplicationSaveChangesPipeline? saveChangesPipeline = null,
+    IApplicationSaveChangesPipeline saveChangesPipeline,
     ApplicationSaveChangesInterceptor? saveChangesInterceptor = null
 )
     : DbContext(options)
 {
     private readonly ILogger<ApplicationDbContext> _logger = logger;
     private readonly IApplicationSaveChangesPipeline _saveChangesPipeline =
-        saveChangesPipeline ?? new ApplicationSaveChangesPipeline(
-            currentActorAccessor,
-            dataAccessOptions,
-            auditStore);
+        saveChangesPipeline ?? throw new ArgumentNullException(nameof(saveChangesPipeline));
     private readonly ApplicationSaveChangesInterceptor? _configuredSaveChangesInterceptor = saveChangesInterceptor;
 
     /// <summary>

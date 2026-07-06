@@ -4,6 +4,8 @@ The template uses a composite EF Core `SaveChangesInterceptor` to invoke the app
 
 The default interceptor is `ApplicationSaveChangesInterceptor`. It delegates save preparation to `IApplicationSaveChangesPipeline` during the EF Core save lifecycle instead of placing the cross-cutting mutation logic directly inside `ApplicationDbContext` save overrides.
 
+`ApplicationDbContext` requires `IApplicationSaveChangesPipeline` as a non-null dependency. Missing registration should fail during service resolution instead of falling back to an internally constructed pipeline.
+
 ## Default Pipeline Order
 
 The default `ApplicationSaveChangesPipeline` preserves the following order:

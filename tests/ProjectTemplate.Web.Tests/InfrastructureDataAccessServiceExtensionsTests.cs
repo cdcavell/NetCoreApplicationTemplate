@@ -11,7 +11,7 @@ namespace ProjectTemplate.Web.Tests;
 public sealed class InfrastructureDataAccessServiceExtensionsTests
 {
     [Fact]
-    public void AddApplicationInfrastructureDataAccess_NonWebContainer_ResolvesDbContextAndFactory()
+    public void AddApplicationInfrastructureDataAccess_NonWebContainer_ResolvesDbContextFactoryAndPipeline()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -28,7 +28,12 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         services.AddLogging();
         services.AddApplicationInfrastructureDataAccess(configuration);
 
-        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+        using ServiceProvider serviceProvider = services.BuildServiceProvider(
+            new ServiceProviderOptions
+            {
+                ValidateOnBuild = true,
+                ValidateScopes = true
+            });
         using IServiceScope scope = serviceProvider.CreateScope();
 
         ICurrentActorAccessor actorAccessor = scope.ServiceProvider
@@ -36,6 +41,12 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
 
         IApplicationAuditStore auditStore = scope.ServiceProvider
             .GetRequiredService<IApplicationAuditStore>();
+
+        IApplicationSaveChangesPipeline saveChangesPipeline = scope.ServiceProvider
+            .GetRequiredService<IApplicationSaveChangesPipeline>();
+
+        ApplicationSaveChangesInterceptor saveChangesInterceptor = scope.ServiceProvider
+            .GetRequiredService<ApplicationSaveChangesInterceptor>();
 
         using ApplicationDbContext context = scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
@@ -47,8 +58,27 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
 
         Assert.Equal(SystemCurrentActorAccessor.ActorName, actorAccessor.CurrentActor);
         Assert.IsType<LocalApplicationAuditStore>(auditStore);
+        Assert.IsType<ApplicationSaveChangesPipeline>(saveChangesPipeline);
+        Assert.NotNull(saveChangesInterceptor);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", context.Database.ProviderName);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", factoryContext.Database.ProviderName);
+    }
+
+    [Fact]
+    public void ApplicationDbContext_MissingSaveChangesPipelineRegistration_ThrowsDuringResolution()
+    {
+        ServiceCollection services = new();
+
+        services.AddLogging();
+        services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=:memory:"));
+
+        using ServiceProvider serviceProvider = services.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
+            () => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
+
+        Assert.Contains(nameof(IApplicationSaveChangesPipeline), exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -71,6 +101,8 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
 
         Assert.Null(serviceProvider.GetService<ICurrentActorAccessor>());
         Assert.Null(serviceProvider.GetService<IApplicationAuditStore>());
+        Assert.Null(serviceProvider.GetService<IApplicationSaveChangesPipeline>());
+        Assert.Null(serviceProvider.GetService<ApplicationSaveChangesInterceptor>());
         Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
         Assert.Null(serviceProvider.GetService<IDbContextFactory<ApplicationDbContext>>());
         Assert.Null(serviceProvider.GetService<IExternalLoginAccountResolver>());

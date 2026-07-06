@@ -76,7 +76,7 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         using IServiceScope scope = serviceProvider.CreateScope();
 
         InvalidOperationException exception = Assert.Throws<InvalidOperationException>(
-            () => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>);
 
         Assert.Contains(nameof(IApplicationSaveChangesPipeline), exception.Message, StringComparison.Ordinal);
     }

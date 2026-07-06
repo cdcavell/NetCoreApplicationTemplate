@@ -17,7 +17,7 @@ jobs:
     name: Move issue to in progress
     runs-on: ubuntu-latest
 
-    if: github.event.ref_type == 'branch'
+    if: github.event.ref_type == 'branch' && !startsWith(github.event.ref, 'dependabot/')
 
     steps:
       - name: Move matching issue to in progress

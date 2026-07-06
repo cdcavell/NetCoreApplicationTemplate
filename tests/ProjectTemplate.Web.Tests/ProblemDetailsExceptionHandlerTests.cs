@@ -18,9 +18,9 @@ public sealed class ProblemDetailsExceptionHandlerTests
         new()
         {
             { ProblemDetailsExceptionCase.BadHttpRequest, StatusCodes.Status400BadRequest, "Bad Request" },
-            { ProblemDetailsExceptionCase.Argument, StatusCodes.Status400BadRequest, "Bad Request" },
+            { ProblemDetailsExceptionCase.Argument, StatusCodes.Status500InternalServerError, "Internal Server Error" },
             { ProblemDetailsExceptionCase.UnauthorizedAccess, StatusCodes.Status403Forbidden, "Forbidden" },
-            { ProblemDetailsExceptionCase.Timeout, StatusCodes.Status503ServiceUnavailable, "Service Unavailable" },
+            { ProblemDetailsExceptionCase.Timeout, StatusCodes.Status503ServiceUnavailable, "Service Available" },
             { ProblemDetailsExceptionCase.Unknown, StatusCodes.Status500InternalServerError, "Internal Server Error" }
         };
 
@@ -30,9 +30,9 @@ public sealed class ProblemDetailsExceptionHandlerTests
     [Theory]
     [MemberData(nameof(ExceptionMappings))]
     public async Task TryHandleAsync_ExceptionMappings_WriteExpectedProblemDetails(
-    ProblemDetailsExceptionCase exceptionCase,
-    int expectedStatusCode,
-    string expectedTitle)
+        ProblemDetailsExceptionCase exceptionCase,
+        int expectedStatusCode,
+        string expectedTitle)
     {
         Exception exception = CreateException(exceptionCase);
 
@@ -96,12 +96,45 @@ public sealed class ProblemDetailsExceptionHandlerTests
     }
 
     /// <summary>
-    /// Verifies that production client-error responses do not expose raw exception messages.
+    /// Verifies that production request-level client-error responses do not expose raw exception messages.
     /// </summary>
     [Fact]
-    public async Task TryHandleAsync_ProductionClientException_DoesNotExposeRawExceptionDetail()
+    public async Task TryHandleAsync_ProductionBadHttpRequestException_DoesNotExposeRawExceptionDetail()
     {
-        const string SensitiveMessage = "Sensitive validation internals leak marker.";
+        const string SensitiveMessage = "Sensitive request parser leak marker.";
+
+        CapturingProblemDetailsService problemDetailsService = new();
+        ProblemDetailsExceptionHandler handler = CreateHandler(
+            problemDetailsService,
+            Environments.Production);
+
+        DefaultHttpContext httpContext = CreateProblemDetailsHttpContext();
+
+        bool handled = await handler.TryHandleAsync(
+            httpContext,
+            new BadHttpRequestException(SensitiveMessage, StatusCodes.Status400BadRequest),
+            TestContext.Current.CancellationToken);
+
+        Assert.True(handled);
+        Assert.NotNull(problemDetailsService.Context);
+
+        ProblemDetails problemDetails = problemDetailsService.Context.ProblemDetails;
+
+        Assert.Equal(StatusCodes.Status400BadRequest, problemDetails.Status);
+        Assert.Equal("Bad Request", problemDetails.Title);
+        Assert.DoesNotContain(
+            SensitiveMessage,
+            problemDetails.Detail ?? string.Empty,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Verifies that production ArgumentException responses are treated as server errors and hide raw details.
+    /// </summary>
+    [Fact]
+    public async Task TryHandleAsync_ProductionArgumentException_IsServerErrorAndDoesNotExposeRawExceptionDetail()
+    {
+        const string SensitiveMessage = "Sensitive internal argument failure marker.";
 
         CapturingProblemDetailsService problemDetailsService = new();
         ProblemDetailsExceptionHandler handler = CreateHandler(
@@ -120,12 +153,12 @@ public sealed class ProblemDetailsExceptionHandlerTests
 
         ProblemDetails problemDetails = problemDetailsService.Context.ProblemDetails;
 
-        Assert.Equal(StatusCodes.Status400BadRequest, problemDetails.Status);
-        Assert.Equal("Bad Request", problemDetails.Title);
-        Assert.DoesNotContain(
-            SensitiveMessage,
-            problemDetails.Detail ?? string.Empty,
-            StringComparison.Ordinal);
+        Assert.Equal(StatusCodes.Status500InternalServerError, problemDetails.Status);
+        Assert.Equal("Internal Server Error", problemDetails.Title);
+        Assert.Equal(
+            "An unexpected error occurred. Contact support with the request ID.",
+            problemDetails.Detail);
+        Assert.DoesNotContain(SensitiveMessage, problemDetails.Detail, StringComparison.Ordinal);
     }
 
     /// <summary>

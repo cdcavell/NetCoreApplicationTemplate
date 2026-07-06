@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.3.1 - 2026-07-06
+
+### Changed
+
+* Changed centralized Problem Details exception mapping so plain `ArgumentException` is treated as an internal server fault instead of a bad request.
+* Preserved `BadHttpRequestException` mapping to HTTP 400 for request-level malformed input failures.
+* Updated Problem Details tests to verify status, title, and production detail-hiding behavior for both request-level and internal exception paths.
+* Updated release metadata, package README examples, template packaging docs, citation metadata, and Zenodo metadata for `2.3.1`.
+
+### Notes
+
+* This is a patch release because it hardens exception classification and diagnostics without changing package identity, template identity, template options, or the default scaffold purpose.
+* Internal/developer argument failures now contribute to server-error diagnostics instead of being misclassified as client bad-request traffic.
+
 ## 2.3.0 - 2026-07-03
 
 ### Added

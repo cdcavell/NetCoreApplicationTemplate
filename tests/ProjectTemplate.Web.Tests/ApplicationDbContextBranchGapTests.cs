@@ -233,11 +233,14 @@ public sealed class ApplicationDbContextBranchGapTests
             }
         };
 
+        IApplicationSaveChangesPipeline saveChangesPipeline = new ApplicationSaveChangesPipeline(
+            new TestCurrentActorAccessor(),
+            Microsoft.Extensions.Options.Options.Create(dataAccessOptions));
+
         return new ApplicationDbContext(
             options,
             NullLogger<ApplicationDbContext>.Instance,
-            new TestCurrentActorAccessor(),
-            Microsoft.Extensions.Options.Options.Create(dataAccessOptions));
+            saveChangesPipeline);
     }
 
     private static DateTime NormalizeExpectedUtc(DateTime value)

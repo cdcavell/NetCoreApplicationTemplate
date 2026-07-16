@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using ProjectTemplate.Web.Authentication.Claims;
 using ProjectTemplate.Web.Authentication.Options;
 
@@ -25,6 +26,9 @@ public static class AuthorizationServiceExtensions
             .GetSection(ApplicationAuthorizationOptions.SectionName)
             .Get<ApplicationAuthorizationOptions>() ?? new ApplicationAuthorizationOptions();
 
+        bool authenticationEnabled = configuration.GetValue<bool>(
+            $"{ApplicationAuthenticationOptions.SectionName}:Enabled");
+
         string roleClaimType = string.IsNullOrWhiteSpace(options.RoleClaimType)
             ? ApplicationClaimTypes.Role
             : options.RoleClaimType;
@@ -36,6 +40,9 @@ public static class AuthorizationServiceExtensions
         services
             .AddOptions<ApplicationAuthorizationOptions>()
             .Bind(configuration.GetSection(ApplicationAuthorizationOptions.SectionName))
+            .Validate(
+                options => !options.RequireAuthenticatedUserByDefault || authenticationEnabled,
+                "ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault cannot be true when ProjectTemplate:Authentication:Enabled is false.")
             .Validate(
                 options => !string.IsNullOrWhiteSpace(options.RoleClaimType),
                 "ProjectTemplate:Authorization:RoleClaimType is required.")
@@ -50,7 +57,7 @@ public static class AuthorizationServiceExtensions
                 "ProjectTemplate:Authorization:ManageApplicationPermissions must contain at least one non-empty value.")
             .ValidateOnStart();
 
-        services.AddAuthorizationBuilder()
+        AuthorizationBuilder authorizationBuilder = services.AddAuthorizationBuilder()
             .AddPolicy(
                 ApplicationAuthorizationPolicyNames.AuthenticatedUser,
                 policy => policy.RequireAuthenticatedUser())
@@ -68,6 +75,13 @@ public static class AuthorizationServiceExtensions
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(permissionClaimType, options.ManageApplicationPermissions);
                 });
+
+        if (options.RequireAuthenticatedUserByDefault)
+        {
+            authorizationBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build());
+        }
 
         return services;
     }

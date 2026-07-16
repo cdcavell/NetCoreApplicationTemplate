@@ -19,6 +19,7 @@ jobs:
           ref: main
           fetch-depth: 0
           clean: true
+          persist-credentials: false
 
       - name: Update README release section
         shell: bash

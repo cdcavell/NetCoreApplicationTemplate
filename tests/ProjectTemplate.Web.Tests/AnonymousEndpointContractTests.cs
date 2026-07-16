@@ -38,13 +38,12 @@ public sealed class AnonymousEndpointContractTests
         EndpointDataSource endpointDataSource = factory.Services
             .GetRequiredService<EndpointDataSource>();
 
-        string[] anonymousRoutes = endpointDataSource.Endpoints
+        string[] anonymousRoutes = [.. endpointDataSource.Endpoints
             .OfType<RouteEndpoint>()
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null)
             .Where(IsGeneratedApplicationEndpoint)
             .Select(endpoint => endpoint.RoutePattern.RawText ?? string.Empty)
-            .Order(StringComparer.Ordinal)
-            .ToArray();
+            .Order(StringComparer.Ordinal)];
 
         Assert.Equal(_expectedAnonymousRoutes, anonymousRoutes);
     }
@@ -89,10 +88,10 @@ public sealed class AnonymousEndpointContractTests
 
         RouteEndpoint logoutEndpoint = Assert.Single(endpointDataSource.Endpoints
             .OfType<RouteEndpoint>()
-            .Where(endpoint => string.Equals(
+            , endpoint => string.Equals(
                 endpoint.RoutePattern.RawText,
                 "/Account/Logout",
-                StringComparison.Ordinal)));
+                StringComparison.Ordinal));
 
         Assert.NotNull(logoutEndpoint.Metadata.GetMetadata<IAuthorizeData>());
         Assert.Null(logoutEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
@@ -108,12 +107,7 @@ public sealed class AnonymousEndpointContractTests
     {
         string? route = endpoint.RoutePattern.RawText;
 
-        if (route is "/health" or "/health/live" or "/health/ready")
-        {
-            return true;
-        }
-
-        return endpoint.Metadata
+        return route is "/health" or "/health/live" or "/health/ready" || endpoint.Metadata
             .OfType<Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor>()
             .Any(descriptor => descriptor.ControllerTypeInfo.Namespace?
                 .StartsWith("ProjectTemplate.Web.Controllers", StringComparison.Ordinal) == true);

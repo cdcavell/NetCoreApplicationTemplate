@@ -3,5 +3,4 @@
   <suppress until="2027-01-31Z">
     <notes><![CDATA[
       CVE-2026-39883 applies to the Go OpenTelemetry implementation and does not
-      affect the .NET OpenTelemetry.Exporter.OpenTelemetryProtocol NuGet package.
-      Limit this suppression to the exact NuGet package and CV
+      affect the .NET OpenTelemetry.Exporter

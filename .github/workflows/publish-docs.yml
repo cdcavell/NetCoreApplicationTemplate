@@ -35,7 +35,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --locked-mode
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true

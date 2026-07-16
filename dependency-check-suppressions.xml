@@ -2,4 +2,22 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress until="2027-01-31Z">
     <notes><![CDATA[CVE-2026-39883 applies to the Go OpenTelemetry implementation, not the .NET NuGet exporter.]]></notes>
-    <packageUrl regex="true">^pkg:nuget/OpenTelemetry\.Exporter\.OpenTelemetryProtocol
+    <packageUrl regex="true">^pkg:nuget/OpenTelemetry\.Exporter\.OpenTelemetryProtocol@1\.16\.0$</packageUrl>
+    <cve>CVE-2026-39883</cve>
+  </suppress>
+  <suppress until="2027-01-31Z">
+    <notes><![CDATA[CVE-2026-39883 applies to the Go OpenTelemetry implementation, not the .NET hosting extensions package.]]></notes>
+    <packageUrl regex="true">^pkg:nuget/OpenTelemetry\.Extensions\.Hosting@1\.16\.0$</packageUrl>
+    <cve>CVE-2026-39883</cve>
+  </suppress>
+  <suppress until="2027-01-31Z">
+    <notes><![CDATA[CVE-2012-2055 applies to GitHub Enterprise before March 4, 2012, not the ASP.NET OAuth client library.]]></notes>
+    <packageUrl regex="true">^pkg:nuget/AspNet\.Security\.OAuth\.GitHub@10\.0\.0$</packageUrl>
+    <cve>CVE-2012-2055</cve>
+  </suppress>
+  <suppress until="2027-01-31Z">
+    <notes><![CDATA[CVE-2012-2055 applies to GitHub Enterprise before March 4, 2012, not Microsoft.SourceLink.GitHub.]]></notes>
+    <packageUrl regex="true">^pkg:nuget/Microsoft\.SourceLink\.GitHub@10\.0\.300$</packageUrl>
+    <cve>CVE-2012-2055</cve>
+  </suppress>
+</suppressions>

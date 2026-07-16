@@ -15,7 +15,7 @@
   "shortName": "netcoreapp-template",
   "sourceName": "ProjectTemplate",
   "preferNameDirectory": true,
-  "description": "Creates a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.",
+  "description": "Creates a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, cookie authentication, authenticated-by-default routed endpoints, policy-based authorization, and EF Core-ready structure.",
   "tags": {
     "language": "C#",
     "type": "project"
@@ -31,15 +31,15 @@
       "type": "parameter",
       "datatype": "choice",
       "defaultValue": "cookie",
-      "description": "Selects the generated authentication baseline.",
+      "description": "Selects the generated authentication and fallback authorization posture.",
       "choices": [
         {
           "choice": "cookie",
-          "description": "Generates the default cookie-authentication-ready baseline."
+          "description": "Enables local cookie authentication and authenticated fallback access for routed endpoints without authorization metadata."
         },
         {
           "choice": "none",
-          "description": "Generates the application with application authentication disabled by default."
+          "description": "Explicitly disables application authentication, cookie authentication, and the authenticated fallback policy; unannotated routed endpoints remain public until another posture is added."
         }
       ]
     },
@@ -123,7 +123,8 @@
           {
             "condition": "(dbProvider == \"none\")",
             "value": ""
-          }        ]
+          }
+        ]
       },
       "replaces": "TemplateDataConnectionStringName"
     }

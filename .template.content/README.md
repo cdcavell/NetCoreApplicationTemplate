@@ -12,7 +12,8 @@ The generated solution includes a production-oriented baseline for common web ap
 - Rate limiting.
 - Centralized exception and status-code handling.
 - Problem Details responses.
-- Authentication-ready and authorization-ready structure.
+- Cookie authentication and authenticated-by-default routed endpoints in the default scaffold.
+- Named role and permission policies for policy-based authorization.
 - EF Core-ready data access structure.
 - Health checks.
 - Docker and Docker Compose support.
@@ -33,15 +34,15 @@ The template supports these scaffold options:
 
 | Option | Default | Supported values | Description |
 |:---|:---|:---|:---|
-| `--authProvider` | `cookie` | `cookie`, `none` | Selects whether the generated application starts with the cookie-authentication-ready baseline or with application authentication disabled by default. |
+| `--authProvider` | `cookie` | `cookie`, `none` | Selects either the default cookie-authentication and authenticated-fallback posture or the explicit authentication-disabled opt-out. |
 | `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated data access mode. |
 | `--skipRestore` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 
-The generated application still includes the core production-oriented guardrails regardless of these options, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+Both authentication variants retain the template's infrastructure controls, including structured logging, centralized error handling, health checks, security headers, and rate limiting. Endpoint access differs materially between the variants and must be reviewed explicitly.
 
 ### Default scaffold
 
-The default scaffold uses cookie-authentication-ready configuration and SQLite development data access:
+The default scaffold enables local cookie authentication, requires authenticated access for routed endpoints through the fallback authorization policy, and uses SQLite development data access:
 
 ```powershell
 dotnet new netcoreapp-template --name ProjectTemplate
@@ -58,7 +59,7 @@ dotnet new netcoreapp-template `
 
 ### Authentication-disabled SQL Server scaffold
 
-A common non-default scaffold disables application authentication by default and selects SQL Server configuration:
+A common non-default scaffold explicitly opts out of application authentication and selects SQL Server configuration:
 
 ```powershell
 dotnet new netcoreapp-template `
@@ -69,7 +70,7 @@ dotnet new netcoreapp-template `
 
 When `--authProvider none` is used, application authentication, cookie authentication, and the authenticated fallback policy are disabled in the generated `appsettings.json`.
 
-This is intended for applications that do not need local cookie authentication at scaffold time, or that plan to add a different authentication approach later.
+This means unannotated routed endpoints are public until the consuming application adds another authentication mechanism and authorization posture. Choose this variant only as a deliberate architectural decision, not as a neutral equivalent of the default scaffold.
 
 Authentication and authorization tests that intentionally exercise protected endpoints may need to enable test authentication through in-memory test configuration.
 
@@ -150,11 +151,20 @@ The generated `appsettings.json` includes baseline configuration for:
 - Data access.
 - API versioning.
 
+### Authentication and authorization terminology
+
+- **Authentication** establishes the caller's identity.
+- **Authorization** determines whether that identity may access an endpoint or operation.
+- The **default authorization policy** is used when authorization is requested without a named policy.
+- The **fallback authorization policy** applies to routed endpoints that contain no authorization metadata.
+- **Explicit anonymous access** uses `[AllowAnonymous]`, `.AllowAnonymous()`, or equivalent metadata to exempt a route from the fallback policy.
+- **Policy-based authorization** adds role, permission, claim, or custom requirements beyond the authenticated-user baseline.
+
 ### Authentication
 
-The default scaffold enables the application authentication baseline with cookie authentication enabled. External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are present as disabled placeholders.
+The default scaffold enables application authentication with local cookie authentication. External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are present as disabled placeholders.
 
-Enable external providers intentionally and store provider-specific values outside committed configuration.
+Enable external providers intentionally and store provider-specific values outside committed configuration. Authentication establishes identity; it does not by itself grant endpoint access.
 
 ### Endpoint access contract
 

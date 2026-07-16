@@ -21,17 +21,18 @@ on:
   schedule:
     - cron: '30 9 * * 0'
 
-  # Re-scan when dependency manifests change
+  # Re-scan when dependency manifests or reviewed suppressions change.
   pull_request:
     paths:
       - '**/*.csproj'
       - '**/*.sln'
-      - '**/*.slnx' 
+      - '**/*.slnx'
       - '**/packages.config'
       - '**/packages.lock.json'
       - '**/packages.*.lock.json'
       - '**/Directory.Packages.props'
       - '**/Directory.Build.props'
+      - 'dependency-check-suppressions.xml'
 
 # Deny all token permissions unless granted by a job.
 permissions: {}
@@ -68,6 +69,7 @@ jobs:
           project: 'NetCoreApplicationTemplate'
           path: '.'
           format: 'SARIF'
+          others: '--suppression dependency-check-suppressions.xml'
 
       - name: Upload report artifact
         if: always()

@@ -1,20 +1,29 @@
 # Authorization
 
+Authentication and authorization are related but distinct:
+
+- **Authentication** establishes the caller's identity.
+- **Authorization** determines whether that identity may access an endpoint or operation.
+- The ASP.NET Core **default authorization policy** is used when authorization is requested without a named policy, such as `[Authorize]`.
+- The ASP.NET Core **fallback authorization policy** applies to routed endpoints that contain no authorization metadata.
+- **Explicit anonymous access** uses `[AllowAnonymous]`, `.AllowAnonymous()`, or equivalent metadata to exempt a route from authorization.
+- **Policy-based authorization** layers role, permission, claim, or custom requirements beyond the authenticated-user baseline.
+
+`DefaultPolicy` and `FallbackPolicy` are not interchangeable. The default policy governs endpoints that request authorization without naming a policy. The fallback policy governs endpoints that do not request authorization explicitly.
+
 ## Role and Permission Authorization Policies
 
-The application includes baseline authorization policy patterns for authenticated users, role-based access, and permission-based access.
-
-Default policy names:
+The application includes named policy patterns for authenticated users, role-based access, and permission-based access.
 
 | Policy | Purpose |
 |---|---|
 | `application.AuthenticatedUser` | Requires an authenticated user. |
-| `application.Role.Administrator` | Requires a normalized role claim. |
-| `application.Permission.ManageApplication` | Requires a normalized permission claim. |
+| `application.Role.Administrator` | Requires a normalized administrator role claim. |
+| `application.Permission.ManageApplication` | Requires a normalized manage-application permission claim. |
 
 Default normalized claim types:
 
-| Claim Type | Purpose |
+| Claim type | Purpose |
 |---|---|
 | `application:role` | Role claim used by role-based policies. |
 | `application:permission` | Permission claim used by permission-based policies. |
@@ -39,15 +48,15 @@ Configuration example:
 
 ## Default Authorization Posture
 
-The default scaffold is closed by default for routed endpoints. When `ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault` is `true`, ASP.NET Core registers a fallback authorization policy that requires an authenticated user for endpoints without authorization metadata.
+The default scaffold is **closed by default for routed endpoints**. When `ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault` is `true`, the application configures a fallback authorization policy that requires an authenticated user for endpoints without authorization metadata.
 
-This protects newly added controller actions, Razor Pages, and other routed endpoints when a developer does not attach an `[Authorize]` attribute or named policy. Stronger role, permission, claim, or custom policies still apply where they are declared explicitly.
+This protects newly added controller actions, Razor Pages, and other routed endpoints when a developer does not attach `[Authorize]` or a named policy. Stronger role, permission, claim, or custom policies still apply where declared explicitly.
 
-Endpoints that are intentionally public must opt out explicitly by using `[AllowAnonymous]`, `.AllowAnonymous()`, or an equivalent endpoint convention.
+Intentionally public endpoints must use explicit anonymous metadata. Public access is an exception to the fallback policy, not the absence of a security decision.
 
-The authentication-disabled template variant generated with `--authProvider none` sets application authentication, cookie authentication, and the fallback requirement to `false`. Application startup validation rejects an inconsistent configuration where authentication is disabled while the fallback authorization policy still requires an authenticated user.
+The `--authProvider none` scaffold is an explicit opt-out. It sets application authentication, cookie authentication, and the authenticated fallback requirement to `false`. Unannotated routed endpoints are public until the consuming application adds another authentication mechanism and authorization posture. Startup validation rejects the inconsistent combination of disabled authentication and an enabled authenticated fallback policy.
 
-### Deliberate opt-out
+### Deliberate application-wide opt-out
 
 A consuming application that intentionally wants unannotated routed endpoints to remain public can disable the fallback policy:
 
@@ -59,27 +68,25 @@ A consuming application that intentionally wants unannotated routed endpoints to
 }
 ```
 
-This is an application-wide security posture change. Review all endpoint surfaces before disabling it, and prefer explicit anonymous metadata for isolated public routes.
+This is an application-wide security posture change. Prefer explicit anonymous metadata for isolated public routes.
 
 ## Endpoint Access Classification
-
-The generated application's routed endpoint contract is intentionally narrow and reviewable.
 
 | Endpoint or endpoint group | Classification | Rationale |
 |:---|:---|:---|
 | `GET /Account/Login` | Explicitly anonymous | Unauthenticated users must be able to enter the authentication flow. |
-| `GET /External/Challenge` | Explicitly anonymous | Starts a configured external-provider challenge after validating the provider and local return URL. |
-| External-provider callback and remote authentication paths | Middleware-owned | OAuth, OpenID Connect, SAML2, and similar handlers process their configured callback paths before controller authorization. Consumers must preserve provider callback configuration and avoid mapping conflicting application endpoints. |
-| `GET /Account/AccessDenied` | Explicitly anonymous | Prevents authorization failure handling from creating a login or access-denied redirect loop. |
-| `GET /Home/Error/{statusCode?}` | Explicitly anonymous | Centralized exception and status-code handling must be able to render a terminal response for anonymous requests. |
-| `GET /health`, `/health/live`, `/health/ready` | Explicitly anonymous, deployment-specific exposure | Infrastructure probes require stable unauthenticated access by default. Production deployments should restrict network reachability through ingress, firewall, service-mesh, or load-balancer policy. |
-| `POST /Account/Logout` | Explicitly authenticated | Logout requires `[Authorize]` and anti-forgery validation. It is not part of the anonymous allowlist. |
-| Starter Razor Page `/` | Authenticated by fallback | The starter application surface demonstrates the closed-by-default posture. |
-| Sample application-information API routes | Authenticated by fallback | Sample APIs are not public merely because they are diagnostic or informational. |
-| Future controllers, Razor Pages, minimal APIs, diagnostics, or sample endpoints | Authenticated by fallback | New routed endpoints remain protected unless a deliberate anonymous decision is made and tested. |
-| Static files and browser assets | Static-file middleware | `UseStaticFiles` runs before routing and is not governed by endpoint authorization metadata. Protect sensitive files by not placing them under the public web root. |
+| `GET /External/Challenge` | Explicitly anonymous | Starts a configured external-provider challenge after validating the provider and return URL. |
+| External-provider callback and remote authentication paths | Authentication-middleware owned | OAuth, OpenID Connect, SAML2, and similar handlers process configured callback paths. |
+| `GET /Account/AccessDenied` | Explicitly anonymous | Prevents failure handling from creating a redirect loop. |
+| `GET /Home/Error/{statusCode?}` | Explicitly anonymous | Error handling must render a terminal response for anonymous requests. |
+| `/health`, `/health/live`, `/health/ready` | Explicitly anonymous; deployment exposure is operator-controlled | Infrastructure probes remain independent of browser login state. Production reachability should be restricted at the network or ingress boundary. |
+| `POST /Account/Logout` | Explicitly authenticated | Logout requires `[Authorize]` and anti-forgery validation. |
+| Starter Razor Page `/` | Authenticated by fallback | Demonstrates the closed-by-default posture. |
+| Sample application-information API routes | Authenticated by fallback | Informational APIs are not public implicitly. |
+| Future routed endpoints | Authenticated by fallback | New routes remain protected unless an anonymous exception is reviewed and tested. |
+| Static files and browser assets | Static-file middleware | `UseStaticFiles` runs before routing. Sensitive files must not be placed under the public web root. |
 
-The integration test `AnonymousEndpointContractTests.RoutedEndpoints_ExposeOnlyReviewedAnonymousAllowlist` enumerates routed application endpoints and fails when the anonymous metadata set changes without an explicit contract update.
+`AnonymousEndpointContractTests.RoutedEndpoints_ExposeOnlyReviewedAnonymousAllowlist` fails when the reviewed anonymous metadata set changes.
 
 ## Named Policy Usage Examples
 
@@ -113,18 +120,14 @@ public IActionResult ManageApplication()
 }
 ```
 
-## Sample Policy Purposes
+## NCAT and AsiBackbone Responsibility Boundary
 
-| Policy constant | Policy name | Recommended use |
-|:---|:---|:---|
-| `ApplicationAuthorizationPolicyNames.AuthenticatedUser` | `application.AuthenticatedUser` | Protect pages or endpoints that require any signed-in user. |
-| `ApplicationAuthorizationPolicyNames.AdministratorRole` | `application.Role.Administrator` | Protect administrative UI or operations. |
-| `ApplicationAuthorizationPolicyNames.ManageApplicationPermission` | `application.Permission.ManageApplication` | Protect management actions that should be permission-driven rather than purely role-driven. |
+NCAT supplies ASP.NET Core authentication, endpoint authorization, middleware ordering, request protection, and application infrastructure. These controls establish identity and determine whether a request may reach an endpoint.
+
+A consuming application may integrate AsiBackbone for application-level policy decisions, acknowledgment workflows, scoped capability grants, and decision audit records around protected operations. AsiBackbone governance complements but does not replace ASP.NET Core authentication or endpoint authorization. An operation should first pass the NCAT endpoint boundary before application-level governance evaluates the requested action.
 
 ## Claims Normalization Relationship
 
-Authorization policies are designed to work with the claims transformation layer documented in [Authentication](authentication.md).
-
-External providers often emit different role, group, permission, or scope claim names. The template can normalize these claims into application-owned claim names so authorization policies can remain stable across providers.
+Authorization policies are designed to work with the claims transformation layer documented in [Authentication](authentication.md). External providers often emit different role, group, permission, or scope claim names. The template can normalize those claims into application-owned names so authorization policies remain stable across providers.
 
 See [Runtime Readiness Baseline](runtime-readiness.md) for the consolidated release-readiness view.

@@ -65,48 +65,55 @@ jobs:
           "local_image=$localImage" >> $env:GITHUB_OUTPUT
 
       - name: Build container image
+        env:
+          LOCAL_IMAGE: ${{ steps.version.outputs.local_image }}
         run: |
           docker build \
             --pull \
             --build-arg BUILD_CONFIGURATION=Release \
-            --tag "${{ steps.version.outputs.local_image }}" \
+            --tag "$LOCAL_IMAGE" \
             .
 
       - name: Prepare release evidence directory
         run: mkdir -p artifacts/container-release .trivy-cache
 
       - name: Generate vulnerability scan SARIF
+        env:
+          LOCAL_IMAGE: ${{ steps.version.outputs.local_image }}
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "${{ github.workspace }}/artifacts/container-release:/reports" \
-            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
-            "${{ env.TRIVY_IMAGE }}" image \
+            -v "$GITHUB_WORKSPACE/artifacts/container-release:/reports" \
+            -v "$GITHUB_WORKSPACE/.trivy-cache:/root/.cache" \
+            "$TRIVY_IMAGE" image \
             --format sarif \
             --output /reports/trivy-results.sarif \
             --severity HIGH,CRITICAL \
             --ignore-unfixed=false \
             --exit-code 0 \
-            "${{ steps.version.outputs.local_image }}"
+            "$LOCAL_IMAGE"
 
       - name: Upload vulnerability SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
+        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         with:
           sarif_file: artifacts/container-release/trivy-results.sarif
           category: container-image
 
       - name: Generate SPDX SBOM
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          LOCAL_IMAGE: ${{ steps.version.outputs.local_image }}
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "${{ github.workspace }}/artifacts/container-release:/reports" \
-            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
-            "${{ env.TRIVY_IMAGE }}" image \
+            -v "$GITHUB_WORKSPACE/artifacts/container-release:/reports" \
+            -v "$GITHUB_WORKSPACE/.trivy-cache:/root/.cache" \
+            "$TRIVY_IMAGE" image \
             --format spdx-json \
-            --output /reports/netcoreapplicationtemplate-${{ steps.version.outputs.version }}.spdx.json \
+            --output "/reports/netcoreapplicationtemplate-$RELEASE_VERSION.spdx.json" \
             --exit-code 0 \
-            "${{ steps.version.outputs.local_image }}"
+            "$LOCAL_IMAGE"
 
       - name: Upload release evidence artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -117,19 +124,23 @@ jobs:
           retention-days: 30
 
       - name: Enforce container vulnerability threshold
+        env:
+          LOCAL_IMAGE: ${{ steps.version.outputs.local_image }}
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "${{ github.workspace }}/.trivy-cache:/root/.cache" \
-            "${{ env.TRIVY_IMAGE }}" image \
+            -v "$GITHUB_WORKSPACE/.trivy-cache:/root/.cache" \
+            "$TRIVY_IMAGE" image \
             --format table \
             --severity HIGH,CRITICAL \
             --ignore-unfixed=false \
             --exit-code 1 \
-            "${{ steps.version.outputs.local_image }}"
+            "$LOCAL_IMAGE"
 
       - name: Save scanned image
-        run: docker save "${{ steps.version.outputs.local_image }}" --output artifacts/container-image.tar
+        env:
+          LOCAL_IMAGE: ${{ steps.version.outputs.local_image }}
+        run: docker save "$LOCAL_IMAGE" --output artifacts/container-image.tar
 
       - name: Upload scanned image artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -180,12 +191,18 @@ jobs:
       - name: Tag and push image
         id: push
         shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ needs.build-scan.outputs.version }}
+          RELEASE_MAJOR: ${{ needs.build-scan.outputs.major }}
+          IS_STABLE_RELEASE: ${{ needs.build-scan.outputs.is_stable_release }}
+          LOCAL_IMAGE: ${{ needs.build-scan.outputs.local_image }}
+          TARGET_IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
-          $version = '${{ needs.build-scan.outputs.version }}'
-          $major = '${{ needs.build-scan.outputs.major }}'
-          $isStableRelease = '${{ needs.build-scan.outputs.is_stable_release }}' -eq 'true'
-          $localImage = '${{ needs.build-scan.outputs.local_image }}'
-          $imageName = '${{ env.IMAGE_NAME }}'
+          $version = $env:RELEASE_VERSION
+          $major = $env:RELEASE_MAJOR
+          $isStableRelease = $env:IS_STABLE_RELEASE -eq 'true'
+          $localImage = $env:LOCAL_IMAGE
+          $imageName = $env:TARGET_IMAGE_NAME
 
           $tags = [System.Collections.Generic.List[string]]::new()
           $tags.Add("${imageName}:$version")
@@ -215,7 +232,9 @@ jobs:
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Sign image digest
-        run: cosign sign --yes "${{ steps.push.outputs.digest_ref }}"
+        env:
+          DIGEST_REF: ${{ steps.push.outputs.digest_ref }}
+        run: cosign sign --yes "$DIGEST_REF"
 
       - name: Generate build provenance attestation
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4
@@ -229,10 +248,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          DIGEST_REF: ${{ steps.push.outputs.digest_ref }}
+          PUBLISHED_TAGS: ${{ steps.push.outputs.tags }}
         run: |
-          $tag = '${{ github.ref_name }}'
-          $digestRef = '${{ steps.push.outputs.digest_ref }}'
-          $tags = '${{ steps.push.outputs.tags }}'
+          $tag = $env:RELEASE_TAG
+          $digestRef = $env:DIGEST_REF
+          $tags = $env:PUBLISHED_TAGS
           $notesPath = 'artifacts/container-release/release-notes.md'
 
           @"
@@ -254,14 +276,12 @@ jobs:
 
           if ($LASTEXITCODE -eq 0) {
               gh release upload $tag artifacts/container-release/* --clobber --repo $env:GH_REPO
-
               if ($LASTEXITCODE -ne 0) {
                   exit $LASTEXITCODE
               }
           }
           else {
               gh release create $tag artifacts/container-release/* --title "Release $tag" --notes-file $notesPath --repo $env:GH_REPO
-
               if ($LASTEXITCODE -ne 0) {
                   exit $LASTEXITCODE
               }

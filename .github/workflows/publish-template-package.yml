@@ -19,8 +19,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
 
 env:
   CONFIGURATION: Release
@@ -52,11 +50,14 @@ jobs:
 
       - name: Validate version metadata
         shell: pwsh
+        env:
+          GITHUB_REF_TYPE_VALUE: ${{ github.ref_type }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
         run: |
           $arguments = @{}
 
-          if ('${{ github.ref_type }}' -eq 'tag') {
-              $arguments['TagName'] = '${{ github.ref_name }}'
+          if ($env:GITHUB_REF_TYPE_VALUE -eq 'tag') {
+              $arguments['TagName'] = $env:GITHUB_REF_NAME_VALUE
           }
 
           ./scripts/Validate-VersionConsistency.ps1 @arguments
@@ -76,13 +77,17 @@ jobs:
 
       - name: Validate generated package version
         shell: pwsh
+        env:
+          GITHUB_REF_TYPE_VALUE: ${{ github.ref_type }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+          PACKAGE_OUTPUT_VALUE: ${{ env.PACKAGE_OUTPUT }}
         run: |
           $arguments = @{
-              PackageDirectory = '${{ env.PACKAGE_OUTPUT }}'
+              PackageDirectory = $env:PACKAGE_OUTPUT_VALUE
           }
 
-          if ('${{ github.ref_type }}' -eq 'tag') {
-              $arguments['TagName'] = '${{ github.ref_name }}'
+          if ($env:GITHUB_REF_TYPE_VALUE -eq 'tag') {
+              $arguments['TagName'] = $env:GITHUB_REF_NAME_VALUE
           }
 
           ./scripts/Validate-VersionConsistency.ps1 @arguments
@@ -99,6 +104,11 @@ jobs:
     needs: pack-template
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
     environment:
       name: template-package-publish
 
@@ -114,12 +124,27 @@ jobs:
       - name: Resolve package source
         id: source
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_PACKAGE_SOURCE: ${{ inputs.publish_source }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "url=${{ inputs.publish_source }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$REQUESTED_PACKAGE_SOURCE" in
+              https://api.nuget.org/v3/index.json|https://nuget.pkg.github.com/cdcavell/index.json)
+                package_source="$REQUESTED_PACKAGE_SOURCE"
+                ;;
+              *)
+                echo "Unsupported package source: $REQUESTED_PACKAGE_SOURCE"
+                exit 1
+                ;;
+            esac
           else
-            echo "url=https://api.nuget.org/v3/index.json" >> "$GITHUB_OUTPUT"
+            package_source="https://api.nuget.org/v3/index.json"
           fi
+
+          printf 'url=%s\n' "$package_source" >> "$GITHUB_OUTPUT"
 
       - name: NuGet login
         if: steps.source.outputs.url == 'https://api.nuget.org/v3/index.json'
@@ -127,7 +152,7 @@ jobs:
         id: nuget-login
         with:
           user: CDCavell
-          
+
       - name: Publish template package
         shell: bash
         env:

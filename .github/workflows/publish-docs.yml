@@ -8,9 +8,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: github-pages
@@ -87,6 +84,10 @@ jobs:
     name: Deploy documentation
     needs: build-docs
     runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
 
     environment:
       name: github-pages

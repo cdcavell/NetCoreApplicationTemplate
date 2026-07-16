@@ -1,0 +1,8 @@
+paths:
+  .github/workflows/project-status.yml:
+    ignore:
+      - 'shellcheck reported issue in this script: SC2016:.+'
+
+  .github/workflows/project-branch-status.yml:
+    ignore:
+      - 'shellcheck reported issue in this script: SC2016:.+'

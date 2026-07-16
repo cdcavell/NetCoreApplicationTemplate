@@ -78,12 +78,9 @@ public static class AuthorizationServiceExtensions
 
         services
             .AddOptions<AuthorizationOptions>()
-            .Configure<IOptions<ApplicationAuthorizationOptions>>((authorizationOptions, applicationAuthorizationOptions) =>
-            {
-                authorizationOptions.FallbackPolicy = applicationAuthorizationOptions.Value.RequireAuthenticatedUserByDefault
+            .Configure<IOptions<ApplicationAuthorizationOptions>>((authorizationOptions, applicationAuthorizationOptions) => authorizationOptions.FallbackPolicy = applicationAuthorizationOptions.Value.RequireAuthenticatedUserByDefault
                     ? new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
-                    : null;
-            });
+                    : null);
 
         return services;
     }

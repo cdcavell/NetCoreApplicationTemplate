@@ -1,4 +1,4 @@
-name: Finalize Pinned Dependency Updates
+name: Stage Locked Workflow Definitions
 
 on:
   pull_request:
@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  finalize:
-    name: Commit lock files and immutable image digests
+  stage:
+    name: Stage locked workflow definitions
     runs-on: ubuntu-latest
 
     steps:
@@ -20,57 +20,51 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
-        with:
-          global-json-file: global.json
-
-      - name: Generate NuGet lock files
-        run: dotnet restore ./NetCoreApplicationTemplate.slnx --force-evaluate
-
-      - name: Resolve and apply immutable dependency pins
+      - name: Generate locked workflow copies
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf .workflow-updates
+          mkdir -p .workflow-updates
 
-          sdk_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:10.0.300 --format '{{json .Manifest.Digest}}' | tr -d '"')
-          aspnet_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/aspnet:10.0 --format '{{json .Manifest.Digest}}' | tr -d '"')
-
-          python3 - "$sdk_digest" "$aspnet_digest" <<'PY'
+          python3 <<'PY'
           from pathlib import Path
-          import sys
 
-          sdk_digest, aspnet_digest = sys.argv[1:3]
+          source_root = Path('.github/workflows')
+          target_root = Path('.workflow-updates')
 
-          dockerfile = Path('Dockerfile')
-          text = dockerfile.read_text()
-          text = text.replace(
-              'FROM mcr.microsoft.com/dotnet/sdk:10.0.300 AS build',
-              f'FROM mcr.microsoft.com/dotnet/sdk:10.0.300@{sdk_digest} AS build')
-          text = text.replace(
-              'FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final',
-              f'FROM mcr.microsoft.com/dotnet/aspnet:10.0@{aspnet_digest} AS final')
-          text = text.replace(
-              'RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj"',
-              'RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" --locked-mode')
-          text = text.replace(
-              '    --output /app/publish \\\n',
-              '    --output /app/publish \\\n    --no-restore \\\n')
-          dockerfile.write_text(text)
+          for source in source_root.glob('*.yml'):
+              if source.name == 'generate-pinned-dependency-data.yml':
+                  continue
+
+              text = source.read_text()
+              lines = []
+              for line in text.splitlines():
+                  if 'dotnet restore ' in line and '--locked-mode' not in line:
+                      line = f'{line} --locked-mode'
+                  line = line.replace(
+                      'github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4',
+                      'github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0')
+                  line = line.replace(
+                      'github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4',
+                      'github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0')
+                  lines.append(line)
+
+              (target_root / source.name).write_text('\n'.join(lines) + '\n')
           PY
 
-      - name: Commit generated dependency pins
+      - name: Commit staged workflow copies
         shell: bash
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add Directory.Build.props Dockerfile src tests
+          git add .workflow-updates
 
           if git diff --cached --quiet; then
-            echo "Generated dependency pins are already committed."
+            echo "Workflow copies are already staged."
             exit 0
           fi
 
-          git commit -m "build: pin NuGet and container dependencies"
+          git commit -m "chore(ci): stage locked workflow definitions"
           git push

@@ -43,20 +43,9 @@ The default scaffold is closed by default for routed endpoints. When `ProjectTem
 
 This protects newly added controller actions, Razor Pages, and other routed endpoints when a developer does not attach an `[Authorize]` attribute or named policy. Stronger role, permission, claim, or custom policies still apply where they are declared explicitly.
 
-Endpoints that are intentionally public must opt out explicitly by using `[AllowAnonymous]`, `.AllowAnonymous()`, or an equivalent endpoint convention. The base application currently makes authentication entry points and infrastructure health probes explicit anonymous exceptions.
+Endpoints that are intentionally public must opt out explicitly by using `[AllowAnonymous]`, `.AllowAnonymous()`, or an equivalent endpoint convention.
 
-The authentication-disabled template variant generated with `--authProvider none` sets both of the following values to `false`:
-
-```json
-"Authentication": {
-  "Enabled": false
-},
-"Authorization": {
-  "RequireAuthenticatedUserByDefault": false
-}
-```
-
-Application startup validation rejects an inconsistent configuration where authentication is disabled while the fallback authorization policy still requires an authenticated user.
+The authentication-disabled template variant generated with `--authProvider none` sets application authentication, cookie authentication, and the fallback requirement to `false`. Application startup validation rejects an inconsistent configuration where authentication is disabled while the fallback authorization policy still requires an authenticated user.
 
 ### Deliberate opt-out
 
@@ -72,17 +61,25 @@ A consuming application that intentionally wants unannotated routed endpoints to
 
 This is an application-wide security posture change. Review all endpoint surfaces before disabling it, and prefer explicit anonymous metadata for isolated public routes.
 
-### Public endpoint review
+## Endpoint Access Classification
 
-Review endpoints that must remain publicly reachable, including:
+The generated application's routed endpoint contract is intentionally narrow and reviewable.
 
-- Login, external challenge, callback, and access-denied endpoints.
-- Health check endpoints used by infrastructure, reverse proxies, or orchestration platforms.
-- Public documentation or landing pages.
-- API endpoints that intentionally allow anonymous access.
-- Static files and browser assets, which are served by static-file middleware rather than routed endpoint authorization metadata.
+| Endpoint or endpoint group | Classification | Rationale |
+|:---|:---|:---|
+| `GET /Account/Login` | Explicitly anonymous | Unauthenticated users must be able to enter the authentication flow. |
+| `GET /External/Challenge` | Explicitly anonymous | Starts a configured external-provider challenge after validating the provider and local return URL. |
+| External-provider callback and remote authentication paths | Middleware-owned | OAuth, OpenID Connect, SAML2, and similar handlers process their configured callback paths before controller authorization. Consumers must preserve provider callback configuration and avoid mapping conflicting application endpoints. |
+| `GET /Account/AccessDenied` | Explicitly anonymous | Prevents authorization failure handling from creating a login or access-denied redirect loop. |
+| `GET /Home/Error/{statusCode?}` | Explicitly anonymous | Centralized exception and status-code handling must be able to render a terminal response for anonymous requests. |
+| `GET /health`, `/health/live`, `/health/ready` | Explicitly anonymous, deployment-specific exposure | Infrastructure probes require stable unauthenticated access by default. Production deployments should restrict network reachability through ingress, firewall, service-mesh, or load-balancer policy. |
+| `POST /Account/Logout` | Explicitly authenticated | Logout requires `[Authorize]` and anti-forgery validation. It is not part of the anonymous allowlist. |
+| Starter Razor Page `/` | Authenticated by fallback | The starter application surface demonstrates the closed-by-default posture. |
+| Sample application-information API routes | Authenticated by fallback | Sample APIs are not public merely because they are diagnostic or informational. |
+| Future controllers, Razor Pages, minimal APIs, diagnostics, or sample endpoints | Authenticated by fallback | New routed endpoints remain protected unless a deliberate anonymous decision is made and tested. |
+| Static files and browser assets | Static-file middleware | `UseStaticFiles` runs before routing and is not governed by endpoint authorization metadata. Protect sensitive files by not placing them under the public web root. |
 
-Use `[AllowAnonymous]` intentionally for routed endpoints that should remain public.
+The integration test `AnonymousEndpointContractTests.RoutedEndpoints_ExposeOnlyReviewedAnonymousAllowlist` enumerates routed application endpoints and fails when the anonymous metadata set changes without an explicit contract update.
 
 ## Named Policy Usage Examples
 

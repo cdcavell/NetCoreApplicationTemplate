@@ -65,12 +65,13 @@ public class AccountController(IAuthenticationSchemeProvider schemeProvider) : C
     /// <summary>
     /// Signs out the current user and redirects to the specified return URL.
     /// </summary>
-    /// <remarks>This action requires a valid anti-forgery token and only accepts local URLs for redirection
-    /// to help prevent open redirect vulnerabilities.</remarks>
+    /// <remarks>This action requires an authenticated user, a valid anti-forgery token, and only accepts local URLs for redirection
+    /// to help prevent cross-site request forgery and open redirect vulnerabilities.</remarks>
     /// <param name="returnUrl">The URL to redirect to after sign-out. If null or empty, defaults to the application's root ('/'). Must be a
     /// local URL.</param>
     /// <returns>A redirect result to the specified local return URL if sign-out is successful; otherwise, a bad request result
     /// if the return URL is not local.</returns>
+    [Authorize]
     [HttpPost("/Account/Logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout(string? returnUrl = null)

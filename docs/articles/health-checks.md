@@ -26,6 +26,19 @@ The baseline application provides the readiness endpoint shape. It does not, by 
 
 Each generated application must register the dependency checks that define production readiness for that service. Future modules, such as EF Core, SQL Server, authentication providers, or external integrations, can add tagged checks for readiness scenarios.
 
+## Access and Deployment Boundary
+
+All three health endpoints are mapped with `.AllowAnonymous()` intentionally. This keeps container, reverse-proxy, load-balancer, and orchestration probes independent of browser login state and prevents the authenticated fallback policy from turning a failed probe into an authentication redirect.
+
+Anonymous application access does not imply unrestricted Internet exposure. Production deployments should restrict health endpoint reachability through the deployment boundary appropriate to the environment, such as:
+
+- Private ingress or internal load-balancer listeners.
+- Firewall, network security group, or service-mesh policy.
+- Reverse-proxy path restrictions.
+- Monitoring-system source restrictions.
+
+Avoid returning secrets, configuration values, dependency connection details, exception messages, or other sensitive diagnostics from health responses. Applications that require authenticated health diagnostics should add a separate protected diagnostics endpoint rather than changing the lightweight liveness contract accidentally.
+
 ## Liveness Semantics
 
 `/health/live` should stay lightweight. It is intended to answer one question:

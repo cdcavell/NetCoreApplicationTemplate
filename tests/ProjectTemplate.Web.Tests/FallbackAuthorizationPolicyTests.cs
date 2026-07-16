@@ -141,6 +141,7 @@ public sealed class FallbackAuthorizationPolicyTests
         return new ApplicationWebApplicationFactory(new Dictionary<string, string?>
         {
             ["ProjectTemplate:Authentication:Enabled"] = authenticationEnabled.ToString(),
+            ["ProjectTemplate:Authentication:Cookie:Enabled"] = authenticationEnabled.ToString(),
             ["ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault"] = requireAuthenticatedUserByDefault.ToString()
         });
     }

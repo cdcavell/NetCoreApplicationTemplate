@@ -2,9 +2,11 @@
 
 Welcome to the documentation for the .NET Core Application Template.
 
-This documentation describes the reusable ASP.NET Core application baseline provided by the repository. It is intended for developers who want to understand the project structure, local development workflow, configuration model, middleware pipeline, security posture, authentication options, data access setup, template packaging, and current release documentation surface.
+NCAT is a production-oriented ASP.NET Core application baseline. The default scaffold enables local cookie authentication and configures a fallback authorization policy that requires an authenticated user for routed endpoints without authorization metadata. Public routes are explicit anonymous exceptions. The `--authProvider none` variant is a deliberate opt-out that disables application authentication, cookie authentication, and authenticated fallback access.
 
-The template is designed as a production-oriented starting point for ASP.NET Core applications that need consistent defaults for:
+Authentication establishes identity. Authorization determines whether that identity may access an endpoint or operation. NCAT also provides policy-based authorization, middleware ordering, request protection, observability, error handling, health checks, and EF Core data access patterns.
+
+The template includes consistent defaults for:
 
 - Application startup and middleware ordering
 - Serilog structured logging
@@ -15,7 +17,8 @@ The template is designed as a production-oriented starting point for ASP.NET Cor
 - Problem Details responses
 - Health checks
 - OpenTelemetry tracing and metrics
-- Authentication and authorization modules
+- Cookie authentication and optional external identity providers
+- Authenticated-by-default routed endpoints and named authorization policies
 - EF Core data access patterns
 - GitHub Actions validation
 - Package-based `dotnet new` template scaffolding
@@ -51,6 +54,7 @@ Use this documentation as the detailed reference. The root `README.md` provides 
   - [Telemetry](articles/telemetry.md)
 - __Authentication and Authorization__
   - [Authentication](articles/authentication.md)
+  - [Production Authentication Hardening](articles/authentication-hardening.md)
   - [Authorization](articles/authorization.md)
 - [Data Access](articles/data-access.md)
 - [GitHub Workflow](articles/github-workflow.md)

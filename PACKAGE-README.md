@@ -2,7 +2,7 @@
 
 # .NET Core Application Template
 
-A reusable dotnet new template for creating a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, authentication-ready architecture, and EF Core-ready structure.
+A reusable `dotnet new` template for creating a production-oriented ASP.NET Core application baseline with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, cookie authentication, authenticated-by-default routed endpoints, policy-based authorization, and EF Core-ready structure.
 
 This README is intended for NuGet package consumers. The full repository README and documentation site provide deeper implementation and maintainer guidance.
 
@@ -37,13 +37,15 @@ Create a default scaffold:
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
-The default scaffold uses the cookie-authentication-ready baseline and SQLite development configuration.
+The default scaffold enables local cookie authentication and a fallback authorization policy that requires an authenticated user for routed endpoints without authorization metadata. Intentionally public routes must use explicit anonymous metadata such as `[AllowAnonymous]` or `.AllowAnonymous()`.
 
-Generate with authentication disabled:
+Generate with application authentication disabled:
 
 ```text
 dotnet new netcoreapp-template --name ContosoNoAuth --authProvider none
 ```
+
+`--authProvider none` is an explicit opt-out. It disables application authentication, cookie authentication, and the authenticated fallback policy in generated configuration. Unannotated routed endpoints are therefore public until the consuming application adds another authentication mechanism and authorization posture.
 
 Generate with SQL Server selected:
 
@@ -57,11 +59,18 @@ Generate with authentication disabled and SQL Server selected:
 dotnet new netcoreapp-template --name ContosoNoAuthSqlServer --authProvider none --dbProvider sqlserver
 ```
 
+## Authentication and authorization terminology
+
+- **Authentication** establishes the caller's identity.
+- **Authorization** determines whether that identity may access an endpoint or operation.
+- The **fallback authorization policy** applies to routed endpoints that contain no authorization metadata.
+- **Policy-based authorization** adds role, permission, claim, or custom requirements beyond the authenticated-user baseline.
+
 ## Template options
 
 | Option | Default | Supported values | Description |
 |---|---|---|---|
-| `--authProvider` | `cookie` | `cookie`, `none` | Selects the generated authentication baseline. |
+| `--authProvider` | `cookie` | `cookie`, `none` | Selects either the default cookie-authentication and authenticated-fallback posture or the explicit authentication-disabled opt-out. |
 | `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated EF Core provider configuration. |
 | `--skipRestore` | `false` | `true`, `false` | Skips the post-create NuGet restore action when set to `true`. |
 

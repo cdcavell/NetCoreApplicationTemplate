@@ -1,9 +1,0 @@
-using System.Net;
-using System.Reflection;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using ProjectTemplate.Web.Controllers;
-using ProjectTemplate.Web.Tests.Extensions

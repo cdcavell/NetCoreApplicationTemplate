@@ -1,0 +1,55 @@
+name: Generate Pinned Dependency Data
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    name: Generate lock files and image digests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          global-json-file: global.json
+
+      - name: Generate NuGet lock files
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx --force-evaluate
+
+      - name: Resolve base image digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/pinned-dependencies
+
+          sdk_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:10.0.300 --format '{{json .Manifest.Digest}}' | tr -d '"')
+          aspnet_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/aspnet:10.0 --format '{{json .Manifest.Digest}}' | tr -d '"')
+
+          printf 'SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.300@%s\n' "$sdk_digest" > artifacts/pinned-dependencies/image-digests.env
+          printf 'ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0@%s\n' "$aspnet_digest" >> artifacts/pinned-dependencies/image-digests.env
+
+      - name: Stage generated files
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -name packages.lock.json -print
+          tar -czf artifacts/pinned-dependencies/packages-lock-files.tar.gz --transform='s#^./##' $(find . -name packages.lock.json -print)
+
+      - name: Upload generated dependency data
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pinned-dependency-data
+          path: artifacts/pinned-dependencies
+          if-no-files-found: error

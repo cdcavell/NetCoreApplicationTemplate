@@ -67,7 +67,7 @@ dotnet new netcoreapp-template `
   --dbProvider sqlserver
 ```
 
-When `--authProvider none` is used, application authentication and cookie authentication are disabled in the generated `appsettings.json`.
+When `--authProvider none` is used, application authentication, cookie authentication, and the authenticated fallback policy are disabled in the generated `appsettings.json`.
 
 This is intended for applications that do not need local cookie authentication at scaffold time, or that plan to add a different authentication approach later.
 
@@ -155,6 +155,23 @@ The generated `appsettings.json` includes baseline configuration for:
 The default scaffold enables the application authentication baseline with cookie authentication enabled. External providers such as OpenID Connect, SAML2, Microsoft, Google, and GitHub are present as disabled placeholders.
 
 Enable external providers intentionally and store provider-specific values outside committed configuration.
+
+### Endpoint access contract
+
+The default authenticated scaffold requires an authenticated user for routed endpoints unless the endpoint is deliberately marked anonymous.
+
+The intentionally anonymous routed endpoint categories are:
+
+- `GET /Account/Login` for entering the authentication flow.
+- `GET /External/Challenge` for starting a configured external-provider challenge.
+- `GET /Account/AccessDenied` and `GET /Home/Error/{statusCode?}` so failure handling cannot redirect recursively.
+- `/health`, `/health/live`, and `/health/ready` for infrastructure probes.
+
+`POST /Account/Logout` explicitly requires an authenticated user and a valid anti-forgery token. The starter Razor Page, sample API, and newly added routed endpoints inherit authenticated access unless an explicit public-access decision is made.
+
+External-provider callback paths are handled by their authentication middleware rather than application controller authorization. Static files are served by static-file middleware before routing; do not place sensitive content under `wwwroot`.
+
+Health endpoints are anonymous at the application layer so deployment probes do not depend on browser authentication. Restrict production reachability through ingress, firewall, reverse-proxy, load-balancer, or service-mesh policy as appropriate.
 
 ### Data access
 

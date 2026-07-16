@@ -63,7 +63,7 @@ jobs:
           ./scripts/Validate-VersionConsistency.ps1 @arguments
 
       - name: Restore dependencies
-        run: dotnet restore ./NetCoreApplicationTemplate.slnx
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx --locked-mode
 
       - name: Build solution
         run: dotnet build ./NetCoreApplicationTemplate.slnx --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true

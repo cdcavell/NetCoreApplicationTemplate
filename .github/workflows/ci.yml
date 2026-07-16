@@ -69,7 +69,7 @@ jobs:
         run: dotnet --info
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --locked-mode
 
       - name: Build solution
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
@@ -219,7 +219,7 @@ jobs:
         shell: pwsh
         working-directory: ./artifacts/scaffold/ContosoSecurityPortal
         run: |
-          dotnet restore ./ContosoSecurityPortal.slnx
+          dotnet restore ./ContosoSecurityPortal.slnx --locked-mode
           dotnet build ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test scaffolded output
@@ -357,7 +357,7 @@ jobs:
         shell: pwsh
         working-directory: ./artifacts/scaffold/ContosoNoAuthSqlServer
         run: |
-          dotnet restore ./ContosoNoAuthSqlServer.slnx
+          dotnet restore ./ContosoNoAuthSqlServer.slnx --locked-mode
           dotnet build ./ContosoNoAuthSqlServer.slnx --configuration $env:CONFIGURATION --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test non-default scaffolded output
@@ -398,16 +398,16 @@ jobs:
           global-json-file: global.json
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
+        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         with:
           languages: 'actions,csharp'
           build-mode: none
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --locked-mode
 
       - name: Build solution for CodeQL
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
+        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0

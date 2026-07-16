@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0.300 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.300@sha256:c0790639332692a0d56cdd81ed581cfd24d040d9839764c138994866df89a3b6 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
@@ -10,17 +10,18 @@ COPY ["Directory.Packages.props", "./"]
 COPY ["src/ProjectTemplate.Infrastructure/ProjectTemplate.Infrastructure.csproj", "src/ProjectTemplate.Infrastructure/"]
 COPY ["src/ProjectTemplate.Web/ProjectTemplate.Web.csproj", "src/ProjectTemplate.Web/"]
 
-RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj"
+RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" --locked-mode
 
 COPY . .
 
 RUN dotnet publish "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" \
     --configuration $BUILD_CONFIGURATION \
     --output /app/publish \
+    --no-restore \
     /p:UseAppHost=false \
     /p:ContinuousIntegrationBuild=true
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:1fa23fc4872d95fd71c2833ebe65d7e84a43b2d51a31d119516852f13d9505a7 AS final
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://+:8080 \

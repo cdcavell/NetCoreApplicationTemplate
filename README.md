@@ -1,10 +1,10 @@
 ![.NET Core Application Social Preview](https://raw.githubusercontent.com/cdcavell/NetCoreApplicationTemplate/main/docs/images/social-preview.png)
 
-# .NET Core Application Template 
+# .NET Core Application Template
+
 [![CI](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/ci.yml)
 [![Coverage Report](https://img.shields.io/badge/coverage%20gate-75%25-brightgreen)](https://cdcavell.github.io/NetCoreApplicationTemplate/coverage/index.html)
 [![Documentation](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/cdcavell/NetCoreApplicationTemplate/actions/workflows/publish-docs.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://cdcavell.github.io/NetCoreApplicationTemplate/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE.txt)
 [![GitHub Release](https://img.shields.io/github/v/release/cdcavell/NetCoreApplicationTemplate?display_name=tag)](https://github.com/cdcavell/NetCoreApplicationTemplate/releases/latest)
@@ -12,9 +12,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NetCoreApplicationTemplate?label=downloads)](https://www.nuget.org/packages/NetCoreApplicationTemplate)
 [![Zenodo DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20373042-blue)](https://doi.org/10.5281/zenodo.20373042)
 
-A reusable, production-oriented .NET application template designed to provide a secure, maintainable, and extensible baseline for building ASP.NET Core applications.
-
-This repository provides a working application baseline with common infrastructure concerns already organized, including middleware ordering, structured logging, forwarded headers, security headers, rate limiting, centralized error handling, authentication and authorization foundations, EF Core data access patterns, GitHub Actions validation, DocFX documentation, and local dotnet new template scaffold support.
+A reusable, production-oriented ASP.NET Core application template with structured logging, security headers, forwarded headers, rate limiting, centralized error handling, cookie authentication, authenticated-by-default routed endpoints, policy-based authorization, EF Core data access patterns, health checks, telemetry, and CI validation.
 
 ## Current Release
 
@@ -24,102 +22,41 @@ Current release: __[Release 2.3.1](https://github.com/cdcavell/NetCoreApplicatio
 Tag: `v2.3.1`
 <!-- END LATEST_RELEASE -->
 
+## Default Security Posture
+
+The default scaffold enables local cookie authentication. Authentication establishes the caller's identity.
+
+Authorization determines whether that identity may access an endpoint or operation. NCAT configures a fallback authorization policy requiring an authenticated user for routed endpoints without authorization metadata. Intentionally public routes use explicit anonymous metadata such as `[AllowAnonymous]` or `.AllowAnonymous()`.
+
+The template also includes named policies for authenticated-user, administrator-role, and manage-application-permission requirements. These policy-based authorization controls layer stronger requirements beyond the authenticated-user baseline.
+
+The phrase **secure baseline** in this project refers to concrete controls—closed-by-default routed endpoints, explicit anonymous exceptions, startup validation, request protection, secure headers, rate limiting, and centralized error handling. Deployment-specific trust boundaries, provider registrations, credentials, network exposure, and business authorization remain the consuming application's responsibility.
+
+### Authentication-disabled opt-out
+
+`--authProvider none` is an explicit architectural opt-out. It disables application authentication, cookie authentication, and the authenticated fallback policy in generated configuration. Unannotated routed endpoints are public in that variant until the consuming application adds another authentication mechanism and authorization posture.
+
 ## Project Goals
 
-The goal of this project is to provide a clean ASP.NET Core starting point that can be reused across future applications while keeping common application infrastructure consistent and easy to maintain.
-
-The template focuses on:
-
 - Production-oriented ASP.NET Core startup and middleware organization.
-- Secure-by-default application configuration.
+- Cookie authentication and authenticated-by-default routed endpoints in the default scaffold.
+- Explicit anonymous endpoint exceptions with regression coverage.
+- Named role and permission authorization policies.
 - Structured application and request logging.
-- Centralized exception and status code handling.
-- Browser and API-friendly error responses.
-- Reverse proxy and forwarded header support.
-- Baseline rate limiting and health checks.
-- Authentication-ready and authorization-ready structure.
-- EF Core data access patterns.
-- Automated build, test, coverage, template smoke-test, and documentation workflows.
-- Local and package-based `dotnet new` template scaffold support.
-
-## Who This Template Is For
-
-This template is intended for developers and teams who want a production-oriented ASP.NET Core starting point with common infrastructure concerns already organized.
-
-It is best suited for:
-
-- Small-to-medium internal applications.
-- Line-of-business web applications.
-- Prototypes that may grow into production systems.
-- Teams that want consistent startup, configuration, logging, security, error handling, and data access patterns.
-- Developers who want a practical baseline without adopting a large application framework.
-
-The template is especially useful when an application needs more structure than the default `dotnet new webapp` output but does not yet need a full enterprise framework.
-
-## When This Template May Not Be the Right Fit
-
-This template may not be the best fit for:
-
-- Very small throwaway applications.
-- Static sites or applications with no server-side infrastructure needs.
-- Highly specialized microservice frameworks.
-- Teams that already standardize on a larger opinionated platform or internal enterprise template.
-- Applications that need domain-driven layering from the first commit.
-
-The project intentionally provides a secure and maintainable baseline. It does not try to replace every architectural style or framework.
-
-## How This Differs From `dotnet new webapp`
-
-The default ASP.NET Core templates are intentionally minimal. This repository starts further along the production-readiness path by organizing concerns that many real applications eventually need:
-
-- Centralized middleware ordering.
-- Structured Serilog request and application logging.
-- Forwarded header support for reverse proxy deployments.
-- Security header configuration.
-- Rate limiting setup.
-- Centralized exception and status code handling.
-- Problem Details responses.
-- Authentication and authorization foundations.
-- EF Core provider structure.
-- CI validation, template package smoke testing, and documentation publishing.
-- Repository governance files for public review and release readiness.
-
-## Application Preview
-
-The starter application includes a simple default Razor Pages landing page that highlights the template's production-oriented infrastructure focus.
-
-![Application preview](docs/images/application-preview.svg)
+- Centralized exception, status-code, and Problem Details handling.
+- Reverse-proxy, security-header, rate-limiting, health-check, and telemetry foundations.
+- EF Core provider and auditing patterns.
+- Automated build, test, coverage, template smoke-test, CodeQL, and documentation workflows.
+- Package-based `dotnet new` scaffold support.
 
 ## Quick Start from Source
-
-Clone the repository:
 
 ```powershell
 git clone https://github.com/cdcavell/NetCoreApplicationTemplate.git
 cd NetCoreApplicationTemplate
-```
-
-Restore dependencies:
-
-```powershell
 dotnet restore
-```
-
-Build the solution:
-
-```powershell
 dotnet build --configuration Release
-```
-
-Run tests:
-
-```powershell
 dotnet test --configuration Release
-```
-
-Run the web application from source:
-
-```powershell
 dotnet run --project src/ProjectTemplate.Web
 ```
 
@@ -129,73 +66,33 @@ Run with Docker Compose:
 docker compose up --build
 ```
 
-The Docker-hosted application is available at:
+The Docker-hosted application is available at `http://localhost:8080`.
 
-```powershell
-http://localhost:8080
-```
+Health endpoints:
 
-Docker health endpoints are available at:
-
-```powershell
+```text
 http://localhost:8080/health
 http://localhost:8080/health/ready
 http://localhost:8080/health/live
 ```
 
-## Template Scaffold Status
+Health routes are explicitly anonymous at the application layer for infrastructure probes. Production deployments should restrict their reachability through ingress, firewall, reverse-proxy, load-balancer, or service-mesh policy.
 
-This repository includes a `dotnet new` template scaffold through `.template.config/template.json` and a package project at `NetCoreApplicationTemplate.Template.csproj`.
+## Install and Use the Template Package
 
-The scaffolded consumer output intentionally includes:
-
-- Source projects under `src/`.
-- Baseline tests under `tests/`.
-- Docker support files.
-- `LICENSE.txt`.
-- `ASSETS-LICENSES.md`.
-- A consumer-oriented `README.md` generated from `.template.content/README.md`.
-
-The scaffolded consumer output intentionally excludes repository-maintainer content such as `.github/`, DocFX documentation source, ADRs, release-management files, citation metadata, contribution policy, security policy, and repository badges.
-
-### Install from NuGet
-
-Install the published template package:
+Install the published package:
 
 ```powershell
 dotnet new install NetCoreApplicationTemplate::2.3.1
 ```
 
-### Pack and Install Locally
-
-Pack the template package:
-
-```powershell
-dotnet pack ./NetCoreApplicationTemplate.Template.csproj --configuration Release --output ./artifacts/template-package
-```
-
-Install the generated package:
-
-```powershell
-dotnet new install ./artifacts/template-package/NetCoreApplicationTemplate.2.3.1.nupkg
-```
-
-Generate a consumer project:
+Generate the default cookie-authenticated scaffold:
 
 ```powershell
 dotnet new netcoreapp-template -n ContosoSecurityPortal
 ```
 
-Build and test the generated output:
-
-```powershell
-cd ContosoSecurityPortal
-dotnet restore
-dotnet build --configuration Release
-dotnet test --configuration Release
-```
-
-Generate a non-default scaffold with authentication disabled and SQL Server selected as the data provider:
+Generate the explicit authentication-disabled variant:
 
 ```powershell
 dotnet new netcoreapp-template `
@@ -204,241 +101,76 @@ dotnet new netcoreapp-template `
   --dbProvider sqlserver
 ```
 
-Generate a scaffold with authentication and EF Core data access disabled:
+Template options:
+
+| Option | Default | Supported values | Behavior |
+|:---|:---|:---|:---|
+| `--authProvider` | `cookie` | `cookie`, `none` | Selects either local cookie authentication with authenticated fallback access, or the explicit authentication-disabled opt-out. |
+| `--dbProvider` | `sqlite` | `sqlite`, `sqlserver`, `none` | Selects the generated EF Core data access mode. |
+| `--skipRestore` | `false` | `true`, `false` | Skips the post-create restore action. |
+
+Build and test generated output:
 
 ```powershell
-dotnet new netcoreapp-template `
-  --name ContosoNoAuthNoDataAccess `
-  --authProvider none `
-  --dbProvider none
-```
-
-Build and test either non-default generated output, for example:
-
-```powershell
-cd ContosoNoAuthSqlServer
+cd ContosoSecurityPortal
 dotnet restore
 dotnet build --configuration Release
 dotnet test --configuration Release
 ```
 
-```powershell
-cd ContosoNoAuthNoDataAccess
-dotnet restore
-dotnet build --configuration Release
-dotnet test --configuration Release
-```
+## Authentication and Authorization Terminology
 
-The non-default scaffold preserves the template's core guardrails, including structured logging, centralized error handling, health checks, security headers, rate limiting, and safe defaults.
+- **Authentication** establishes identity.
+- **Authorization** determines permitted access.
+- The **default authorization policy** applies when authorization is requested without a named policy.
+- The **fallback authorization policy** applies to routed endpoints with no authorization metadata.
+- **Explicit anonymous access** intentionally exempts a route from authorization.
+- **Policy-based authorization** applies role, permission, claim, or custom requirements.
 
-Update the installed template by installing a newer package version:
+`DefaultPolicy` and `FallbackPolicy` are distinct ASP.NET Core concepts and are not used interchangeably in NCAT documentation.
 
-```powershell
-dotnet new install NetCoreApplicationTemplate::2.3.1
-```
+## NCAT and AsiBackbone Boundary
 
-Uninstall the template package:
+NCAT supplies ASP.NET Core authentication, endpoint authorization, middleware ordering, request protection, observability, and application infrastructure.
 
-```powershell
-dotnet new uninstall NetCoreApplicationTemplate
-```
-
-### Local Repository Install
-
-For local development, the template can also be installed from the repository root:
-
-```powershell
-dotnet new install .\
-dotnet new netcoreapp-template -n ContosoSecurityPortal
-```
-
-Package-based install remains the preferred validation path because it more closely matches consumer distribution.
+A consuming application may integrate AsiBackbone for application-level policy decisions, acknowledgments, scoped capability grants, and decision audit records around protected operations. AsiBackbone complements but does not replace ASP.NET Core authentication or endpoint authorization.
 
 ## Documentation
 
-Detailed documentation is maintained in the `docs` folder and published with DocFX.
-
-- [Documentation source](docs/index.md)
 - [Published documentation](https://cdcavell.github.io/NetCoreApplicationTemplate/)
-- [Architecture Decision Records](https://cdcavell.github.io/NetCoreApplicationTemplate/adr/)
-- Generated API reference is available through the published documentation navigation.
-
-Documentation areas include:
-
 - [Getting Started](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/getting-started.html)
-- __Release Readiness and Compatibility__
-  - [v1.0 Migration Guide](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/v1-migration-guide.html)
-  - [Public Surface](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/public-surface-v1.html)
-  - [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
-  - [Runtime Readiness](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/runtime-readiness.html)
-  - [Build Quality and Reproducibility](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/build-quality.html)
-  - [Container Release Publishing](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/container-publish.html)
-  - [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
-- __Application Basics__
-  - [Project Structure](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/project-structure.html)
-  - [Optional Application and Domain Layers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/optional-application-domain-layers.html)
-  - [Configuration](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/configuration.html)
-  - [Deployment Notes](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/deployment.html)
-  - [Docker Development](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/docker.html)
-- __Middleware Pipeline__
-  - [Middleware Pipeline](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/middleware.html)
-  - [Error Handling](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/error-handling.html)
-  - [Security Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/security-headers.html)
-  - [Forwarded Headers](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/forwarded-headers.html)
-  - [Rate Limiting](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/rate-limiting.html)
-  - [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
-- [API Versioning](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/api-versioning.html)
-- __Observability__
-  - [Logging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/logging.html)
-  - [Telemetry](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/telemetry.html)
-- __Authentication and Authorization__
-  - [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
-  - [Production Authentication Hardening](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication-hardening.html)
-  - [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
+- [Authentication](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication.html)
+- [Production Authentication Hardening](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authentication-hardening.html)
+- [Authorization](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/authorization.html)
+- [Runtime Readiness](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/runtime-readiness.html)
+- [Production Deployment Checklist](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/production-deployment-checklist.html)
+- [Health Checks](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/health-checks.html)
+- [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html)
 - [Data Access](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/data-access.html)
-- [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html)
 
-## Repository Governance
-
-Repository-level guidance is maintained in root-level files:
-
-- [Contributing](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
-- [Changelog](CHANGELOG.md)
-- [Third-Party Asset Notices](ASSETS-LICENSES.md)
-
-Pull requests targeting `main` require passing CI and Code Owner review for owned paths; stale approvals are dismissed when new reviewable commits are pushed.
-
-## Repository Structure
-
-```text
-/
-├── .github/
-│   ├── workflows/
-│   │   └── GitHub Actions CI and documentation publishing workflows
-│   ├── ISSUE_TEMPLATE/
-│   │   └── Issue templates
-│   ├── dependabot.yml
-│   └── pull_request_template.md
-│
-├── .template.config/
-│   └── dotnet new template metadata
-│
-├── .template.content/
-│   └── consumer scaffold content
-│
-├── docs/
-│   ├── adr/
-│   │   └── Architecture decision records
-│   ├── articles/
-│   │   └── DocFX conceptual documentation
-│   ├── images/
-│   │   └── Documentation and README images
-│   └── docfx.json
-│
-├── scripts/
-│   └── Utility scripts for setup, build, or maintenance
-│
-├── src/
-│   ├── ProjectTemplate.Infrastructure/
-│   └── ProjectTemplate.Web/
-│
-├── tests/
-│   └── ProjectTemplate.Web.Tests/
-│
-├── .dockerignore
-├── .editorconfig
-├── .gitattributes
-├── CHANGELOG.md
-├── CITATION.cff
-├── CONTRIBUTING.md
-├── Dockerfile
-├── docker-compose.yml
-├── LICENSE.txt
-├── NetCoreApplicationTemplate.slnx
-├── NetCoreApplicationTemplate.Template.csproj
-├── PACKAGE-README.md
-├── README.md
-└── SECURITY.md
-```
-
-## Local Documentation Build
-
-Restore local tools:
+Build documentation locally:
 
 ```powershell
 dotnet tool restore
-```
-
-Build the DocFX site:
-
-```powershell
 dotnet tool run docfx -- docs/docfx.json
 ```
 
-Serve the generated site locally:
+## Repository and Generated Content
 
-```powershell
-dotnet tool run docfx -- serve docs/_site
-```
+The repository contains source projects, tests, Docker support, DocFX documentation, CI workflows, release and governance files, template configuration, and package metadata.
 
-## GitHub Actions
+Generated projects include application source, tests, Docker support, configuration examples, license and asset notices, and a consumer-oriented README. Repository-maintainer workflows, ADRs, contribution policy, security policy, and release-management files are excluded from generated output.
 
-The repository currently includes workflows for:
+## Versioning and Citation
 
-- Restoring dependencies.
-- Building the solution in Release configuration.
-- Verifying formatting.
-- Running tests.
-- Generating test result and coverage artifacts.
-- Enforcing a 75% minimum line coverage threshold in CI.
-- Failing CI when coverage regresses below the threshold.
-- Packing the template package.
-- Installing the generated `.nupkg` into a clean SDK environment.
-- Scaffolding a consumer project with `dotnet new netcoreapp-template`.
-- Validating expected consumer files and excluded maintainer files.
-- Building and testing scaffolded output on Linux, Windows, and macOS.
-- Running CodeQL analysis.
-- Building and publishing DocFX documentation to GitHub Pages.
+This project follows Semantic Versioning. Version metadata is managed centrally for assemblies, packages, and releases.
 
-Template smoke testing runs on pull requests, supported branch pushes, manual workflow dispatch, and release-style version tags matching `v*.*.*`.
-
-See [GitHub Workflow](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/github-workflow.html), [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html), and [ADR-0003](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for details.
-
-## Versioning
-
-This project follows Semantic Versioning using the format:
-
-```text
-MAJOR.MINOR.PATCH
-```
-
-Version numbers are centrally managed through project build metadata so assemblies, future packages, and releases can share a consistent version identity.
-
-See [ADR-0003: Record Release Surface and Distribution Strategy](docs/adr/0003-record-release-surface-and-distribution-strategy.md) for the release-surface decision.
-
-## Citation
-
-If you use this repository, please cite it using the metadata in [`CITATION.cff`](./CITATION.cff) or one of the following: 
-
-- Author ORCID: [0009-0002-2113-0245](https://orcid.org/0009-0002-2113-0245)
-- Zenodo Concept DOI: [10.5281/zenodo.20373042](https://doi.org/10.5281/zenodo.20373042)
-- Suggested plain-text citation:
+Suggested citation:
 
 ```text
 Cavell, Christopher D. NetCoreApplicationTemplate. Version 2.3.1. Zenodo. MIT License. https://doi.org/10.5281/zenodo.20373042
 ```
 
-## Roadmap
-
-The project is a reusable .NET application template with a stable `2.3.1` package baseline. Future work may include additional provider modules, expanded examples, optional template parameters, and continued hardening of the documented release surface.
-
-See [Template Packaging](https://cdcavell.github.io/NetCoreApplicationTemplate/articles/template-packaging.html) for the current packaging direction.
-
 ## License
 
-This project is licensed under the MIT License.
-
-See [LICENSE.txt](LICENSE.txt) for full license details.
-
-Third-party assets, libraries, templates, icons, fonts, images, or other externally sourced materials used by this project are documented in [ASSETS-LICENSES.md](ASSETS-LICENSES.md).
+This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt) and [ASSETS-LICENSES.md](ASSETS-LICENSES.md).

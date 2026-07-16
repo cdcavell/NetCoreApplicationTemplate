@@ -23,6 +23,16 @@ public sealed class AuthenticationTestController : ControllerBase
     }
 
     /// <summary>
+    /// Returns an unannotated response governed by the fallback authorization policy.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> containing a fallback-policy result.</returns>
+    [HttpGet("fallback")]
+    public IActionResult Fallback()
+    {
+        return Ok(new { result = "fallback" });
+    }
+
+    /// <summary>
     /// Returns a protected response that requires an authenticated user.
     /// </summary>
     /// <returns>An <see cref="IActionResult"/> containing a protected result.</returns>

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using ProjectTemplate.Web.Authentication.Claims;
 using ProjectTemplate.Web.Authentication.Options;
 
@@ -37,16 +39,21 @@ public static class AuthorizationServiceExtensions
             .AddOptions<ApplicationAuthorizationOptions>()
             .Bind(configuration.GetSection(ApplicationAuthorizationOptions.SectionName))
             .Validate(
-                options => !string.IsNullOrWhiteSpace(options.RoleClaimType),
+                authorizationOptions =>
+                    !authorizationOptions.RequireAuthenticatedUserByDefault ||
+                    configuration.GetValue<bool>($"{ApplicationAuthenticationOptions.SectionName}:Enabled"),
+                "ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault cannot be true when ProjectTemplate:Authentication:Enabled is false.")
+            .Validate(
+                authorizationOptions => !string.IsNullOrWhiteSpace(authorizationOptions.RoleClaimType),
                 "ProjectTemplate:Authorization:RoleClaimType is required.")
             .Validate(
-                options => !string.IsNullOrWhiteSpace(options.PermissionClaimType),
+                authorizationOptions => !string.IsNullOrWhiteSpace(authorizationOptions.PermissionClaimType),
                 "ProjectTemplate:Authorization:PermissionClaimType is required.")
             .Validate(
-                options => options.AdministratorRoles.Any(role => !string.IsNullOrWhiteSpace(role)),
+                authorizationOptions => authorizationOptions.AdministratorRoles.Any(role => !string.IsNullOrWhiteSpace(role)),
                 "ProjectTemplate:Authorization:AdministratorRoles must contain at least one non-empty value.")
             .Validate(
-                options => options.ManageApplicationPermissions.Any(permission => !string.IsNullOrWhiteSpace(permission)),
+                authorizationOptions => authorizationOptions.ManageApplicationPermissions.Any(permission => !string.IsNullOrWhiteSpace(permission)),
                 "ProjectTemplate:Authorization:ManageApplicationPermissions must contain at least one non-empty value.")
             .ValidateOnStart();
 
@@ -69,6 +76,12 @@ public static class AuthorizationServiceExtensions
                     policy.RequireClaim(permissionClaimType, options.ManageApplicationPermissions);
                 });
 
+        services
+            .AddOptions<AuthorizationOptions>()
+            .Configure<IOptions<ApplicationAuthorizationOptions>>((authorizationOptions, applicationAuthorizationOptions) => authorizationOptions.FallbackPolicy = applicationAuthorizationOptions.Value.RequireAuthenticatedUserByDefault
+                    ? new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()
+                    : null);
+
         return services;
     }
 }
@@ -82,10 +95,12 @@ public static class ApplicationAuthorizationPolicyNames
     /// Policy requiring the current user to be authenticated.
     /// </summary>
     public const string AuthenticatedUser = "application.AuthenticatedUser";
+
     /// <summary>
     /// Policy defining the administrator role.
     /// </summary>
     public const string AdministratorRole = "application.Role.Administrator";
+
     /// <summary>
     /// Policy defining the manage application permission.
     /// </summary>

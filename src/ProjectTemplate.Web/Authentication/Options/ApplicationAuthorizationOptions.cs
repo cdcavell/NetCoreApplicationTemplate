@@ -11,6 +11,11 @@ public sealed class ApplicationAuthorizationOptions
     public const string SectionName = "ProjectTemplate:Authorization";
 
     /// <summary>
+    /// Gets or sets a value indicating whether routed endpoints without authorization metadata require an authenticated user.
+    /// </summary>
+    public bool RequireAuthenticatedUserByDefault { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the claim type used to evaluate role-based authorization policies.
     /// </summary>
     public string RoleClaimType { get; set; } = "application:role";

@@ -26,17 +26,20 @@ public static class HealthCheckExtensions
     /// <returns>The original <see cref="WebApplication"/> for chaining.</returns>
     public static WebApplication MapApplicationHealthChecks(this WebApplication app)
     {
-        app.MapHealthChecks("/health");
+        app.MapHealthChecks("/health")
+            .AllowAnonymous();
 
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = healthCheck => healthCheck.Tags.Contains("ready")
-        });
+        })
+        .AllowAnonymous();
 
         app.MapHealthChecks("/health/live", new HealthCheckOptions
         {
             Predicate = _ => false
-        });
+        })
+        .AllowAnonymous();
 
         return app;
     }

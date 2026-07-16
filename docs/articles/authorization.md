@@ -24,6 +24,7 @@ Configuration example:
 ```json
 "ProjectTemplate": {
   "Authorization": {
+    "RequireAuthenticatedUserByDefault": true,
     "RoleClaimType": "application:role",
     "PermissionClaimType": "application:permission",
     "AdministratorRoles": [
@@ -38,36 +39,50 @@ Configuration example:
 
 ## Default Authorization Posture
 
-The template registers named policies but does not force every endpoint to require authorization by default.
+The default scaffold is closed by default for routed endpoints. When `ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault` is `true`, ASP.NET Core registers a fallback authorization policy that requires an authenticated user for endpoints without authorization metadata.
 
-Application authors should apply authorization intentionally at the controller, Razor Page, endpoint, folder, or convention level. This keeps the base template runnable while still providing clear policy names for protected application areas.
+This protects newly added controller actions, Razor Pages, and other routed endpoints when a developer does not attach an `[Authorize]` attribute or named policy. Stronger role, permission, claim, or custom policies still apply where they are declared explicitly.
 
-For production applications that should be closed by default, the consuming application can opt in to a fallback authorization policy.
+Endpoints that are intentionally public must opt out explicitly by using `[AllowAnonymous]`, `.AllowAnonymous()`, or an equivalent endpoint convention. The base application currently makes authentication entry points and infrastructure health probes explicit anonymous exceptions.
 
-```csharp
-using Microsoft.AspNetCore.Authorization;
+The authentication-disabled template variant generated with `--authProvider none` sets both of the following values to `false`:
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+```json
+"Authentication": {
+  "Enabled": false
+},
+"Authorization": {
+  "RequireAuthenticatedUserByDefault": false
+}
 ```
 
-This fallback policy is not enabled by default. Enabling it changes the default posture for endpoints that do not explicitly declare authorization metadata.
+Application startup validation rejects an inconsistent configuration where authentication is disabled while the fallback authorization policy still requires an authenticated user.
 
-Before enabling a fallback policy, review endpoints that must remain publicly reachable, including:
+### Deliberate opt-out
 
-- Login, logout, callback, and access-denied endpoints.
-- Health check endpoints.
-- Static files and browser assets.
+A consuming application that intentionally wants unannotated routed endpoints to remain public can disable the fallback policy:
+
+```json
+"ProjectTemplate": {
+  "Authorization": {
+    "RequireAuthenticatedUserByDefault": false
+  }
+}
+```
+
+This is an application-wide security posture change. Review all endpoint surfaces before disabling it, and prefer explicit anonymous metadata for isolated public routes.
+
+### Public endpoint review
+
+Review endpoints that must remain publicly reachable, including:
+
+- Login, external challenge, callback, and access-denied endpoints.
+- Health check endpoints used by infrastructure, reverse proxies, or orchestration platforms.
 - Public documentation or landing pages.
 - API endpoints that intentionally allow anonymous access.
+- Static files and browser assets, which are served by static-file middleware rather than routed endpoint authorization metadata.
 
-Use `[AllowAnonymous]` intentionally for endpoints that should remain public.
-
-Named role and permission policies still apply where they are explicitly used.
+Use `[AllowAnonymous]` intentionally for routed endpoints that should remain public.
 
 ## Named Policy Usage Examples
 

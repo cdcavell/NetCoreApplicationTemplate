@@ -1,0 +1,186 @@
+name: Publish Template Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+    inputs:
+      publish_source:
+        description: 'Package source URL used by dotnet nuget push.'
+        required: true
+        default: 'https://nuget.pkg.github.com/cdcavell/index.json'
+      skip_publish:
+        description: 'Pack only and skip dotnet nuget push.'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  CONFIGURATION: Release
+  PACKAGE_PROJECT: './NetCoreApplicationTemplate.Template.csproj'
+  PACKAGE_OUTPUT: './artifacts/template-package'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+concurrency:
+  group: publish-template-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pack-template:
+    name: Pack template package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Validate version metadata
+        shell: pwsh
+        env:
+          GITHUB_REF_TYPE_VALUE: ${{ github.ref_type }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+        run: |
+          $arguments = @{}
+
+          if ($env:GITHUB_REF_TYPE_VALUE -eq 'tag') {
+              $arguments['TagName'] = $env:GITHUB_REF_NAME_VALUE
+          }
+
+          ./scripts/Validate-VersionConsistency.ps1 @arguments
+
+      - name: Restore dependencies
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx --locked-mode
+
+      - name: Build solution
+        run: dotnet build ./NetCoreApplicationTemplate.slnx --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Pack template package
+        run: |
+          dotnet pack ${{ env.PACKAGE_PROJECT }} \
+            --configuration ${{ env.CONFIGURATION }} \
+            --output ${{ env.PACKAGE_OUTPUT }} \
+            /p:ContinuousIntegrationBuild=true
+
+      - name: Validate generated package version
+        shell: pwsh
+        env:
+          GITHUB_REF_TYPE_VALUE: ${{ github.ref_type }}
+          GITHUB_REF_NAME_VALUE: ${{ github.ref_name }}
+          PACKAGE_OUTPUT_VALUE: ${{ env.PACKAGE_OUTPUT }}
+        run: |
+          $arguments = @{
+              PackageDirectory = $env:PACKAGE_OUTPUT_VALUE
+          }
+
+          if ($env:GITHUB_REF_TYPE_VALUE -eq 'tag') {
+              $arguments['TagName'] = $env:GITHUB_REF_NAME_VALUE
+          }
+
+          ./scripts/Validate-VersionConsistency.ps1 @arguments
+
+      - name: Upload template package artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: template-package
+          path: ${{ env.PACKAGE_OUTPUT }}/*.nupkg
+          if-no-files-found: error
+
+  publish-template:
+    name: Publish template package
+    needs: pack-template
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    environment:
+      name: template-package-publish
+
+    if: github.event_name == 'push' || inputs.skip_publish == false
+
+    steps:
+      - name: Download template package artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: template-package
+          path: ./artifacts/template-package
+
+      - name: Resolve package source
+        id: source
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_PACKAGE_SOURCE: ${{ inputs.publish_source }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$REQUESTED_PACKAGE_SOURCE" in
+              https://api.nuget.org/v3/index.json|https://nuget.pkg.github.com/cdcavell/index.json)
+                package_source="$REQUESTED_PACKAGE_SOURCE"
+                ;;
+              *)
+                echo "Unsupported package source: $REQUESTED_PACKAGE_SOURCE"
+                exit 1
+                ;;
+            esac
+          else
+            package_source="https://api.nuget.org/v3/index.json"
+          fi
+
+          printf 'url=%s\n' "$package_source" >> "$GITHUB_OUTPUT"
+
+      - name: NuGet login
+        if: steps.source.outputs.url == 'https://api.nuget.org/v3/index.json'
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        id: nuget-login
+        with:
+          user: CDCavell
+
+      - name: Publish template package
+        shell: bash
+        env:
+          NUGET_TRUSTED_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_SOURCE: ${{ steps.source.outputs.url }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          package=$(find ./artifacts/template-package -maxdepth 1 -name '*.nupkg' | head -n 1)
+
+          if [ -z "$package" ]; then
+            echo "Template package artifact was not found."
+            exit 1
+          fi
+
+          api_key="$NUGET_TRUSTED_API_KEY"
+          if [ "$PACKAGE_SOURCE" = "https://nuget.pkg.github.com/cdcavell/index.json" ]; then
+            api_key="$GITHUB_TOKEN"
+          fi
+
+          if [ -z "$api_key" ]; then
+            echo "Package source requires an API key. Configure NUGET_TRUSTED_API_KEY or publish to GitHub Packages with GITHUB_TOKEN."
+            exit 1
+          fi
+
+          dotnet nuget push "$package" \
+            --api-key "$api_key" \
+            --source "$PACKAGE_SOURCE" \
+            --skip-duplicate

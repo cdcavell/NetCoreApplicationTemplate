@@ -1,0 +1,413 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CONFIGURATION: Release
+  COVERAGE_THRESHOLD: '75'
+  SOLUTION_FILE: './NetCoreApplicationTemplate.slnx'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'pull_request'
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v4
+        with:
+          fail-on-severity: moderate
+
+  build-validation:
+    name: Build validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Display .NET information
+        run: dotnet --info
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --locked-mode
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Verify formatting
+        run: dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity minimal
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          $testProjects = Get-ChildItem -Path . -Recurse -Filter *.csproj | Where-Object {
+              $content = Get-Content $_.FullName -Raw
+              $_.BaseName -match 'Tests?$' -or $content -match 'Microsoft\.NET\.Test\.Sdk'
+          }
+
+          if (-not $testProjects) {
+              Write-Host "No test projects found. Skipping dotnet test."
+              exit 0
+          }
+
+          foreach ($project in $testProjects) {
+              Write-Host "Running tests for $($project.FullName)"
+              dotnet test $project.FullName `
+                --configuration $env:CONFIGURATION `
+                --no-restore `
+                --no-build `
+                --verbosity normal `
+                --collect:"XPlat Code Coverage" `
+                --logger "trx" `
+                --results-directory "./artifacts/test-results" `
+                /p:ContinuousIntegrationBuild=true
+          }
+
+      - name: Restore local tools
+        run: dotnet tool restore
+
+      - name: Generate coverage report
+        shell: pwsh
+        run: |
+          dotnet reportgenerator `
+            -reports:"./artifacts/test-results/**/coverage.cobertura.xml" `
+            -targetdir:"./artifacts/coverage-report" `
+            -reporttypes:"Html;MarkdownSummaryGithub;Cobertura" `
+            -assemblyfilters:"+ProjectTemplate.*;-*.Tests" `
+            -filefilters:"-**/bin/**;-**/obj/**;-**/*.g.cs"
+
+      - name: Publish test results artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: test-results
+          path: ./artifacts/test-results
+          if-no-files-found: warn
+
+      - name: Publish coverage report artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: coverage-report
+          path: ./artifacts/coverage-report
+          if-no-files-found: warn
+
+      - name: Enforce coverage threshold
+        shell: pwsh
+        run: |
+          $threshold = [double]$env:COVERAGE_THRESHOLD
+          $coverageFile = Get-Item "./artifacts/coverage-report/Cobertura.xml" -ErrorAction SilentlyContinue
+
+          if (-not $coverageFile) {
+              Write-Error "Coverage file was not generated."
+              exit 1
+          }
+
+          [xml]$coverage = Get-Content $coverageFile.FullName
+          $lineRate = [double]$coverage.coverage.'line-rate'
+          $percentage = [math]::Round($lineRate * 100, 2)
+
+          Write-Host "Line coverage: $percentage%"
+          Write-Host "Required line coverage threshold: $threshold%"
+
+          if ($percentage -lt $threshold) {
+              Write-Error "Coverage $percentage% is below required threshold of $threshold%."
+              exit 1
+          }
+
+      - name: Enforce security-critical coverage thresholds
+        shell: pwsh
+        run: ./eng/Assert-SecurityCriticalCoverage.ps1 -CoverageFile "./artifacts/coverage-report/Cobertura.xml" -ConfigFile "./eng/security-critical-coverage.json"
+
+  template-smoke-test:
+    name: Template smoke test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Pack template package
+        shell: pwsh
+        run: |
+          dotnet pack ./NetCoreApplicationTemplate.Template.csproj `
+            --configuration $env:CONFIGURATION `
+            --output ./artifacts/template-package `
+            /p:ContinuousIntegrationBuild=true
+
+      - name: Install template package
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem -Path ./artifacts/template-package -Filter *.nupkg | Select-Object -First 1
+
+          if (-not $package) {
+              Write-Error "Template package was not created."
+              exit 1
+          }
+
+          dotnet new install $package.FullName
+          dotnet new list netcoreapp-template
+
+      - name: Scaffold consumer project
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
+          dotnet new netcoreapp-template `
+            --name ContosoSecurityPortal `
+            --output ./artifacts/scaffold/ContosoSecurityPortal `
+            --skipRestore true
+
+      - name: Validate scaffolded consumer manifest
+        shell: pwsh
+        run: ./eng/Validate-ScaffoldManifest.ps1 -ScaffoldRoot ./artifacts/scaffold/ContosoSecurityPortal
+
+      - name: Build scaffolded output
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          dotnet restore ./ContosoSecurityPortal.slnx --locked-mode
+          dotnet build ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test scaffolded output
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: dotnet test ./ContosoSecurityPortal.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal /p:ContinuousIntegrationBuild=true
+
+      - name: Build scaffolded Docker image
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          docker build `
+            --build-arg BUILD_CONFIGURATION=$env:CONFIGURATION `
+            --tag contososecurityportal-web:ci `
+            .
+
+      - name: Validate scaffolded Docker Compose configuration
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci config
+
+      - name: Run scaffolded Docker Compose application
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci up --build --detach
+
+      - name: Verify scaffolded Docker health endpoint
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          $healthUrl = "http://localhost:8080/health/live"
+
+          for ($attempt = 1; $attempt -le 30; $attempt++) {
+              try {
+                  $response = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 2
+
+                  if ($response.StatusCode -eq 200) {
+                      Write-Host "Health endpoint responded successfully."
+                      exit 0
+                  }
+
+                  Write-Host "Health endpoint returned HTTP $($response.StatusCode)."
+              }
+              catch {
+                  Write-Host "Health probe attempt $attempt failed: $($_.Exception.Message)"
+              }
+
+              Start-Sleep -Seconds 2
+          }
+
+          docker compose -p contososecurityportal-ci ps
+          docker compose -p contososecurityportal-ci logs --no-color
+
+          Write-Error "Health endpoint did not respond successfully."
+          exit 1
+
+      - name: Capture scaffolded Docker logs
+        if: always() && runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: |
+          docker compose -p contososecurityportal-ci ps
+          docker compose -p contososecurityportal-ci logs --no-color
+
+      - name: Stop scaffolded Docker Compose application
+        if: always() && runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoSecurityPortal
+        run: docker compose -p contososecurityportal-ci down --volumes --remove-orphans
+
+
+      - name: Scaffold non-default consumer project
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path ./artifacts/scaffold -Force | Out-Null
+          dotnet new netcoreapp-template `
+            --name ContosoNoAuthSqlServer `
+            --output ./artifacts/scaffold/ContosoNoAuthSqlServer `
+            --skipRestore=true `
+            --authProvider=none `
+            --dbProvider=sqlserver
+
+      - name: Validate non-default scaffolded configuration
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          $appsettingsPath = "./artifacts/scaffold/ContosoNoAuthSqlServer/src/ContosoNoAuthSqlServer.Web/appsettings.json"
+
+          if (-not (Test-Path -LiteralPath $appsettingsPath -PathType Leaf)) {
+              Write-Error "Generated appsettings.json was not found: $appsettingsPath"
+              exit 1
+          }
+
+          $projectName = "ContosoNoAuthSqlServer"
+          $settings = Get-Content -LiteralPath $appsettingsPath -Raw | ConvertFrom-Json
+          $projectSettings = $settings.PSObject.Properties[$projectName].Value
+
+          if ($null -eq $projectSettings) {
+              Write-Error "Expected generated appsettings root '$projectName' was not found."
+              exit 1
+          }
+
+          Write-Host "Generated auth enabled: $($projectSettings.Authentication.Enabled)"
+          Write-Host "Generated cookie enabled: $($projectSettings.Authentication.Cookie.Enabled)"
+          Write-Host "Generated data provider: $($projectSettings.DataAccess.Provider)"
+          Write-Host "Generated connection string name: $($projectSettings.DataAccess.ConnectionStringName)"
+
+          if ($projectSettings.Authentication.Enabled -ne $false) {
+              Write-Error "Expected ${projectName}:Authentication:Enabled to be false."
+              exit 1
+          }
+
+          if ($projectSettings.Authentication.Cookie.Enabled -ne $false) {
+              Write-Error "Expected ${projectName}:Authentication:Cookie:Enabled to be false."
+              exit 1
+          }
+
+          if ($projectSettings.DataAccess.Provider -ne "SqlServer") {
+              Write-Error "Expected ${projectName}:DataAccess:Provider to be SqlServer."
+              exit 1
+          }
+
+          if ($projectSettings.DataAccess.ConnectionStringName -ne "ApplicationSqlServer") {
+              Write-Error "Expected ${projectName}:DataAccess:ConnectionStringName to be ApplicationSqlServer."
+              exit 1
+          }
+
+      - name: Build non-default scaffolded output
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoNoAuthSqlServer
+        run: |
+          dotnet restore ./ContosoNoAuthSqlServer.slnx --locked-mode
+          dotnet build ./ContosoNoAuthSqlServer.slnx --configuration $env:CONFIGURATION --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test non-default scaffolded output
+        if: runner.os == 'Linux'
+        shell: pwsh
+        working-directory: ./artifacts/scaffold/ContosoNoAuthSqlServer
+        run: dotnet test ./ContosoNoAuthSqlServer.slnx --configuration $env:CONFIGURATION --no-build --verbosity normal /p:ContinuousIntegrationBuild=true
+
+      - name: Uninstall template package
+        if: always()
+        shell: pwsh
+        run: |
+          dotnet new uninstall CDCavell.NetCoreApplicationTemplate
+          if ($LASTEXITCODE -ne 0) {
+              Write-Host "Template package was not installed or was already removed. Continuing cleanup."
+              exit 0
+          }
+
+  codeql-analysis:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
+        with:
+          languages: 'actions,csharp'
+          build-mode: none
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }} --locked-mode
+
+      - name: Build solution for CodeQL
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration ${{ env.CONFIGURATION }} --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0

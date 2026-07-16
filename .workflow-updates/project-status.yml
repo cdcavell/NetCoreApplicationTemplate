@@ -1,0 +1,216 @@
+name: Project Status Automation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+env:
+  PROJECT_OWNER: ${{ vars.PROJECT_OWNER }}
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
+  REVIEW_STATUS: ${{ vars.PROJECT_REVIEW_STATUS }}
+
+jobs:
+  move-linked-issue-to-review:
+    name: Move linked issue to review
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Move linked issue to review status
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PR_NODE_ID: ${{ github.event.pull_request.node_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Finding issues linked to this pull request..."
+
+          gh api graphql \
+            -f prId="$PR_NODE_ID" \
+            -f query='
+              query($prId: ID!) {
+                node(id: $prId) {
+                  ... on PullRequest {
+                    closingIssuesReferences(first: 20) {
+                      nodes {
+                        id
+                        number
+                        title
+                        repository {
+                          nameWithOwner
+                        }
+                        projectItems(first: 20) {
+                          nodes {
+                            id
+                            project {
+                              id
+                              number
+                              title
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ' > linked-issues.json
+
+          ISSUE_COUNT=$(jq '.data.node.closingIssuesReferences.nodes | length' linked-issues.json)
+
+          if [ "$ISSUE_COUNT" -eq 0 ]; then
+            echo "No closing linked issues found. Make sure the PR body uses a keyword such as: Closes #123"
+            exit 0
+          fi
+
+          echo "Fetching project status field information..."
+
+          gh api graphql \
+            -f owner="$PROJECT_OWNER" \
+            -F number="$PROJECT_NUMBER" \
+            -f query='
+              query($owner: String!, $number: Int!) {
+                repositoryOwner(login: $owner) {
+                  ... on User {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 50) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  ... on Organization {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 50) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ' > project.json
+
+          PROJECT_ID=$(jq -r '.data.repositoryOwner.projectV2.id // empty' project.json)
+
+          STATUS_FIELD_ID=$(jq -r '
+            .data.repositoryOwner.projectV2.fields.nodes[]
+            | select(.name == "Status")
+            | .id
+          ' project.json)
+
+          REVIEW_OPTION_ID=$(jq -r --arg status "$REVIEW_STATUS" '
+            .data.repositoryOwner.projectV2.fields.nodes[]
+            | select(.name == "Status")
+            | .options[]
+            | select(.name == $status)
+            | .id
+          ' project.json)
+
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "Could not find project. Check PROJECT_OWNER and PROJECT_NUMBER."
+            exit 1
+          fi
+
+          if [ -z "$STATUS_FIELD_ID" ] || [ "$STATUS_FIELD_ID" = "null" ]; then
+            echo "Could not find Status field in project."
+            exit 1
+          fi
+
+          if [ -z "$REVIEW_OPTION_ID" ] || [ "$REVIEW_OPTION_ID" = "null" ]; then
+            echo "Could not find Status option named '$REVIEW_STATUS'."
+            echo "Make sure PROJECT_REVIEW_STATUS exactly matches the project status option."
+            exit 1
+          fi
+
+          echo "Updating linked issue project item status to '$REVIEW_STATUS'..."
+
+          UPDATED_COUNT=0
+
+          while read -r encodedIssue; do
+            issueJson=$(echo "$encodedIssue" | base64 --decode)
+
+            ISSUE_NUMBER=$(echo "$issueJson" | jq -r '.number')
+            ISSUE_TITLE=$(echo "$issueJson" | jq -r '.title')
+            ITEM_ID=$(echo "$issueJson" | jq -r '.itemId // empty')
+
+            if [ -z "$ITEM_ID" ] || [ "$ITEM_ID" = "null" ]; then
+              echo "Issue #$ISSUE_NUMBER is linked but is not currently in project #$PROJECT_NUMBER. Skipping."
+              continue
+            fi
+
+            echo "Moving issue #$ISSUE_NUMBER - $ISSUE_TITLE"
+
+            gh api graphql \
+              -f projectId="$PROJECT_ID" \
+              -f itemId="$ITEM_ID" \
+              -f fieldId="$STATUS_FIELD_ID" \
+              -f optionId="$REVIEW_OPTION_ID" \
+              -f query='
+                mutation(
+                  $projectId: ID!,
+                  $itemId: ID!,
+                  $fieldId: ID!,
+                  $optionId: String!
+                ) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: {
+                      singleSelectOptionId: $optionId
+                    }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              '
+
+            UPDATED_COUNT=$((UPDATED_COUNT + 1))
+          done < <(
+            jq -r --arg projectId "$PROJECT_ID" '
+              .data.node.closingIssuesReferences.nodes[]
+              | {
+                  number,
+                  title,
+                  itemId: (
+                    .projectItems.nodes[]?
+                    | select(.project.id == $projectId)
+                    | .id
+                  )
+                }
+              | @base64
+            ' linked-issues.json
+          )
+
+          echo "Updated $UPDATED_COUNT linked issue(s)."

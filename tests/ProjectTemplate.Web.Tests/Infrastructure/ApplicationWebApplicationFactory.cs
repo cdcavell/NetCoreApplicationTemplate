@@ -31,7 +31,17 @@ internal sealed class ApplicationWebApplicationFactory(IReadOnlyDictionary<strin
     {
         builder.UseEnvironment("Testing");
 
-        builder.ConfigureAppConfiguration((_, configurationBuilder) => configurationBuilder.AddInMemoryCollection(_configurationValues));
+        Dictionary<string, string?> testConfiguration = new()
+        {
+            ["ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault"] = "false"
+        };
+
+        foreach ((string key, string? value) in _configurationValues)
+        {
+            testConfiguration[key] = value;
+        }
+
+        builder.ConfigureAppConfiguration((_, configurationBuilder) => configurationBuilder.AddInMemoryCollection(testConfiguration));
 
         builder.ConfigureServices(services => services
                 .AddControllersWithViews()

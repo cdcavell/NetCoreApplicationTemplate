@@ -1,27 +1,14 @@
 # This workflow uses actions that are not certified by GitHub. They are provided
-# by a third-party and are governed by separate terms of service, privacy
-# policy, and support documentation.
-#
-# OWASP Dependency-Check performs Software Composition Analysis (SCA): it scans
-# the project's NuGet/.NET dependencies for publicly disclosed vulnerabilities
-# (CVEs), mapping to OWASP Top 10 A06:2021 - Vulnerable and Outdated Components.
-# Results are uploaded as SARIF to the GitHub code-scanning dashboard.
-#
-# Note: the underlying `owasp/dependency-check-action` image runs with
-# `--noupdate` and ships with a pre-built NVD database, so no NVD API key or
-# secret is required. Database freshness tracks the image's build date.
+# by a third party and governed by separate terms, privacy policies, and support.
+# OWASP Dependency-Check scans the restored NuGet dependency graph and uploads
+# SARIF results to GitHub code scanning.
 
 name: OWASP Dependency-Check software composition analysis
 
 on:
-  # Manual trigger
   workflow_dispatch:
-
-  # Every Sunday morning
   schedule:
     - cron: '30 9 * * 0'
-
-  # Re-scan when dependency manifests or reviewed suppressions change.
   pull_request:
     paths:
       - '**/*.csproj'
@@ -34,7 +21,6 @@ on:
       - '**/Directory.Build.props'
       - 'dependency-check-suppressions.xml'
 
-# Deny all token permissions unless granted by a job.
 permissions: {}
 
 jobs:
@@ -44,7 +30,6 @@ jobs:
     timeout-minutes: 20
 
     permissions:
-      # Needed to upload SARIF results to the code-scanning dashboard.
       security-events: write
 
     steps:
@@ -58,8 +43,6 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      # Restore so the full transitive dependency graph (obj/project.assets.json)
-      # is available for Dependency-Check's NuGet analyzers to read.
       - name: Restore dependencies
         run: dotnet restore ./NetCoreApplicationTemplate.slnx --locked-mode
 
@@ -69,7 +52,7 @@ jobs:
           project: 'NetCoreApplicationTemplate'
           path: '.'
           format: 'SARIF'
-          others: '--suppression dependency-check-suppressions.xml'
+          others: '--suppression=/github/workspace/dependency-check-suppressions.xml'
 
       - name: Upload report artifact
         if: always()
@@ -78,9 +61,10 @@ jobs:
           name: dependency-check-report
           path: reports/
           retention-days: 5
+          if-no-files-found: warn
 
       - name: Upload results to code-scanning
-        if: always()
+        if: always() && hashFiles('reports/dependency-check-report.sarif') != ''
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         with:
           sarif_file: reports/dependency-check-report.sarif

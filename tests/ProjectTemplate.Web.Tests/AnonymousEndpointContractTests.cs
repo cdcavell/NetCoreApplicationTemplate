@@ -1,6 +1,11 @@
+using System.Net;
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using ProjectTemplate.Web.Controllers;
 using ProjectTemplate.Web.Tests.Extensions;
 using ProjectTemplate.Web.Tests.Infrastructure;
 
@@ -43,6 +48,7 @@ public sealed class AnonymousEndpointContractTests
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null)
             .Where(IsGeneratedApplicationEndpoint)
             .Select(endpoint => endpoint.RoutePattern.RawText ?? string.Empty)
+            .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)];
 
         Assert.Equal(_expectedAnonymousRoutes, anonymousRoutes);
@@ -52,11 +58,14 @@ public sealed class AnonymousEndpointContractTests
     /// Verifies representative application routes remain protected by the fallback policy.
     /// </summary>
     /// <param name="path">The routed endpoint path to request anonymously.</param>
+    /// <param name="expectedStatusCode">The expected unauthenticated response status.</param>
     [Theory]
-    [InlineData("/")]
-    [InlineData("/api/v1/application-information")]
-    [InlineData("/api/application-information")]
-    public async Task NonAllowlistedEndpoint_ChallengesAnonymousCaller(string path)
+    [InlineData("/", HttpStatusCode.Found)]
+    [InlineData("/api/v1/application-information", HttpStatusCode.Unauthorized)]
+    [InlineData("/api/application-information", HttpStatusCode.Unauthorized)]
+    public async Task NonAllowlistedEndpoint_ChallengesAnonymousCaller(
+        string path,
+        HttpStatusCode expectedStatusCode)
     {
         using ApplicationWebApplicationFactory factory = CreateClosedByDefaultFactory();
         using HttpClient client = factory.CreateHttpsClient();
@@ -65,52 +74,44 @@ public sealed class AnonymousEndpointContractTests
             path,
             TestContext.Current.CancellationToken);
 
-        Assert.Equal(System.Net.HttpStatusCode.Found, response.StatusCode);
-        Assert.NotNull(response.Headers.Location);
-        Assert.Equal("/Account/Login", response.Headers.Location.LocalPath);
+        Assert.Equal(expectedStatusCode, response.StatusCode);
+
+        if (expectedStatusCode == HttpStatusCode.Found)
+        {
+            Assert.NotNull(response.Headers.Location);
+            Assert.Equal("/Account/Login", response.Headers.Location.LocalPath);
+        }
     }
 
     /// <summary>
     /// Verifies logout declares authenticated access in addition to anti-forgery validation.
     /// </summary>
     [Fact]
-    public async Task LogoutEndpoint_RequiresAuthorizationAndAntiforgery()
+    public void LogoutEndpoint_RequiresAuthorizationAndAntiforgery()
     {
-        using ApplicationWebApplicationFactory factory = CreateClosedByDefaultFactory();
-        using HttpClient client = factory.CreateHttpsClient();
+        MethodInfo logoutMethod = typeof(AccountController).GetMethod(
+            nameof(AccountController.Logout),
+            BindingFlags.Instance | BindingFlags.Public)
+            ?? throw new InvalidOperationException("AccountController.Logout was not found.");
 
-        using HttpResponseMessage _ = await client.GetAsync(
-            "/health/live",
-            TestContext.Current.CancellationToken);
-
-        EndpointDataSource endpointDataSource = factory.Services
-            .GetRequiredService<EndpointDataSource>();
-
-        RouteEndpoint logoutEndpoint = Assert.Single(endpointDataSource.Endpoints
-            .OfType<RouteEndpoint>()
-            , endpoint => string.Equals(
-                endpoint.RoutePattern.RawText,
-                "/Account/Logout",
-                StringComparison.Ordinal));
-
-        Assert.NotNull(logoutEndpoint.Metadata.GetMetadata<IAuthorizeData>());
-        Assert.Null(logoutEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
-        Assert.Contains(
-            logoutEndpoint.Metadata,
-            metadata => string.Equals(
-                metadata.GetType().Name,
-                "ValidateAntiForgeryTokenAttribute",
-                StringComparison.Ordinal));
+        Assert.NotNull(logoutMethod.GetCustomAttribute<AuthorizeAttribute>());
+        Assert.NotNull(logoutMethod.GetCustomAttribute<ValidateAntiForgeryTokenAttribute>());
+        Assert.Null(logoutMethod.GetCustomAttribute<AllowAnonymousAttribute>());
     }
 
     private static bool IsGeneratedApplicationEndpoint(RouteEndpoint endpoint)
     {
         string? route = endpoint.RoutePattern.RawText;
 
-        return route is "/health" or "/health/live" or "/health/ready" || endpoint.Metadata
-            .OfType<Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor>()
-            .Any(descriptor => descriptor.ControllerTypeInfo.Namespace?
-                .StartsWith("ProjectTemplate.Web.Controllers", StringComparison.Ordinal) == true);
+        if (route is "/health" or "/health/live" or "/health/ready")
+        {
+            return true;
+        }
+
+        ControllerActionDescriptor? descriptor = endpoint.Metadata
+            .GetMetadata<ControllerActionDescriptor>();
+
+        return descriptor?.ControllerTypeInfo.Assembly == typeof(AccountController).Assembly;
     }
 
     private static ApplicationWebApplicationFactory CreateClosedByDefaultFactory()

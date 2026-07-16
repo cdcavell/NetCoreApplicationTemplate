@@ -1,24 +1,23 @@
-name: Generate Pinned Dependency Data
+name: Finalize Pinned Dependency Updates
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
-  workflow_dispatch:
+      - security/pin-build-dependencies
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  generate:
-    name: Generate lock files and image digests
+  finalize:
+    name: Commit lock files and immutable image digests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
@@ -28,28 +27,62 @@ jobs:
       - name: Generate NuGet lock files
         run: dotnet restore ./NetCoreApplicationTemplate.slnx --force-evaluate
 
-      - name: Resolve base image digests
+      - name: Resolve and apply immutable dependency pins
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts/pinned-dependencies
 
           sdk_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:10.0.300 --format '{{json .Manifest.Digest}}' | tr -d '"')
           aspnet_digest=$(docker buildx imagetools inspect mcr.microsoft.com/dotnet/aspnet:10.0 --format '{{json .Manifest.Digest}}' | tr -d '"')
 
-          printf 'SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.300@%s\n' "$sdk_digest" > artifacts/pinned-dependencies/image-digests.env
-          printf 'ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0@%s\n' "$aspnet_digest" >> artifacts/pinned-dependencies/image-digests.env
+          python3 - "$sdk_digest" "$aspnet_digest" <<'PY'
+          from pathlib import Path
+          import sys
 
-      - name: Stage generated files
+          sdk_digest, aspnet_digest = sys.argv[1:3]
+
+          dockerfile = Path('Dockerfile')
+          text = dockerfile.read_text()
+          text = text.replace(
+              'FROM mcr.microsoft.com/dotnet/sdk:10.0.300 AS build',
+              f'FROM mcr.microsoft.com/dotnet/sdk:10.0.300@{sdk_digest} AS build')
+          text = text.replace(
+              'FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final',
+              f'FROM mcr.microsoft.com/dotnet/aspnet:10.0@{aspnet_digest} AS final')
+          text = text.replace(
+              'RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj"',
+              'RUN dotnet restore "src/ProjectTemplate.Web/ProjectTemplate.Web.csproj" --locked-mode')
+          text = text.replace(
+              '    --output /app/publish \\\n',
+              '    --output /app/publish \\\n    --no-restore \\\n')
+          dockerfile.write_text(text)
+
+          for workflow in Path('.github/workflows').glob('*.yml'):
+              if workflow.name == 'generate-pinned-dependency-data.yml':
+                  continue
+              text = workflow.read_text()
+              lines = []
+              for line in text.splitlines():
+                  if 'dotnet restore ' in line and '--locked-mode' not in line:
+                      line = f'{line} --locked-mode'
+                  line = line.replace(
+                      'github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4',
+                      'github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0')
+                  line = line.replace(
+                      'github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4',
+                      'github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0')
+                  lines.append(line)
+              workflow.write_text('\n'.join(lines) + '\n')
+
+          Path('.github/workflows/generate-pinned-dependency-data.yml').unlink()
+          PY
+
+      - name: Commit generated dependency pins
         shell: bash
         run: |
           set -euo pipefail
-          find . -name packages.lock.json -print
-          tar -czf artifacts/pinned-dependencies/packages-lock-files.tar.gz --transform='s#^./##' $(find . -name packages.lock.json -print)
-
-      - name: Upload generated dependency data
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: pinned-dependency-data
-          path: artifacts/pinned-dependencies
-          if-no-files-found: error
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add Directory.Build.props Dockerfile .github/workflows src tests
+          git commit -m "build: pin NuGet and container dependencies"
+          git push

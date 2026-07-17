@@ -9,6 +9,21 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 9 * * 0'
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '**/*.slnx'
+      - '**/packages.config'
+      - '**/packages.lock.json'
+      - '**/packages.*.lock.json'
+      - '**/Directory.Packages.props'
+      - '**/Directory.Build.props'
+      - 'dependency-check-suppressions.xml'
+      - '.github/workflows/owasp-dependency-check.yml'
+
   pull_request:
     paths:
       - '**/*.csproj'
@@ -19,6 +34,8 @@ on:
       - '**/packages.*.lock.json'
       - '**/Directory.Packages.props'
       - '**/Directory.Build.props'
+      - 'dependency-check-suppressions.xml'
+      - '.github/workflows/owasp-dependency-check.yml'
 
 permissions: {}
 

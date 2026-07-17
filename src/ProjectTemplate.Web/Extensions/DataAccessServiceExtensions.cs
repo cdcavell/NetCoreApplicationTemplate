@@ -1,4 +1,5 @@
 using ProjectTemplate.Infrastructure.Data;
+using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.Extensions;
 using ProjectTemplate.Infrastructure.Data.Services;
 using ProjectTemplate.Web.Accessors;
@@ -22,6 +23,7 @@ public static class DataAccessServiceExtensions
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentActorAccessor, HttpContextCurrentActorAccessor>();
+        services.AddScoped<IApplicationAuditContextAccessor, HttpContextApplicationAuditContextAccessor>();
 
         services.AddApplicationInfrastructureDataAccess(configuration);
 

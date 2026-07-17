@@ -22,7 +22,8 @@ public sealed class EfCoreMigrationCoverageTests
         { nameof(InitialCreate), 5, 2 },
         { nameof(AddDataEntityConcurrencyStamp), 2, 2 },
         { nameof(AddExternalLoginAccountNormalizedLookupColumns), 5, 5 },
-        { nameof(StandardizeTimestampPersistence), 0, 0 }
+        { nameof(StandardizeTimestampPersistence), 0, 0 },
+        { nameof(AddAuditAccountabilityContext), 16, 16 }
     };
 
     public static TheoryData<string, bool, bool, int?> MigrationModelCases => new()
@@ -30,7 +31,8 @@ public sealed class EfCoreMigrationCoverageTests
         { nameof(InitialCreate), false, false, null },
         { nameof(AddDataEntityConcurrencyStamp), true, false, null },
         { nameof(AddExternalLoginAccountNormalizedLookupColumns), true, true, null },
-        { nameof(StandardizeTimestampPersistence), true, true, 3 }
+        { nameof(StandardizeTimestampPersistence), true, true, 3 },
+        { nameof(AddAuditAccountabilityContext), true, true, 3 }
     };
 
     [Theory]
@@ -98,6 +100,47 @@ public sealed class EfCoreMigrationCoverageTests
         Assert.Equal(expectedTimestampPrecision, createdOnUtc!.GetPrecision());
         Assert.Equal(expectedTimestampPrecision, modifiedOnUtc!.GetPrecision());
     }
+
+    [Fact]
+    public void AddAuditAccountabilityContext_TargetModel_ContainsCorrelationFieldsAndIndexes()
+    {
+        IModel model = new AddAuditAccountabilityContext().TargetModel;
+        IEntityType auditRecord = model.FindEntityType(_auditRecordEntityName)!;
+
+        string[] expectedProperties =
+        [
+            "ActorId",
+            "ActorType",
+            "CorrelationId",
+            "DecisionAuditRecordId",
+            "ExecutionAttemptId",
+            "MutationBatchId",
+            "OperationExecutionId",
+            "OrganizationHash",
+            "SchemaVersion",
+            "SpanId",
+            "TenantHash",
+            "TraceId"
+        ];
+
+        Assert.All(expectedProperties, propertyName =>
+            Assert.NotNull(auditRecord.FindProperty(propertyName)));
+
+        string[] indexedProperties =
+        [
+            "CorrelationId",
+            "DecisionAuditRecordId",
+            "MutationBatchId",
+            "OperationExecutionId"
+        ];
+
+        Assert.All(indexedProperties, propertyName =>
+            Assert.Contains(
+                auditRecord.GetIndexes(),
+                index => index.Properties.Count == 1 &&
+                    index.Properties[0].Name == propertyName));
+    }
+
     [Fact]
     public void ApplicationDbContextModelSnapshot_Model_PreservesCurrentPersistenceShape()
     {
@@ -118,6 +161,9 @@ public sealed class EfCoreMigrationCoverageTests
         Assert.NotNull(externalLoginAccount);
 
         Assert.NotNull(auditRecord!.FindProperty("ConcurrencyStamp"));
+        Assert.NotNull(auditRecord.FindProperty("MutationBatchId"));
+        Assert.NotNull(auditRecord.FindProperty("OperationExecutionId"));
+        Assert.NotNull(auditRecord.FindProperty("DecisionAuditRecordId"));
         Assert.NotNull(externalLoginAccount!.FindProperty("ConcurrencyStamp"));
         Assert.NotNull(externalLoginAccount.FindProperty("NormalizedEmail"));
         Assert.NotNull(externalLoginAccount.FindProperty("NormalizedProviderName"));
@@ -159,6 +205,7 @@ public sealed class EfCoreMigrationCoverageTests
             nameof(AddDataEntityConcurrencyStamp) => new AddDataEntityConcurrencyStamp(),
             nameof(AddExternalLoginAccountNormalizedLookupColumns) => new AddExternalLoginAccountNormalizedLookupColumns(),
             nameof(StandardizeTimestampPersistence) => new StandardizeTimestampPersistence(),
+            nameof(AddAuditAccountabilityContext) => new AddAuditAccountabilityContext(),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(migrationName),
                 migrationName,

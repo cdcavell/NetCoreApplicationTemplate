@@ -19,7 +19,6 @@ on:
       - '**/packages.*.lock.json'
       - '**/Directory.Packages.props'
       - '**/Directory.Build.props'
-      - 'dependency-check-suppressions.xml'
 
 permissions: {}
 
@@ -52,7 +51,6 @@ jobs:
           project: 'NetCoreApplicationTemplate'
           path: '.'
           format: 'SARIF'
-          others: '--suppression=/github/workspace/dependency-check-suppressions.xml'
 
       - name: Upload report artifact
         if: always()

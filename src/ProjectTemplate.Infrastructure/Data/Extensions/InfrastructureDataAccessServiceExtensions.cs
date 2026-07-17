@@ -44,17 +44,25 @@ public static class InfrastructureDataAccessServiceExtensions
         }
 
         services.TryAddScoped<ICurrentActorAccessor, SystemCurrentActorAccessor>();
+        services.TryAddScoped<IApplicationAuditContextAccessor, SystemApplicationAuditContextAccessor>();
+        services.TryAddScoped<IApplicationAuditValuePolicy, DefaultApplicationAuditValuePolicy>();
 
         if (AuditStorageModes.IsLocal(registration.AuditStorageMode))
         {
             services.TryAddScoped<IApplicationAuditStore, LocalApplicationAuditStore>();
         }
 
-        services.TryAddScoped<IApplicationSaveChangesPipeline>(serviceProvider =>
+        services.TryAddScoped<ApplicationSaveChangesPipeline>(serviceProvider =>
             new ApplicationSaveChangesPipeline(
                 serviceProvider.GetRequiredService<ICurrentActorAccessor>(),
                 serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),
-                serviceProvider.GetService<IApplicationAuditStore>()));
+                serviceProvider.GetService<IApplicationAuditStore>(),
+                serviceProvider.GetService<IApplicationAuditContextAccessor>(),
+                serviceProvider.GetService<IApplicationAuditValuePolicy>()));
+        services.TryAddScoped<IApplicationSaveChangesPipeline>(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationSaveChangesPipeline>());
+        services.TryAddScoped<IApplicationMutationAuditReceiptAccessor>(serviceProvider =>
+            serviceProvider.GetRequiredService<ApplicationSaveChangesPipeline>());
         services.TryAddScoped<ApplicationSaveChangesInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>(options => ConfigureProvider(

@@ -102,7 +102,7 @@ public sealed class ApplicationAuditAccountabilityTests
         AuditRecord record = await context.AuditRecords.SingleAsync(
             TestContext.Current.CancellationToken);
 
-        using JsonDocument values = JsonDocument.Parse(record.CurrentValues);
+        using var values = JsonDocument.Parse(record.CurrentValues);
 
         Assert.Equal("***", values.RootElement.GetProperty(nameof(ExternalLoginAccount.Email)).GetString());
         Assert.False(values.RootElement.TryGetProperty(nameof(ExternalLoginAccount.DisplayName), out _));

@@ -52,7 +52,7 @@ public static class InfrastructureDataAccessServiceExtensions
             services.TryAddScoped<IApplicationAuditStore, LocalApplicationAuditStore>();
         }
 
-        services.TryAddScoped<ApplicationSaveChangesPipeline>(serviceProvider =>
+        services.TryAddScoped(serviceProvider =>
             new ApplicationSaveChangesPipeline(
                 serviceProvider.GetRequiredService<ICurrentActorAccessor>(),
                 serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),

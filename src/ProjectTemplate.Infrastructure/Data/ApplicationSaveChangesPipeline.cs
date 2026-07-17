@@ -161,7 +161,6 @@ public sealed class ApplicationSaveChangesPipeline :
         _activeAuditContext = null;
         _activeMutationBatchId = null;
         _activeAuditRecordCount = 0;
-        LastCompletedReceipt = null;
     }
 
     private static IReadOnlyList<EntityEntry> GetSavePipelineEntries(ApplicationDbContext dbContext)

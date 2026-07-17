@@ -74,6 +74,8 @@
       href: data-access.md
     - name: EF Core Save Pipeline
       href: ef-core-save-pipeline.md
+    - name: Audit Accountability Integration
+      href: audit-accountability-integration.md
 
 - name: GitHub Workflow
   href: github-workflow.md

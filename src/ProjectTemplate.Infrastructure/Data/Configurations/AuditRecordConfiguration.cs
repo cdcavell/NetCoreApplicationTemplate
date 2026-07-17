@@ -19,8 +19,20 @@ public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRec
         builder.Property(x => x.Id)
             .ValueGeneratedNever();
 
+        builder.Property(x => x.SchemaVersion)
+            .HasMaxLength(32)
+            .IsRequired();
+
         builder.Property(x => x.ModifiedBy)
             .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(x => x.ActorId)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        builder.Property(x => x.ActorType)
+            .HasMaxLength(64)
             .IsRequired();
 
         builder.Property(x => x.ModifiedOnUtc)
@@ -38,6 +50,34 @@ public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRec
             .HasMaxLength(100)
             .IsRequired();
 
+        builder.Property(x => x.MutationBatchId)
+            .HasMaxLength(64)
+            .IsRequired();
+
+        builder.Property(x => x.OperationExecutionId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.ExecutionAttemptId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.CorrelationId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.TraceId)
+            .HasMaxLength(64);
+
+        builder.Property(x => x.SpanId)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.DecisionAuditRecordId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.TenantHash)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.OrganizationHash)
+            .HasMaxLength(128);
+
         builder.Property(x => x.KeyValues)
             .IsRequired();
 
@@ -46,5 +86,10 @@ public sealed class AuditRecordConfiguration : IEntityTypeConfiguration<AuditRec
 
         builder.Property(x => x.CurrentValues)
             .IsRequired();
+
+        builder.HasIndex(x => x.MutationBatchId);
+        builder.HasIndex(x => x.OperationExecutionId);
+        builder.HasIndex(x => x.CorrelationId);
+        builder.HasIndex(x => x.DecisionAuditRecordId);
     }
 }

@@ -67,7 +67,7 @@ jobs:
         with:
           project: 'NetCoreApplicationTemplate'
           path: '.'
-          format: 'SARIF'
+          format: 'ALL'
           others: '--suppression=/github/workspace/dependency-check-suppressions.xml'
 
       - name: Upload report artifact

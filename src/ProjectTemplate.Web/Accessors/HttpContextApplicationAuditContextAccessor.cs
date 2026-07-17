@@ -11,7 +11,7 @@ public sealed class HttpContextApplicationAuditContextAccessor(
     IHttpContextAccessor httpContextAccessor)
     : IApplicationAuditContextAccessor
 {
-    private const string SubjectClaimType = "sub";
+    private const string _subjectClaimType = "sub";
 
     public ApplicationAuditContext Current
     {
@@ -20,7 +20,7 @@ public sealed class HttpContextApplicationAuditContextAccessor(
             HttpContext? httpContext = httpContextAccessor.HttpContext;
             ClaimsPrincipal? user = httpContext?.User;
 
-            string? subject = GetAuthenticatedClaim(user, SubjectClaimType)
+            string? subject = GetAuthenticatedClaim(user, _subjectClaimType)
                 ?? GetAuthenticatedClaim(user, ClaimTypes.NameIdentifier);
 
             if (!string.IsNullOrWhiteSpace(subject))
@@ -36,18 +36,15 @@ public sealed class HttpContextApplicationAuditContextAccessor(
 
             string? remoteIp = httpContext?.Connection.RemoteIpAddress?.ToString();
 
-            if (!string.IsNullOrWhiteSpace(remoteIp))
-            {
-                return new ApplicationAuditContext(
+            return !string.IsNullOrWhiteSpace(remoteIp)
+                ? new ApplicationAuditContext(
                     remoteIp,
                     ApplicationAuditActorTypes.Network,
                     $"Remote IP: {remoteIp}",
                     correlationId: httpContext?.TraceIdentifier,
                     traceId: Activity.Current?.TraceId.ToString(),
-                    spanId: Activity.Current?.SpanId.ToString());
-            }
-
-            return new ApplicationAuditContext(
+                    spanId: Activity.Current?.SpanId.ToString())
+                : new ApplicationAuditContext(
                 "Unknown",
                 ApplicationAuditActorTypes.Unknown,
                 "Unknown",

@@ -6,7 +6,7 @@ namespace ProjectTemplate.Infrastructure.Data.Auditing;
 
 internal static class ApplicationAuditValueProtector
 {
-    private const string MaskedValue = "***";
+    private const string _maskedValue = "***";
 
     internal static bool TryProtect(
         IApplicationAuditValuePolicy policy,
@@ -28,7 +28,7 @@ internal static class ApplicationAuditValueProtector
                 protectedValue = value ?? string.Empty;
                 return true;
             case ApplicationAuditValueDisposition.Mask:
-                protectedValue = MaskedValue;
+                protectedValue = _maskedValue;
                 return true;
             case ApplicationAuditValueDisposition.Hash:
                 protectedValue = Hash(value);

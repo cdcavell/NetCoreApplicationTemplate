@@ -17,6 +17,28 @@ internal sealed class AuditEntry(EntityEntry entry)
     internal string Application { get; set; } = string.Empty;
     [DataType(DataType.Text)]
     internal string ModifiedBy { get; set; } = string.Empty;
+    [DataType(DataType.Text)]
+    internal string ActorId { get; set; } = string.Empty;
+    [DataType(DataType.Text)]
+    internal string ActorType { get; set; } = string.Empty;
+    [DataType(DataType.Text)]
+    internal string MutationBatchId { get; set; } = string.Empty;
+    [DataType(DataType.Text)]
+    internal string? OperationExecutionId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? ExecutionAttemptId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? CorrelationId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? TraceId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? SpanId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? DecisionAuditRecordId { get; set; }
+    [DataType(DataType.Text)]
+    internal string? TenantHash { get; set; }
+    [DataType(DataType.Text)]
+    internal string? OrganizationHash { get; set; }
     [DataType(DataType.DateTime)]
     internal DateTime ModifiedOnUtc { get; set; }
     internal Dictionary<string, object> KeyValues { get; } = [];
@@ -35,12 +57,24 @@ internal sealed class AuditEntry(EntityEntry entry)
 
         AuditRecord auditRecord = new()
         {
+            SchemaVersion = "1.0",
             Entity = TableName,
             State = State,
             Application = string.IsNullOrWhiteSpace(Application)
-            ? applicationAssembly
-            : Application,
+                ? applicationAssembly
+                : Application,
             ModifiedBy = ModifiedBy,
+            ActorId = ActorId,
+            ActorType = ActorType,
+            MutationBatchId = MutationBatchId,
+            OperationExecutionId = OperationExecutionId,
+            ExecutionAttemptId = ExecutionAttemptId,
+            CorrelationId = CorrelationId,
+            TraceId = TraceId,
+            SpanId = SpanId,
+            DecisionAuditRecordId = DecisionAuditRecordId,
+            TenantHash = TenantHash,
+            OrganizationHash = OrganizationHash,
             ModifiedOnUtc = ModifiedOnUtc,
             KeyValues = SerializeAuditValues(KeyValues),
             OriginalValues = SerializeAuditValues(OriginalValues),

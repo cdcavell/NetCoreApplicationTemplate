@@ -19,7 +19,6 @@ on:
       - '**/packages.*.lock.json'
       - '**/Directory.Packages.props'
       - '**/Directory.Build.props'
-      - 'dependency-check-suppressions.xml'
 
 permissions: {}
 

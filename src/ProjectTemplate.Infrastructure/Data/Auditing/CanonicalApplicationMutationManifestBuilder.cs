@@ -134,9 +134,17 @@ public sealed class CanonicalApplicationMutationManifestBuilder : IApplicationMu
                 }
                 writer.WriteEndArray();
                 break;
-            default:
+            case JsonValueKind.String:
+            case JsonValueKind.Number:
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+            case JsonValueKind.Null:
                 element.WriteTo(writer);
                 break;
+            case JsonValueKind.Undefined:
+                throw new InvalidOperationException("Undefined JSON values cannot be represented in a canonical mutation manifest.");
+            default:
+                throw new InvalidOperationException($"Unsupported JSON value kind '{element.ValueKind}'.");
         }
     }
 

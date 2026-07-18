@@ -21,7 +21,7 @@ public sealed class ApplicationAuditedTransactionTests
         using SqliteConnection connection = new("Data Source=:memory:");
         connection.Open();
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         using ApplicationDbContext context = CreateContext(connection, pipeline);
         context.Database.EnsureCreated();
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -44,7 +44,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -82,7 +82,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -107,7 +107,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -133,7 +133,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline, useGeneratedKeyModel: true);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -147,7 +147,7 @@ public sealed class ApplicationAuditedTransactionTests
             },
             cancellationToken: TestContext.Current.CancellationToken);
 
-        AuditRecord auditRecord = await context.AuditRecords.SingleAsync(TestContext.Current.CancellationToken);
+        var auditRecord = await context.AuditRecords.SingleAsync(TestContext.Current.CancellationToken);
         using JsonDocument keyValues = JsonDocument.Parse(auditRecord.KeyValues);
         JsonElement generatedKey = keyValues.RootElement.GetProperty("GeneratedId");
 
@@ -162,7 +162,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline(new ThrowingApplicationAuditStore());
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline(new ThrowingApplicationAuditStore());
         await using ApplicationDbContext context = CreateContext(connection, pipeline, useGeneratedKeyModel: true);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -187,7 +187,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -220,7 +220,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -251,7 +251,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -277,7 +277,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(connection, pipeline);
         _ = await context.Database.EnsureCreatedAsync(TestContext.Current.CancellationToken);
         var coordinator = new ApplicationAuditedTransaction(context, pipeline);
@@ -309,7 +309,7 @@ public sealed class ApplicationAuditedTransactionTests
         await using SqliteConnection connection = new("Data Source=:memory:");
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        var pipeline = CreatePipeline();
+        ApplicationSaveChangesPipeline pipeline = CreatePipeline();
         await using ApplicationDbContext context = CreateContext(
             connection,
             pipeline,
@@ -443,14 +443,9 @@ public sealed class ApplicationAuditedTransactionTests
         }
     }
 
-    private sealed class GeneratedKeyModelCustomizer : IModelCustomizer
+    private sealed class GeneratedKeyModelCustomizer(ModelCustomizerDependencies dependencies) : IModelCustomizer
     {
-        private readonly Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizer _defaultCustomizer;
-
-        public GeneratedKeyModelCustomizer(ModelCustomizerDependencies dependencies)
-        {
-            _defaultCustomizer = new Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizer(dependencies);
-        }
+        private readonly ModelCustomizer _defaultCustomizer = new(dependencies);
 
         public void Customize(ModelBuilder modelBuilder, DbContext context)
         {

@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 using ProjectTemplate.Infrastructure.Data.Entities;
 
 namespace ProjectTemplate.Infrastructure.Data.Auditing;

@@ -35,11 +35,14 @@ public sealed class CanonicalApplicationMutationManifestBuilder : IApplicationMu
             .OrderBy(record => record.Entity, StringComparer.Ordinal)
             .ThenBy(record => record.State, StringComparer.Ordinal)
             .ThenBy(record => record.KeyValues, StringComparer.Ordinal)
+            .ThenBy(record => record.OriginalValues, StringComparer.Ordinal)
+            .ThenBy(record => record.CurrentValues, StringComparer.Ordinal)
             .ThenBy(record => record.OperationExecutionId, StringComparer.Ordinal)
             .ThenBy(record => record.ExecutionAttemptId, StringComparer.Ordinal)
             .ThenBy(record => record.DecisionAuditRecordId, StringComparer.Ordinal)
-            .ThenBy(record => record.OriginalValues, StringComparer.Ordinal)
-            .ThenBy(record => record.CurrentValues, StringComparer.Ordinal)
+            .ThenBy(record => record.CorrelationId, StringComparer.Ordinal)
+            .ThenBy(record => record.TraceId, StringComparer.Ordinal)
+            .ThenBy(record => record.SpanId, StringComparer.Ordinal)
             .ThenBy(record => record.SchemaVersion, StringComparer.Ordinal)
             .ToList();
 

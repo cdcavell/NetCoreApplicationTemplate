@@ -147,8 +147,8 @@ public sealed class ApplicationAuditedTransactionTests
             },
             cancellationToken: TestContext.Current.CancellationToken);
 
-        var auditRecord = await context.AuditRecords.SingleAsync(TestContext.Current.CancellationToken);
-        using JsonDocument keyValues = JsonDocument.Parse(auditRecord.KeyValues);
+        AuditRecord auditRecord = await context.AuditRecords.SingleAsync(TestContext.Current.CancellationToken);
+        using var keyValues = JsonDocument.Parse(auditRecord.KeyValues);
         JsonElement generatedKey = keyValues.RootElement.GetProperty("GeneratedId");
 
         Assert.True(result.CommittedByCoordinator);

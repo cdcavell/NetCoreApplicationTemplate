@@ -1,9 +1,7 @@
 name: Format Diagnostics
 
 on:
-  push:
-    branches:
-      - agent/issue-368-audited-transaction-coordinator
+  pull_request:
 
 permissions:
   contents: read

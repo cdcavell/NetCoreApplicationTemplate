@@ -117,21 +117,79 @@ services.AddScoped<IApplicationAuditValuePolicy, ApplicationAuditValuePolicy>();
 
 Redaction occurs before values are serialized into `KeyValues`, `OriginalValues`, or `CurrentValues`, and before the canonical manifest is hashed. Do not copy raw NCAT mutation values wholesale into telemetry, an external archive, a governance outbox, or a SIEM.
 
-## Local persistence and generated values
+## Atomic local persistence
 
-Audit records whose values are available before the primary save participate in the normal EF Core save operation. Records that depend on database-generated temporary values are completed through the existing after-save audit flush.
+Audit records whose values are available before the primary save participate in the normal EF Core save operation. Records that depend on database-generated temporary values are completed through the after-save audit flush, which requires another `SaveChanges` call.
 
-Applications requiring strict atomicity between a business mutation and an after-save audit flush should place the complete operation inside an explicit host-owned database transaction and test the selected provider's failure behavior. NCAT remains provider-portable and does not impose a SQL Server- or SQLite-specific transaction strategy.
+Applications that require the business mutation, generated-value audit completion, manifest receipt, and a database-local completion handoff to succeed or fail together can opt in to `IApplicationAuditedTransaction`:
+
+```csharp
+services.AddApplicationInfrastructureDataAccess(configuration);
+services.AddApplicationAuditedTransactions();
+```
+
+The mutation delegate stages business changes. The coordinator performs the save, waits for NCAT to complete generated values and the mutation receipt, then optionally allows the host to stage a local outbox or completion record before the transaction commits.
+
+```csharp
+ApplicationAuditedTransactionResult result = await auditedTransaction.ExecuteAsync(
+    (dbContext, cancellationToken) =>
+    {
+        dbContext.Add(order);
+        return Task.CompletedTask;
+    },
+    (dbContext, receipt, cancellationToken) =>
+    {
+        dbContext.Add(new ApplicationAuditCompletionOutboxEntry
+        {
+            MutationBatchId = receipt.MutationBatchId,
+            ManifestHash = receipt.MutationManifestHash,
+            ManifestAlgorithm = receipt.MutationManifestAlgorithm
+        });
+        return Task.CompletedTask;
+    },
+    cancellationToken: cancellationToken);
+```
+
+The example outbox type is host-owned. NCAT does not prescribe its schema or downstream delivery protocol.
+
+### Transaction ownership
+
+- With no current EF Core transaction, the coordinator creates and commits a relational transaction. An optional isolation level applies only to this coordinator-owned transaction.
+- With an existing EF Core transaction, the coordinator joins it using a savepoint. The result reports `RequiresOuterCommit = true`; the caller remains responsible for the final commit or rollback.
+- If the existing transaction does not support savepoints, the coordinator fails before invoking the mutation.
+- Supplying a new isolation level while joining an existing transaction is rejected rather than silently ignored.
+- Ambient `System.Transactions` scopes are rejected. Use an explicit EF Core transaction so ownership remains visible.
+- The context must not contain unsaved changes before execution. Stage the mutation inside the coordinator delegate.
+
+### Execution strategies and retries
+
+Coordinator-owned transactions execute inside the provider's `Database.CreateExecutionStrategy()` delegate so a retrying provider can replay the entire transaction unit. The mutation and local-completion delegates may therefore run more than once after a transient failure. They must be idempotent and must not perform non-transactional external side effects.
+
+Commit failures can have an unknown outcome on some providers. Hosts that enable retries should use provider guidance, stable operation identifiers, and database-enforced idempotency when duplicate execution would be harmful.
+
+Existing transactions are not replayed by the coordinator because the outer owner controls their execution strategy.
+
+### Guarantee boundary
+
+The atomicity guarantee covers only writes made through the same `ApplicationDbContext` and database transaction. It does not make an external sink, message broker, SIEM, archive, or governance service part of the database commit.
+
+Persist only a durable local handoff inside the transaction. Deliver it externally after commit through a separate dispatcher with retry and idempotency behavior.
+
+Direct `SaveChanges` and `SaveChangesAsync` remain available for applications that do not opt in. Their existing behavior is unchanged.
 
 ## Generic integration sequence
 
 ```text
 Host decision or workflow record
         -> shared operation execution identity
+        -> audited transaction coordinator
         -> NCAT SaveChanges mutation batch
+        -> generated-value audit completion
         -> protected canonical mutation manifest
         -> NCAT mutation audit receipt with digest
-        -> archive, SIEM, governance, or lifecycle record
+        -> database-local completion handoff
+        -> transaction commit
+        -> external dispatcher delivery
         -> later retained-batch verification
 ```
 

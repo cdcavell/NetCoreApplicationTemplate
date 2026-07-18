@@ -10,7 +10,7 @@ namespace ProjectTemplate.Infrastructure.Data.Auditing;
 /// </summary>
 public sealed class ApplicationAuditedTransaction : IApplicationAuditedTransaction
 {
-    private const string SavepointPrefix = "NCAT_";
+    private const string _savepointPrefix = "NCAT_";
 
     private readonly ApplicationDbContext _dbContext;
     private readonly IApplicationMutationAuditReceiptAccessor _receiptAccessor;
@@ -335,6 +335,6 @@ public sealed class ApplicationAuditedTransaction : IApplicationAuditedTransacti
     private static string CreateSavepointName()
     {
         string suffix = Guid.NewGuid().ToString("N");
-        return $"{SavepointPrefix}{suffix[..27]}";
+        return $"{_savepointPrefix}{suffix[..27]}";
     }
 }

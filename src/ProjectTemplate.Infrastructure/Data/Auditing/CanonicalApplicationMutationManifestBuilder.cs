@@ -30,7 +30,7 @@ public sealed class CanonicalApplicationMutationManifestBuilder : IApplicationMu
             throw new InvalidOperationException("A canonical mutation manifest can represent only one mutation batch.");
         }
 
-        List<CanonicalAuditRecord> canonicalRecords = auditRecords
+        var canonicalRecords = auditRecords
             .Select(CreateCanonicalRecord)
             .OrderBy(record => record.Entity, StringComparer.Ordinal)
             .ThenBy(record => record.State, StringComparer.Ordinal)
@@ -98,7 +98,7 @@ public sealed class CanonicalApplicationMutationManifestBuilder : IApplicationMu
             return "{}";
         }
 
-        using JsonDocument document = JsonDocument.Parse(json);
+        using var document = JsonDocument.Parse(json);
         if (document.RootElement.ValueKind != JsonValueKind.Object)
         {
             throw new InvalidOperationException("Audit value payloads must be JSON objects.");
@@ -161,7 +161,7 @@ public sealed class CanonicalApplicationMutationManifestBuilder : IApplicationMu
     private static void WriteCanonicalObjectProperty(Utf8JsonWriter writer, string propertyName, string canonicalJson)
     {
         writer.WritePropertyName(propertyName);
-        using JsonDocument document = JsonDocument.Parse(canonicalJson);
+        using var document = JsonDocument.Parse(canonicalJson);
         document.RootElement.WriteTo(writer);
     }
 

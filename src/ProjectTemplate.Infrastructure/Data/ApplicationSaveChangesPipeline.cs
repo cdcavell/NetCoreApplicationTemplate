@@ -278,8 +278,10 @@ public sealed class ApplicationSaveChangesPipeline :
         }
     }
 
-    private static bool IsUtcTimestampProperty(string propertyName) =>
-        propertyName.EndsWith("Utc", StringComparison.Ordinal);
+    private static bool IsUtcTimestampProperty(string propertyName)
+    {
+        return propertyName.EndsWith("Utc", StringComparison.Ordinal);
+    }
 
     private List<AuditEntry> OnBeforeSaveChanges(
         ApplicationDbContext dbContext,
@@ -435,8 +437,10 @@ public sealed class ApplicationSaveChangesPipeline :
         }
     }
 
-    private static void SetPropertyCurrentValue(EntityEntry entry, string propertyName, object? value) =>
+    private static void SetPropertyCurrentValue(EntityEntry entry, string propertyName, object? value)
+    {
         entry.Property(propertyName).CurrentValue = value;
+    }
 
     private void CompleteTemporaryAuditProperties(AuditEntry auditEntry)
     {

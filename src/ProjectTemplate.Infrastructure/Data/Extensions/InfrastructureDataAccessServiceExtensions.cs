@@ -37,7 +37,6 @@ public static class InfrastructureDataAccessServiceExtensions
             .ValidateOnStart();
 
         DataAccessRegistration registration = ResolveDataAccessRegistration(configuration);
-
         if (registration.IsDisabled)
         {
             return services;
@@ -46,6 +45,9 @@ public static class InfrastructureDataAccessServiceExtensions
         services.TryAddScoped<ICurrentActorAccessor, SystemCurrentActorAccessor>();
         services.TryAddScoped<IApplicationAuditContextAccessor, SystemApplicationAuditContextAccessor>();
         services.TryAddScoped<IApplicationAuditValuePolicy, DefaultApplicationAuditValuePolicy>();
+        services.TryAddSingleton<IApplicationMutationManifestBuilder, CanonicalApplicationMutationManifestBuilder>();
+        services.TryAddSingleton<IApplicationMutationManifestHasher, Sha256ApplicationMutationManifestHasher>();
+        services.TryAddSingleton<IApplicationMutationManifestVerifier, ApplicationMutationManifestVerifier>();
 
         if (AuditStorageModes.IsLocal(registration.AuditStorageMode))
         {
@@ -58,7 +60,9 @@ public static class InfrastructureDataAccessServiceExtensions
                 serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),
                 serviceProvider.GetService<IApplicationAuditStore>(),
                 serviceProvider.GetService<IApplicationAuditContextAccessor>(),
-                serviceProvider.GetService<IApplicationAuditValuePolicy>()));
+                serviceProvider.GetService<IApplicationAuditValuePolicy>(),
+                serviceProvider.GetRequiredService<IApplicationMutationManifestBuilder>(),
+                serviceProvider.GetRequiredService<IApplicationMutationManifestHasher>()));
         services.TryAddScoped<IApplicationSaveChangesPipeline>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationSaveChangesPipeline>());
         services.TryAddScoped<IApplicationMutationAuditReceiptAccessor>(serviceProvider =>
@@ -78,12 +82,10 @@ public static class InfrastructureDataAccessServiceExtensions
             ServiceLifetime.Scoped);
 
         services.TryAddScoped<IExternalLoginAccountResolver, EfCoreExternalLoginAccountResolver>();
-
         return services;
     }
 
-    private static DataAccessRegistration ResolveDataAccessRegistration(
-        IConfiguration configuration)
+    private static DataAccessRegistration ResolveDataAccessRegistration(IConfiguration configuration)
     {
         DataAccessOptions dataAccessOptions = configuration
             .GetSection(DataAccessOptions.SectionName)
@@ -95,14 +97,12 @@ public static class InfrastructureDataAccessServiceExtensions
 
         if (string.IsNullOrWhiteSpace(provider))
         {
-            throw new InvalidOperationException(
-                "Application data access provider was not configured.");
+            throw new InvalidOperationException("Application data access provider was not configured.");
         }
 
         if (!AuditStorageModes.IsSupported(auditStorageMode))
         {
-            throw new InvalidOperationException(
-                "Application audit storage mode was not configured with a supported value.");
+            throw new InvalidOperationException("Application audit storage mode was not configured with a supported value.");
         }
 
         if (DataAccessOptions.IsDisabledProvider(provider))
@@ -112,18 +112,13 @@ public static class InfrastructureDataAccessServiceExtensions
 
         if (string.IsNullOrWhiteSpace(connectionStringName))
         {
-            throw new InvalidOperationException(
-                "Application data access connection string name was not configured.");
+            throw new InvalidOperationException("Application data access connection string name was not configured.");
         }
 
         string connectionString = configuration.GetConnectionString(connectionStringName)
-            ?? throw new InvalidOperationException(
-                $"Connection string '{connectionStringName}' was not configured.");
+            ?? throw new InvalidOperationException($"Connection string '{connectionStringName}' was not configured.");
 
-        return DataAccessRegistration.Enabled(
-            provider,
-            connectionString,
-            auditStorageMode);
+        return DataAccessRegistration.Enabled(provider, connectionString, auditStorageMode);
     }
 
     private static void ConfigureProvider(
@@ -158,14 +153,14 @@ public static class InfrastructureDataAccessServiceExtensions
             string connectionString,
             string auditStorageMode)
         {
-            return new DataAccessRegistration(provider, connectionString, auditStorageMode, false);
+            return new(provider, connectionString, auditStorageMode, false);
         }
 
         public static DataAccessRegistration Disabled(
             string provider,
             string auditStorageMode)
         {
-            return new DataAccessRegistration(provider, string.Empty, auditStorageMode, true);
+            return new(provider, string.Empty, auditStorageMode, true);
         }
     }
 }

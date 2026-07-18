@@ -17,9 +17,12 @@ public sealed class ApplicationSaveChangesPipeline :
     private readonly ICurrentActorAccessor _currentActorAccessor;
     private readonly IApplicationAuditContextAccessor? _auditContextAccessor;
     private readonly IApplicationAuditValuePolicy _auditValuePolicy;
+    private readonly IApplicationMutationManifestBuilder _manifestBuilder;
+    private readonly IApplicationMutationManifestHasher _manifestHasher;
     private readonly bool _auditOptions;
     private readonly IApplicationAuditStore _auditStore;
     private List<AuditEntry> _pendingAuditEntries = [];
+    private readonly List<AuditRecord> _activeAuditRecords = [];
     private ApplicationAuditContext? _activeAuditContext;
     private string? _activeMutationBatchId;
     private int _activeAuditRecordCount;
@@ -32,7 +35,9 @@ public sealed class ApplicationSaveChangesPipeline :
         IOptions<DataAccessOptions> dataAccessOptions,
         IApplicationAuditStore? auditStore = null,
         IApplicationAuditContextAccessor? auditContextAccessor = null,
-        IApplicationAuditValuePolicy? auditValuePolicy = null)
+        IApplicationAuditValuePolicy? auditValuePolicy = null,
+        IApplicationMutationManifestBuilder? manifestBuilder = null,
+        IApplicationMutationManifestHasher? manifestHasher = null)
     {
         ArgumentNullException.ThrowIfNull(currentActorAccessor);
         ArgumentNullException.ThrowIfNull(dataAccessOptions);
@@ -40,10 +45,10 @@ public sealed class ApplicationSaveChangesPipeline :
         _currentActorAccessor = currentActorAccessor;
         _auditContextAccessor = auditContextAccessor;
         _auditValuePolicy = auditValuePolicy ?? new DefaultApplicationAuditValuePolicy();
+        _manifestBuilder = manifestBuilder ?? new CanonicalApplicationMutationManifestBuilder();
+        _manifestHasher = manifestHasher ?? new Sha256ApplicationMutationManifestHasher();
         _auditOptions = dataAccessOptions.Value.Auditing.Enabled;
-        _auditStore = ResolveAuditStore(
-            dataAccessOptions.Value.Auditing,
-            auditStore);
+        _auditStore = ResolveAuditStore(dataAccessOptions.Value.Auditing, auditStore);
     }
 
     /// <inheritdoc />
@@ -53,11 +58,9 @@ public sealed class ApplicationSaveChangesPipeline :
     public bool ApplyBeforeSaveChanges(ApplicationDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
-
         ResetActiveAuditState();
 
         IReadOnlyList<EntityEntry> entries = GetSavePipelineEntries(dbContext);
-
         if (entries.Count == 0)
         {
             return false;
@@ -83,11 +86,9 @@ public sealed class ApplicationSaveChangesPipeline :
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         cancellationToken.ThrowIfCancellationRequested();
-
         ResetActiveAuditState();
 
         IReadOnlyList<EntityEntry> entries = GetSavePipelineEntries(dbContext);
-
         if (entries.Count == 0)
         {
             return false;
@@ -114,19 +115,17 @@ public sealed class ApplicationSaveChangesPipeline :
     public bool ApplyAfterSaveChanges(ApplicationDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
-
         bool appendedAdditionalAuditRecords = false;
 
         foreach (AuditEntry auditEntry in _pendingAuditEntries)
         {
             CompleteTemporaryAuditProperties(auditEntry);
-            _auditStore.Append(dbContext, auditEntry.ToAuditRecord());
+            AppendAuditRecord(dbContext, auditEntry.ToAuditRecord());
             appendedAdditionalAuditRecords = true;
         }
 
         CompleteMutationReceipt();
         _pendingAuditEntries = [];
-
         return appendedAdditionalAuditRecords;
     }
 
@@ -137,27 +136,25 @@ public sealed class ApplicationSaveChangesPipeline :
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         cancellationToken.ThrowIfCancellationRequested();
-
         bool appendedAdditionalAuditRecords = false;
 
         foreach (AuditEntry auditEntry in _pendingAuditEntries)
         {
             CompleteTemporaryAuditProperties(auditEntry);
-            await _auditStore
-                .AppendAsync(dbContext, auditEntry.ToAuditRecord(), cancellationToken)
+            await AppendAuditRecordAsync(dbContext, auditEntry.ToAuditRecord(), cancellationToken)
                 .ConfigureAwait(false);
             appendedAdditionalAuditRecords = true;
         }
 
         CompleteMutationReceipt();
         _pendingAuditEntries = [];
-
         return appendedAdditionalAuditRecords;
     }
 
     private void ResetActiveAuditState()
     {
         _pendingAuditEntries = [];
+        _activeAuditRecords.Clear();
         _activeAuditContext = null;
         _activeMutationBatchId = null;
         _activeAuditRecordCount = 0;
@@ -166,7 +163,6 @@ public sealed class ApplicationSaveChangesPipeline :
     private static IReadOnlyList<EntityEntry> GetSavePipelineEntries(ApplicationDbContext dbContext)
     {
         dbContext.ChangeTracker.DetectChanges();
-
         return [.. dbContext.ChangeTracker
             .Entries()
             .Where(entry => entry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)];
@@ -186,23 +182,14 @@ public sealed class ApplicationSaveChangesPipeline :
             {
                 if (property.Metadata.ClrType != typeof(string) ||
                     property.Metadata.IsPrimaryKey() ||
-                    property.Metadata.IsConcurrencyToken)
-                {
-                    continue;
-                }
-
-                if (entry.State == EntityState.Modified && !property.IsModified)
-                {
-                    continue;
-                }
-
-                if (property.CurrentValue is not string currentValue)
+                    property.Metadata.IsConcurrencyToken ||
+                    (entry.State == EntityState.Modified && !property.IsModified) ||
+                    property.CurrentValue is not string currentValue)
                 {
                     continue;
                 }
 
                 string canonicalValue = PersistenceStringCanonicalizer.Canonicalize(currentValue);
-
                 if (!string.Equals(canonicalValue, currentValue, StringComparison.Ordinal))
                 {
                     property.CurrentValue = canonicalValue;
@@ -221,29 +208,17 @@ public sealed class ApplicationSaveChangesPipeline :
                 continue;
             }
 
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.ProviderName),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.ProviderName),
                 PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderName));
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.NormalizedProviderName),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.NormalizedProviderName),
                 PersistenceStringComparisonNormalizer.NormalizeRequiredLookupValue(account.ProviderName));
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.ProviderUserId),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.ProviderUserId),
                 PersistenceStringComparisonNormalizer.NormalizeRequiredDisplayValue(account.ProviderUserId));
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.DisplayName),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.DisplayName),
                 PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.DisplayName));
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.Email),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.Email),
                 PersistenceStringComparisonNormalizer.NormalizeOptionalDisplayValue(account.Email));
-            SetPropertyCurrentValue(
-                entry,
-                nameof(ExternalLoginAccount.NormalizedEmail),
+            SetPropertyCurrentValue(entry, nameof(ExternalLoginAccount.NormalizedEmail),
                 PersistenceStringComparisonNormalizer.NormalizeOptionalLookupValue(account.Email));
         }
     }
@@ -267,15 +242,11 @@ public sealed class ApplicationSaveChangesPipeline :
                 Type propertyType = Nullable.GetUnderlyingType(property.Metadata.ClrType)
                     ?? property.Metadata.ClrType;
 
-                if (propertyType == typeof(DateTime) &&
-                    property.CurrentValue is DateTime dateTimeValue)
+                if (propertyType == typeof(DateTime) && property.CurrentValue is DateTime dateTimeValue)
                 {
                     property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeValue);
-                    continue;
                 }
-
-                if (propertyType == typeof(DateTimeOffset) &&
-                    property.CurrentValue is DateTimeOffset dateTimeOffsetValue)
+                else if (propertyType == typeof(DateTimeOffset) && property.CurrentValue is DateTimeOffset dateTimeOffsetValue)
                 {
                     property.CurrentValue = PersistenceTimestamp.NormalizeUtc(dateTimeOffsetValue);
                 }
@@ -293,18 +264,14 @@ public sealed class ApplicationSaveChangesPipeline :
             }
 
             PropertyEntry concurrencyStampProperty = entry.Property(nameof(DataEntity.ConcurrencyStamp));
-
             if (entry.State == EntityState.Added)
             {
                 if (string.IsNullOrWhiteSpace(entity.ConcurrencyStamp))
                 {
                     concurrencyStampProperty.CurrentValue = DataEntity.NewConcurrencyStamp();
                 }
-
-                continue;
             }
-
-            if (entry.State == EntityState.Modified)
+            else if (entry.State == EntityState.Modified)
             {
                 concurrencyStampProperty.CurrentValue = DataEntity.NewConcurrencyStamp();
             }
@@ -321,10 +288,9 @@ public sealed class ApplicationSaveChangesPipeline :
         IEnumerable<EntityEntry> entries)
     {
         List<AuditEntry> auditEntries = CreateAuditEntries(entries);
-
         foreach (AuditEntry auditEntry in auditEntries.Where(entry => !entry.HasTemporaryProperties))
         {
-            _auditStore.Append(dbContext, auditEntry.ToAuditRecord());
+            AppendAuditRecord(dbContext, auditEntry.ToAuditRecord());
         }
 
         return [.. auditEntries.Where(entry => entry.HasTemporaryProperties)];
@@ -336,15 +302,28 @@ public sealed class ApplicationSaveChangesPipeline :
         CancellationToken cancellationToken)
     {
         List<AuditEntry> auditEntries = CreateAuditEntries(entries);
-
         foreach (AuditEntry auditEntry in auditEntries.Where(entry => !entry.HasTemporaryProperties))
         {
-            await _auditStore
-                .AppendAsync(dbContext, auditEntry.ToAuditRecord(), cancellationToken)
+            await AppendAuditRecordAsync(dbContext, auditEntry.ToAuditRecord(), cancellationToken)
                 .ConfigureAwait(false);
         }
 
         return [.. auditEntries.Where(entry => entry.HasTemporaryProperties)];
+    }
+
+    private void AppendAuditRecord(ApplicationDbContext dbContext, AuditRecord auditRecord)
+    {
+        _auditStore.Append(dbContext, auditRecord);
+        _activeAuditRecords.Add(auditRecord);
+    }
+
+    private async ValueTask AppendAuditRecordAsync(
+        ApplicationDbContext dbContext,
+        AuditRecord auditRecord,
+        CancellationToken cancellationToken)
+    {
+        await _auditStore.AppendAsync(dbContext, auditRecord, cancellationToken).ConfigureAwait(false);
+        _activeAuditRecords.Add(auditRecord);
     }
 
     private List<AuditEntry> CreateAuditEntries(IEnumerable<EntityEntry> entries)
@@ -405,17 +384,16 @@ public sealed class ApplicationSaveChangesPipeline :
                     case EntityState.Deleted:
                         AddProtectedValue(auditEntry.OriginalValues, entry, propertyName, property.OriginalValue);
                         break;
-                    case EntityState.Modified:
-                        if (property.IsModified)
-                        {
-                            AddProtectedValue(auditEntry.OriginalValues, entry, propertyName, property.OriginalValue);
-                            AddProtectedValue(auditEntry.CurrentValues, entry, propertyName, property.CurrentValue);
-                        }
+                    case EntityState.Modified when property.IsModified:
+                        AddProtectedValue(auditEntry.OriginalValues, entry, propertyName, property.OriginalValue);
+                        AddProtectedValue(auditEntry.CurrentValues, entry, propertyName, property.CurrentValue);
                         break;
+                    case EntityState.Modified:
                     case EntityState.Detached:
                     case EntityState.Unchanged:
-                    default:
                         break;
+                    default:
+                        throw new InvalidOperationException($"Unsupported entity state '{entry.State}'.");
                 }
             }
         }
@@ -440,7 +418,6 @@ public sealed class ApplicationSaveChangesPipeline :
 
         string displayActor = _currentActorAccessor.CurrentActor;
         string actorId = string.IsNullOrWhiteSpace(displayActor) ? "Unknown" : displayActor.Trim();
-
         return new ApplicationAuditContext(
             actorId,
             actorId.Equals(SystemCurrentActorAccessor.ActorName, StringComparison.Ordinal)
@@ -466,10 +443,7 @@ public sealed class ApplicationSaveChangesPipeline :
         }
     }
 
-    private static void SetPropertyCurrentValue(
-        EntityEntry entry,
-        string propertyName,
-        object? value)
+    private static void SetPropertyCurrentValue(EntityEntry entry, string propertyName, object? value)
     {
         entry.Property(propertyName).CurrentValue = value;
     }
@@ -480,19 +454,11 @@ public sealed class ApplicationSaveChangesPipeline :
         {
             if (property.Metadata.IsPrimaryKey())
             {
-                AddProtectedValue(
-                    auditEntry.KeyValues,
-                    auditEntry.Entry,
-                    property.Metadata.Name,
-                    property.CurrentValue);
+                AddProtectedValue(auditEntry.KeyValues, auditEntry.Entry, property.Metadata.Name, property.CurrentValue);
             }
             else
             {
-                AddProtectedValue(
-                    auditEntry.CurrentValues,
-                    auditEntry.Entry,
-                    property.Metadata.Name,
-                    property.CurrentValue);
+                AddProtectedValue(auditEntry.CurrentValues, auditEntry.Entry, property.Metadata.Name, property.CurrentValue);
             }
         }
     }
@@ -506,11 +472,22 @@ public sealed class ApplicationSaveChangesPipeline :
             return;
         }
 
+        if (_activeAuditRecords.Count != _activeAuditRecordCount)
+        {
+            throw new InvalidOperationException("The mutation audit receipt cannot be completed because the retained audit record count is incomplete.");
+        }
+
+        ApplicationMutationManifest manifest = _manifestBuilder.Build(_activeAuditRecords);
+        string manifestHash = _manifestHasher.ComputeHash(manifest);
+
         LastCompletedReceipt = new ApplicationMutationAuditReceipt(
             _activeMutationBatchId,
             _activeAuditRecordCount,
             "Committed",
             DateTimeOffset.UtcNow,
+            manifestHash,
+            _manifestHasher.Algorithm,
+            manifest.SchemaVersion,
             _activeAuditContext.OperationExecutionId,
             _activeAuditContext.ExecutionAttemptId,
             _activeAuditContext.DecisionAuditRecordId,
@@ -520,6 +497,7 @@ public sealed class ApplicationSaveChangesPipeline :
         _activeAuditContext = null;
         _activeMutationBatchId = null;
         _activeAuditRecordCount = 0;
+        _activeAuditRecords.Clear();
     }
 
     private static IApplicationAuditStore ResolveAuditStore(
@@ -527,11 +505,10 @@ public sealed class ApplicationSaveChangesPipeline :
         IApplicationAuditStore? auditStore)
     {
         ArgumentNullException.ThrowIfNull(auditingOptions);
-
         return auditStore is not null
             ? auditStore
             : !auditingOptions.Enabled || AuditStorageModes.IsLocal(auditingOptions.StorageMode)
-                ? (IApplicationAuditStore)new LocalApplicationAuditStore()
+                ? new LocalApplicationAuditStore()
                 : throw new InvalidOperationException(
                     $"Application audit storage mode '{AuditStorageModes.Normalize(auditingOptions.StorageMode)}' requires an {nameof(IApplicationAuditStore)} registration.");
     }

@@ -388,6 +388,12 @@ public sealed class ApplicationSaveChangesPipeline :
                         AddProtectedValue(auditEntry.OriginalValues, entry, propertyName, property.OriginalValue);
                         AddProtectedValue(auditEntry.CurrentValues, entry, propertyName, property.CurrentValue);
                         break;
+                    case EntityState.Modified:
+                    case EntityState.Detached:
+                    case EntityState.Unchanged:
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unsupported entity state '{entry.State}'.");
                 }
             }
         }

@@ -151,12 +151,16 @@ public static class InfrastructureDataAccessServiceExtensions
         public static DataAccessRegistration Enabled(
             string provider,
             string connectionString,
-            string auditStorageMode) =>
-            new(provider, connectionString, auditStorageMode, false);
+            string auditStorageMode)
+        {
+            return new(provider, connectionString, auditStorageMode, false);
+        }
 
         public static DataAccessRegistration Disabled(
             string provider,
-            string auditStorageMode) =>
-            new(provider, string.Empty, auditStorageMode, true);
+            string auditStorageMode)
+        {
+            return new(provider, string.Empty, auditStorageMode, true);
+        }
     }
 }

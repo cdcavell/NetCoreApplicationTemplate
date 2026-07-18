@@ -15,21 +15,21 @@ public sealed class ApplicationMutationManifestTests
         AuditRecord first = CreateRecord(
             entity: "Users",
             state: "Modified",
-            keyValues: "{\"Id\":\"1\",\"Tenant\":\"A\"}",
-            originalValues: "{\"Email\":\"***\",\"DisplayName\":\"Before\"}",
-            currentValues: "{\"DisplayName\":\"After\",\"Email\":\"***\"}");
+            keyValues: /*lang=json,strict*/ "{\"Id\":\"1\",\"Tenant\":\"A\"}",
+            originalValues: /*lang=json,strict*/ "{\"Email\":\"***\",\"DisplayName\":\"Before\"}",
+            currentValues: /*lang=json,strict*/ "{\"DisplayName\":\"After\",\"Email\":\"***\"}");
         AuditRecord second = CreateRecord(
             entity: "Accounts",
             state: "Added",
-            keyValues: "{\"Id\":\"2\"}",
+            keyValues: /*lang=json,strict*/ "{\"Id\":\"2\"}",
             originalValues: string.Empty,
-            currentValues: "{\"ProviderUserId\":\"ABC123\",\"Email\":\"***\"}");
+            currentValues: /*lang=json,strict*/ "{\"ProviderUserId\":\"ABC123\",\"Email\":\"***\"}");
 
         ApplicationMutationManifest ordered = _builder.Build([first, second]);
 
-        first.KeyValues = "{\"Tenant\":\"A\",\"Id\":\"1\"}";
-        first.OriginalValues = "{\"DisplayName\":\"Before\",\"Email\":\"***\"}";
-        second.CurrentValues = "{\"Email\":\"***\",\"ProviderUserId\":\"ABC123\"}";
+        first.KeyValues = /*lang=json,strict*/ "{\"Tenant\":\"A\",\"Id\":\"1\"}";
+        first.OriginalValues = /*lang=json,strict*/ "{\"DisplayName\":\"Before\",\"Email\":\"***\"}";
+        second.CurrentValues = /*lang=json,strict*/ "{\"Email\":\"***\",\"ProviderUserId\":\"ABC123\"}";
         ApplicationMutationManifest reversed = _builder.Build([second, first]);
 
         Assert.Equal(ordered.CanonicalJson, reversed.CanonicalJson);
@@ -44,12 +44,12 @@ public sealed class ApplicationMutationManifestTests
             state: "Added",
             keyValues: string.Empty,
             originalValues: string.Empty,
-            currentValues: "{\"Masked\":\"***\",\"Hashed\":\"ABC123\",\"Truncated\":\"Long\",\"NullValue\":\"\"}");
+            currentValues: /*lang=json,strict*/ "{\"Masked\":\"***\",\"Hashed\":\"ABC123\",\"Truncated\":\"Long\",\"NullValue\":\"\"}");
         record.OperationExecutionId = null;
         record.ExecutionAttemptId = null;
 
         ApplicationMutationManifest manifest = _builder.Build([record]);
-        using JsonDocument document = JsonDocument.Parse(manifest.CanonicalJson);
+        using var document = JsonDocument.Parse(manifest.CanonicalJson);
         JsonElement item = document.RootElement.GetProperty("records")[0];
 
         Assert.Equal(ApplicationMutationManifest.CurrentSchemaVersion,
@@ -66,8 +66,8 @@ public sealed class ApplicationMutationManifestTests
     {
         List<AuditRecord> records =
         [
-            CreateRecord("Accounts", "Added", "{\"Id\":\"1\"}", string.Empty, "{\"Email\":\"***\"}"),
-            CreateRecord("Users", "Modified", "{\"Id\":\"2\"}", "{\"Name\":\"A\"}", "{\"Name\":\"B\"}")
+            CreateRecord("Accounts", "Added", /*lang=json,strict*/ "{\"Id\":\"1\"}", string.Empty, /*lang=json,strict*/ "{\"Email\":\"***\"}"),
+            CreateRecord("Users", "Modified", /*lang=json,strict*/ "{\"Id\":\"2\"}", /*lang=json,strict*/ "{\"Name\":\"A\"}", /*lang=json,strict*/ "{\"Name\":\"B\"}")
         ];
         ApplicationMutationManifest manifest = _builder.Build(records);
         var receipt = new ApplicationMutationAuditReceipt(
@@ -82,7 +82,7 @@ public sealed class ApplicationMutationManifestTests
 
         Assert.True(verifier.Verify(receipt, records));
 
-        records[1].CurrentValues = "{\"Name\":\"Changed\"}";
+        records[1].CurrentValues = /*lang=json,strict*/ "{\"Name\":\"Changed\"}";
         Assert.False(verifier.Verify(receipt, records));
     }
 
@@ -91,7 +91,7 @@ public sealed class ApplicationMutationManifestTests
     {
         ApplicationMutationManifest manifest = _builder.Build(
         [
-            CreateRecord("Accounts", "Added", "{\"Id\":\"1\"}", string.Empty, "{\"Email\":\"***\"}")
+            CreateRecord("Accounts", "Added", /*lang=json,strict*/ "{\"Id\":\"1\"}", string.Empty, /*lang=json,strict*/ "{\"Email\":\"***\"}")
         ]);
 
         Assert.StartsWith(

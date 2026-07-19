@@ -1,7 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using ProjectTemplate.Web.Diagnostics;
 using ProjectTemplate.Web.Options;
 
@@ -90,8 +89,8 @@ public sealed class ForwardedHeadersTrustDiagnosticsTests
         ILogger<ForwardedHeadersTrustDiagnosticsHostedService> logger)
     {
         return new ForwardedHeadersTrustDiagnosticsHostedService(
-            Options.Create(forwardedHeadersOptions),
-            Options.Create(rateLimitingOptions),
+            Microsoft.Extensions.Options.Options.Create(forwardedHeadersOptions),
+            Microsoft.Extensions.Options.Options.Create(rateLimitingOptions),
             new TestHostEnvironment(environmentName),
             logger);
     }

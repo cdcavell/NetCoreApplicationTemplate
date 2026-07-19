@@ -7,8 +7,11 @@ namespace ProjectTemplate.Web.Authentication.Options;
 /// <summary>
 /// Validates application authentication configuration during application startup.
 /// </summary>
-public sealed class ApplicationAuthenticationOptionsValidator : IValidateOptions<ApplicationAuthenticationOptions>
+public sealed class ApplicationAuthenticationOptionsValidator(IHostEnvironment? environment)
+    : IValidateOptions<ApplicationAuthenticationOptions>
 {
+    private readonly IHostEnvironment? _environment = environment;
+
     /// <inheritdoc />
     public ValidateOptionsResult Validate(string? name, ApplicationAuthenticationOptions options)
     {
@@ -28,7 +31,7 @@ public sealed class ApplicationAuthenticationOptionsValidator : IValidateOptions
             : ValidateOptionsResult.Fail(failures);
     }
 
-    private static void ValidateApplicationAuthentication(
+    private void ValidateApplicationAuthentication(
         ApplicationAuthenticationOptions options,
         ICollection<string> failures)
     {
@@ -65,6 +68,11 @@ public sealed class ApplicationAuthenticationOptionsValidator : IValidateOptions
         Require(
             options.Cookie.ExpireMinutes > 0,
             "ProjectTemplate:Authentication:Cookie:ExpireMinutes must be greater than zero when application authentication is enabled.",
+            failures);
+
+        Require(
+            !options.Cookie.AllowInsecureHttp || _environment?.IsDevelopment() == true,
+            "ProjectTemplate:Authentication:Cookie:AllowInsecureHttp may only be enabled in the Development environment.",
             failures);
     }
 

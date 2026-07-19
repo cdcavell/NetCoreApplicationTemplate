@@ -39,4 +39,13 @@ public sealed class ApplicationCookieAuthenticationOptions
     /// Gets or sets a value indicating whether the cookie expiration should be renewed during active use.
     /// </summary>
     public bool SlidingExpiration { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether local Development environments may issue the authentication cookie for
+    /// plain HTTP requests.
+    /// </summary>
+    /// <remarks>
+    /// The default is <see langword="false" />. This override is rejected outside the Development environment.
+    /// </remarks>
+    public bool AllowInsecureHttp { get; set; }
 }

@@ -91,7 +91,7 @@ public sealed class ApplicationSaveChangesPipelineContextIsolationTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ConnectionStrings:ApplicationDatabase"] = $"Data Source={databasePath}",
+                    ["ConnectionStrings:ApplicationDatabase"] = $"Data Source={databasePath};Pooling=False",
                     ["ProjectTemplate:DataAccess:Provider"] = "Sqlite",
                     ["ProjectTemplate:DataAccess:ConnectionStringName"] = "ApplicationDatabase",
                     ["ProjectTemplate:DataAccess:Auditing:Enabled"] = "true",

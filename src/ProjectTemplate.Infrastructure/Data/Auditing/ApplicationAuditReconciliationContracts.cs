@@ -1,5 +1,3 @@
-using ProjectTemplate.Infrastructure.Data.Entities;
-
 namespace ProjectTemplate.Infrastructure.Data.Auditing;
 
 public static class ApplicationAuditReconciliationReasonCodes

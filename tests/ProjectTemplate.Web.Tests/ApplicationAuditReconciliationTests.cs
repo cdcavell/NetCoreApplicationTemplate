@@ -189,9 +189,9 @@ public sealed class ApplicationAuditReconciliationTests
             Entity = "Example",
             State = "Modified",
             MutationBatchId = batchId,
-            KeyValues = "{\"Id\":\"1\"}",
-            OriginalValues = "{\"Value\":\"before\"}",
-            CurrentValues = "{\"Value\":\"after\"}"
+            KeyValues = /*lang=json,strict*/ "{\"Id\":\"1\"}",
+            OriginalValues = /*lang=json,strict*/ "{\"Value\":\"before\"}",
+            CurrentValues = /*lang=json,strict*/ "{\"Value\":\"after\"}"
         };
     }
 

@@ -167,7 +167,7 @@ public sealed class ApplicationAuditReconciler(
         string actorId = NormalizeRequired(request.ActorId, 256, nameof(request.ActorId));
         string? evidenceReference = NormalizeOptional(request.EvidenceReference, 256);
         DateTime now = UtcNow();
-        Guid remediationId = Guid.NewGuid();
+        var remediationId = Guid.NewGuid();
         string concurrencyStamp = Guid.NewGuid().ToString("N");
 
         await _dbContext.Database.ExecuteSqlInterpolatedAsync($$"""
@@ -382,7 +382,7 @@ public sealed class ApplicationAuditReconciler(
             .Where(finding => keys.Contains(finding.FindingKey))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
-        Dictionary<string, ApplicationAuditReconciliationFinding> existingByKey = existing
+        var existingByKey = existing
             .ToDictionary(finding => finding.FindingKey, StringComparer.Ordinal);
 
         foreach (ApplicationAuditReconciliationCandidate candidate in candidates)
@@ -402,7 +402,7 @@ public sealed class ApplicationAuditReconciler(
             }
             else
             {
-                Guid id = Guid.NewGuid();
+                var id = Guid.NewGuid();
                 await _dbContext.Database.ExecuteSqlInterpolatedAsync($$"""
                     INSERT INTO [ApplicationAuditReconciliationFindings]
                         ([Id], [SchemaVersion], [FindingKey], [ReasonCode], [Severity], [MutationBatchId], [Destination], [Guidance], [RemediationStatus], [FirstObservedUtc], [LastObservedUtc], [ResolvedUtc], [ConcurrencyStamp])

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;

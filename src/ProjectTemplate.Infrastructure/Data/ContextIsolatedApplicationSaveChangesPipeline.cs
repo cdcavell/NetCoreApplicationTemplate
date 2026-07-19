@@ -12,7 +12,7 @@ internal sealed class ContextIsolatedApplicationSaveChangesPipeline :
     IApplicationSaveChangesPipeline,
     IApplicationMutationAuditReceiptRegistry
 {
-    private readonly ConditionalWeakTable<ApplicationDbContext, ApplicationSaveChangesPipeline> _pipelines = new();
+    private readonly ConditionalWeakTable<ApplicationDbContext, ApplicationSaveChangesPipeline> _pipelines = [];
     private readonly ICurrentActorAccessor _currentActorAccessor;
     private readonly IOptions<DataAccessOptions> _dataAccessOptions;
     private readonly IApplicationAuditStore? _auditStore;

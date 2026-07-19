@@ -15,4 +15,72 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Apply analyzer fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              with file.open("r", encoding="utf-8", newline="") as stream:
+                  content = stream.read()
+              newline = "\r\n" if "\r\n" in content else "\n"
+              old_value = old.replace("\n", newline)
+              new_value = new.replace("\n", newline)
+              if old_value in content:
+                  content = content.replace(old_value, new_value)
+                  with file.open("w", encoding="utf-8", newline="") as stream:
+                      stream.write(content)
+
+          replace(
+              "src/ProjectTemplate.Infrastructure/Data/Auditing/ApplicationAuditCompletionOutbox.cs",
+              "private readonly IReadOnlyDictionary<string, IApplicationAuditCompletionPublisher> _publishers;",
+              "private readonly Dictionary<string, IApplicationAuditCompletionPublisher> _publishers;")
+
+          hosted = "src/ProjectTemplate.Web/Services/ApplicationAuditCompletionOutboxHostedService.cs"
+          replace(
+              hosted,
+              "public sealed class ApplicationAuditCompletionOutboxHostedService(",
+              "public sealed partial class ApplicationAuditCompletionOutboxHostedService(")
+          replace(
+              hosted,
+              "    /// <inheritdoc />\n    protected override async Task ExecuteAsync",
+              "    [LoggerMessage(\n        EventId = 19100,\n        Level = LogLevel.Error,\n        Message = \"The audit-completion outbox dispatch cycle failed and will be retried.\")]\n    private static partial void LogDispatchCycleFailure(\n        ILogger logger,\n        Exception exception);\n\n    /// <inheritdoc />\n    protected override async Task ExecuteAsync")
+          replace(
+              hosted,
+              "                _logger.LogError(\n                    exception,\n                    \"The audit-completion outbox dispatch cycle failed and will be retried.\");",
+              "                LogDispatchCycleFailure(_logger, exception);")
+
+          replace(
+              "tests/ProjectTemplate.Web.Tests/ApplicationAuditCompletionOutboxMigrationTests.cs",
+              "        Assert.Equal(1, downBuilder.Operations.Count);",
+              "        Assert.Single(downBuilder.Operations);")
+
+      - name: Restore dependencies
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx --locked-mode
+
+      - name: Apply repository formatting
+        run: dotnet format ./NetCoreApplicationTemplate.slnx --no-restore --verbosity minimal
+
+      - name: Commit analyzer fixes
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No analyzer fixes remain."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/ProjectTemplate.Infrastructure/Data/Auditing/ApplicationAuditCompletionOutbox.cs
+          git add src/ProjectTemplate.Web/Services/ApplicationAuditCompletionOutboxHostedService.cs
+          git add tests/ProjectTemplate.Web.Tests/ApplicationAuditCompletionOutboxMigrationTests.cs
+          git commit -m "Resolve issue 369 analyzer findings"
+          git push

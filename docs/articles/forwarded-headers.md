@@ -12,6 +12,7 @@ Configuration is controlled through `appsettings.json`:
 "ProjectTemplate": {
   "ForwardedHeaders": {
     "Enabled": true,
+    "RequireExplicitProxyTrust": false,
     "Headers": [
       "XForwardedFor",
       "XForwardedProto"
@@ -25,6 +26,7 @@ Configuration is controlled through `appsettings.json`:
   }
 }
 ```
+
 By default, the application processes:
 
 - `X-Forwarded-For`
@@ -39,6 +41,34 @@ reads `HttpContext.Connection.RemoteIpAddress`, including request logging and cl
 limiting, should rely on the corrected `RemoteIpAddress` value rather than parsing forwarded
 headers directly.
 
+## Startup Trust Diagnostic
+
+Outside the Development environment, the application emits a startup warning when all of the
+following are true:
+
+- forwarded headers are enabled and include `X-Forwarded-For`;
+- application rate limiting is enabled; and
+- neither `KnownProxies` nor `KnownNetworks` contains a deployment-specific trust entry.
+
+ASP.NET Core continues to ignore forwarded values from untrusted senders. The warning does not
+weaken that protection. It highlights that `RemoteIpAddress` may remain the proxy address, causing
+multiple downstream clients to share one rate-limit partition and causing client-IP logs to identify
+the proxy rather than the originating client.
+
+Deployments that require an explicit trust boundary can opt into fail-fast startup validation:
+
+```json
+"ForwardedHeaders": {
+  "RequireExplicitProxyTrust": true,
+  "KnownProxies": [ "10.0.0.10" ],
+  "KnownNetworks": [ "10.0.0.0/24" ]
+}
+```
+
+`RequireExplicitProxyTrust` is ignored in Development so the template's normal loopback and local
+scenarios continue to work. In every other environment, strict mode fails startup when forwarded
+client-IP processing and rate limiting are active without a configured trusted proxy or network.
+
 `UseForwardedHeaders()` must run before middleware that depends on the client IP, request scheme,
 host, or path base. The template's centralized pipeline applies forwarded headers before request
 logging, HTTPS redirection, routing, CORS, rate limiting, authentication, authorization, and
@@ -46,3 +76,6 @@ endpoint execution.
 
 `XForwardedHost` is intentionally not enabled by default. If enabled, configure `AllowedHosts`
 to reduce the risk of host header spoofing.
+
+See [Rate Limiting](rate-limiting.md) for client-IP partition behavior and [Deployment](deployment.md)
+for production proxy and hosting guidance.

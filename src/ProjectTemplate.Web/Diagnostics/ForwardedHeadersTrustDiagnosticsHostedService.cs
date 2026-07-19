@@ -10,7 +10,7 @@ internal sealed partial class ForwardedHeadersTrustDiagnosticsHostedService(
     IOptions<ApplicationForwardedHeadersOptions> forwardedHeadersOptions,
     IOptions<ApplicationRateLimitingOptions> rateLimitingOptions,
     IHostEnvironment environment,
-    ILogger<ForwardedHeadersTrustDiagnosticsHostedService> logger) : IHostedService
+    ILogger<ForwardedHeadersTrustDiagnosticsHostedService> _logger) : IHostedService
 {
     private const string StrictValidationFailureMessage =
         "Forwarded headers and client-IP rate limiting are enabled, but no trusted proxy or network is configured. " +
@@ -19,7 +19,6 @@ internal sealed partial class ForwardedHeadersTrustDiagnosticsHostedService(
     private readonly ApplicationForwardedHeadersOptions _forwardedHeadersOptions = forwardedHeadersOptions.Value;
     private readonly ApplicationRateLimitingOptions _rateLimitingOptions = rateLimitingOptions.Value;
     private readonly IHostEnvironment _environment = environment;
-    private readonly ILogger _logger = logger;
 
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)

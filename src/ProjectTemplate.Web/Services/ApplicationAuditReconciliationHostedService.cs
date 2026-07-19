@@ -40,6 +40,18 @@ public sealed partial class ApplicationAuditReconciliationHostedService(
                 IApplicationAuditReconciler reconciler = scope.ServiceProvider
                     .GetRequiredService<IApplicationAuditReconciler>();
                 _ = await reconciler.ReconcileAsync(stoppingToken).ConfigureAwait(false);
+
+                IApplicationAuditCompletionOutboxQuery? outboxQuery = scope.ServiceProvider
+                    .GetService<IApplicationAuditCompletionOutboxQuery>();
+                if (outboxQuery is not null)
+                {
+                    ApplicationAuditCompletionOutboxHealth deliveryHealth = await outboxQuery
+                        .GetHealthAsync(stoppingToken)
+                        .ConfigureAwait(false);
+                    scope.ServiceProvider
+                        .GetRequiredService<ApplicationAuditReconciliationMetrics>()
+                        .UpdateDelivery(deliveryHealth);
+                }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {

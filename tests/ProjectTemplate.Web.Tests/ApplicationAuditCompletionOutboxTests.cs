@@ -1,7 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.Options;
@@ -194,7 +193,7 @@ public sealed class ApplicationAuditCompletionOutboxTests
             .Options;
         var pipeline = new ApplicationSaveChangesPipeline(
             new TestCurrentActorAccessor(),
-            Options.Create(new DataAccessOptions
+            Microsoft.Extensions.Options.Options.Create(new DataAccessOptions
             {
                 Auditing = new DataAuditingOptions { Enabled = false }
             }));
@@ -214,7 +213,7 @@ public sealed class ApplicationAuditCompletionOutboxTests
         configure?.Invoke(options);
         return new ApplicationAuditCompletionOutbox(
             context,
-            Options.Create(options),
+            Microsoft.Extensions.Options.Options.Create(options),
             publishers,
             TimeProvider.System);
     }

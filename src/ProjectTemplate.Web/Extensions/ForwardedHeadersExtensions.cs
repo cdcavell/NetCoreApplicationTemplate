@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
+using ProjectTemplate.Web.Diagnostics;
 using ProjectTemplate.Web.Options;
 using NetIPNetwork = System.Net.IPNetwork;
 
@@ -85,6 +86,8 @@ public static class ForwardedHeadersExtensions
                 }
             }
         });
+
+        services.AddHostedService<ForwardedHeadersTrustDiagnosticsHostedService>();
 
         return services;
     }

@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - feature/issue-373-forwarded-header-diagnostics
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read

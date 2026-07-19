@@ -17,182 +17,92 @@ namespace ProjectTemplate.Infrastructure.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.8");
 
+            modelBuilder.Entity("ProjectTemplate.Infrastructure.Data.Entities.ApplicationAuditCompletionOutboxEntry", b =>
+                {
+                    b.Property<Guid>("Id").HasColumnType("TEXT");
+                    b.Property<int>("AuditRecordCount").HasColumnType("INTEGER");
+                    b.Property<string>("ConcurrencyStamp").IsConcurrencyToken().IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("CorrelationId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<DateTime>("CreatedUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("DecisionAuditRecordId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<DateTime?>("DeliveredUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("Destination").IsRequired().HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("ExecutionAttemptId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("IdempotencyKey").IsRequired().HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<DateTime?>("LastAttemptUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("LastErrorCode").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("LastErrorMessage").HasMaxLength(512).HasColumnType("TEXT");
+                    b.Property<string>("MutationBatchId").IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("MutationManifestAlgorithm").IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("MutationManifestHash").IsRequired().HasMaxLength(256).HasColumnType("TEXT");
+                    b.Property<string>("MutationManifestSchemaVersion").IsRequired().HasMaxLength(32).HasColumnType("TEXT");
+                    b.Property<DateTime?>("NextAttemptUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("OperationExecutionId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("PersistenceOutcome").IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<DateTime>("ReceiptCompletedUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<int>("RetryCount").HasColumnType("INTEGER");
+                    b.Property<string>("SchemaVersion").IsRequired().HasMaxLength(32).HasColumnType("TEXT");
+                    b.Property<string>("Status").IsRequired().HasMaxLength(32).HasColumnType("TEXT");
+                    b.Property<string>("TraceId").HasMaxLength(64).HasColumnType("TEXT");
+                    b.HasKey("Id");
+                    b.HasIndex("CreatedUtc");
+                    b.HasIndex("IdempotencyKey").IsUnique();
+                    b.HasIndex("Destination", "MutationBatchId").IsUnique();
+                    b.HasIndex("Status", "NextAttemptUtc");
+                    b.ToTable("ApplicationAuditCompletionOutbox", (string)null);
+                });
+
             modelBuilder.Entity("ProjectTemplate.Infrastructure.Data.Entities.AuditRecord", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ActorId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ActorType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Application")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CorrelationId")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CurrentValues")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DecisionAuditRecordId")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Entity")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ExecutionAttemptId")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("KeyValues")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ModifiedOnUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MutationBatchId")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OperationExecutionId")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OrganizationHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalValues")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SchemaVersion")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SpanId")
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TenantHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("TraceId")
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
+                    b.Property<Guid>("Id").HasColumnType("TEXT");
+                    b.Property<string>("ActorId").IsRequired().HasMaxLength(256).HasColumnType("TEXT");
+                    b.Property<string>("ActorType").IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("Application").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
+                    b.Property<string>("ConcurrencyStamp").IsConcurrencyToken().IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("CorrelationId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("CurrentValues").IsRequired().HasColumnType("TEXT");
+                    b.Property<string>("DecisionAuditRecordId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("Entity").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
+                    b.Property<string>("ExecutionAttemptId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("KeyValues").IsRequired().HasColumnType("TEXT");
+                    b.Property<string>("ModifiedBy").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
+                    b.Property<DateTime>("ModifiedOnUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("MutationBatchId").IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<string>("OperationExecutionId").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("OrganizationHash").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("OriginalValues").IsRequired().HasColumnType("TEXT");
+                    b.Property<string>("SchemaVersion").IsRequired().HasMaxLength(32).HasColumnType("TEXT");
+                    b.Property<string>("SpanId").HasMaxLength(32).HasColumnType("TEXT");
+                    b.Property<string>("State").IsRequired().HasMaxLength(100).HasColumnType("TEXT");
+                    b.Property<string>("TenantHash").HasMaxLength(128).HasColumnType("TEXT");
+                    b.Property<string>("TraceId").HasMaxLength(64).HasColumnType("TEXT");
                     b.HasKey("Id");
-
                     b.HasIndex("CorrelationId");
-
                     b.HasIndex("DecisionAuditRecordId");
-
                     b.HasIndex("MutationBatchId");
-
                     b.HasIndex("OperationExecutionId");
-
                     b.ToTable("AuditRecords", (string)null);
                 });
 
             modelBuilder.Entity("ProjectTemplate.Infrastructure.Data.Entities.ExternalLoginAccount", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedOnUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(320)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("LastLoginOnUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("LocalUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(320)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NormalizedProviderName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProviderName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProviderUserId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedOnUtc")
-                        .HasPrecision(3)
-                        .HasColumnType("TEXT");
-
+                    b.Property<Guid>("Id").HasColumnType("TEXT");
+                    b.Property<string>("ConcurrencyStamp").IsConcurrencyToken().IsRequired().HasMaxLength(64).HasColumnType("TEXT");
+                    b.Property<DateTime>("CreatedOnUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<string>("DisplayName").HasMaxLength(200).HasColumnType("TEXT");
+                    b.Property<string>("Email").HasMaxLength(320).HasColumnType("TEXT");
+                    b.Property<DateTime?>("LastLoginOnUtc").HasPrecision(3).HasColumnType("TEXT");
+                    b.Property<Guid>("LocalUserId").HasColumnType("TEXT");
+                    b.Property<string>("NormalizedEmail").HasMaxLength(320).HasColumnType("TEXT");
+                    b.Property<string>("NormalizedProviderName").IsRequired().HasMaxLength(100).HasColumnType("TEXT");
+                    b.Property<string>("ProviderName").IsRequired().HasMaxLength(100).HasColumnType("TEXT");
+                    b.Property<string>("ProviderUserId").IsRequired().HasMaxLength(256).HasColumnType("TEXT");
+                    b.Property<DateTime?>("UpdatedOnUtc").HasPrecision(3).HasColumnType("TEXT");
                     b.HasKey("Id");
-
                     b.HasIndex("Email");
-
                     b.HasIndex("LocalUserId");
-
                     b.HasIndex("NormalizedEmail");
-
-                    b.HasIndex("NormalizedProviderName", "ProviderUserId")
-                        .IsUnique();
-
+                    b.HasIndex("NormalizedProviderName", "ProviderUserId").IsUnique();
                     b.ToTable("ExternalLoginAccounts", (string)null);
                 });
 #pragma warning restore 612, 618

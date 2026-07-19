@@ -1,0 +1,38 @@
+name: Diagnose Issue 373
+
+on:
+  push:
+    branches:
+      - feature/issue-373-forwarded-header-diagnostics
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: 10.0.x
+      - name: Capture build diagnostics
+        shell: bash
+        run: |
+          set +e
+          dotnet restore ./NetCoreApplicationTemplate.slnx
+          dotnet build ./NetCoreApplicationTemplate.slnx --configuration Release --no-restore > issue-373-build.log 2>&1
+          status=$?
+          grep -E "(^|: )(error|warning) [A-Z]+[0-9]+" issue-373-build.log > issue-373-diagnostics.log || true
+          cat issue-373-diagnostics.log
+          exit $status
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: issue-373-build-diagnostics
+          path: |
+            issue-373-build.log
+            issue-373-diagnostics.log

@@ -10,9 +10,9 @@ internal sealed partial class ForwardedHeadersTrustDiagnosticsHostedService(
     IOptions<ApplicationForwardedHeadersOptions> forwardedHeadersOptions,
     IOptions<ApplicationRateLimitingOptions> rateLimitingOptions,
     IHostEnvironment environment,
-    ILogger<ForwardedHeadersTrustDiagnosticsHostedService> _logger) : IHostedService
+    ILogger<ForwardedHeadersTrustDiagnosticsHostedService> logger) : IHostedService
 {
-    private const string StrictValidationFailureMessage =
+    private const string _strictValidationFailureMessage =
         "Forwarded headers and client-IP rate limiting are enabled, but no trusted proxy or network is configured. " +
         "Configure ProjectTemplate:ForwardedHeaders:KnownProxies or KnownNetworks before enabling strict proxy trust validation.";
 
@@ -33,15 +33,18 @@ internal sealed partial class ForwardedHeadersTrustDiagnosticsHostedService(
 
         if (_forwardedHeadersOptions.RequireExplicitProxyTrust)
         {
-            throw new InvalidOperationException(StrictValidationFailureMessage);
+            throw new InvalidOperationException(_strictValidationFailureMessage);
         }
 
-        LogMissingExplicitProxyTrust(_logger, _environment.EnvironmentName);
+        LogMissingExplicitProxyTrust(logger, _environment.EnvironmentName);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
     internal static bool RequiresExplicitProxyTrust(
         ApplicationForwardedHeadersOptions forwardedHeadersOptions,

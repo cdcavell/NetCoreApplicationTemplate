@@ -1,0 +1,46 @@
+name: Format Issue 369 Branch
+
+on:
+  push:
+    branches:
+      - agent/issue-369-audit-completion-outbox
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore dependencies
+        run: dotnet restore ./NetCoreApplicationTemplate.slnx
+
+      - name: Apply formatting
+        run: dotnet format ./NetCoreApplicationTemplate.slnx --no-restore --verbosity diagnostic
+
+      - name: Capture formatted files
+        run: |
+          mkdir -p artifacts/formatted
+          git diff --name-only -- '*.cs' '*.md' | while read -r file; do
+            mkdir -p "artifacts/formatted/$(dirname "$file")"
+            cp "$file" "artifacts/formatted/$file"
+          done
+          git diff > artifacts/format.patch
+
+      - name: Upload formatting artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4.6.2
+        with:
+          name: issue-369-formatted
+          path: artifacts

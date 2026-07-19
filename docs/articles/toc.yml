@@ -76,6 +76,8 @@
       href: ef-core-save-pipeline.md
     - name: Audit Accountability Integration
       href: audit-accountability-integration.md
+    - name: Durable Audit-Completion Outbox
+      href: audit-completion-outbox.md
 
 - name: GitHub Workflow
   href: github-workflow.md

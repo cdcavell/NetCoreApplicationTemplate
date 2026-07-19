@@ -25,6 +25,13 @@ public sealed partial class ApplicationDbContext(
     /// Gets the audit records for the application.
     /// </summary>
     public DbSet<AuditRecord> AuditRecords => Set<AuditRecord>();
+
+    /// <summary>
+    /// Gets the durable, minimized audit-completion outbox entries.
+    /// </summary>
+    public DbSet<ApplicationAuditCompletionOutboxEntry> ApplicationAuditCompletionOutboxEntries =>
+        Set<ApplicationAuditCompletionOutboxEntry>();
+
     /// <summary>
     /// Gets the external login account links for the application.
     /// </summary>

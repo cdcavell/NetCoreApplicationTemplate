@@ -50,6 +50,11 @@ public sealed class ApplicationAuthenticationOptionsValidator(IHostEnvironment? 
             "ProjectTemplate:Authentication:DefaultSignInScheme is required.",
             failures);
 
+        Require(
+            !options.Cookie.AllowInsecureHttp || _environment?.IsDevelopment() == true,
+            "ProjectTemplate:Authentication:Cookie:AllowInsecureHttp may only be enabled in the Development environment.",
+            failures);
+
         if (!options.Enabled)
         {
             return;
@@ -68,11 +73,6 @@ public sealed class ApplicationAuthenticationOptionsValidator(IHostEnvironment? 
         Require(
             options.Cookie.ExpireMinutes > 0,
             "ProjectTemplate:Authentication:Cookie:ExpireMinutes must be greater than zero when application authentication is enabled.",
-            failures);
-
-        Require(
-            !options.Cookie.AllowInsecureHttp || _environment?.IsDevelopment() == true,
-            "ProjectTemplate:Authentication:Cookie:AllowInsecureHttp may only be enabled in the Development environment.",
             failures);
     }
 

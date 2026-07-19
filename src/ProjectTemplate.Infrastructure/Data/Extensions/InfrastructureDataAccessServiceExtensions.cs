@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Auditing;
 using ProjectTemplate.Infrastructure.Data.ExternalLogins;
 using ProjectTemplate.Infrastructure.Data.Options;
@@ -54,19 +53,12 @@ public static class InfrastructureDataAccessServiceExtensions
             services.TryAddScoped<IApplicationAuditStore, LocalApplicationAuditStore>();
         }
 
-        services.TryAddScoped(serviceProvider =>
-            new ApplicationSaveChangesPipeline(
-                serviceProvider.GetRequiredService<ICurrentActorAccessor>(),
-                serviceProvider.GetRequiredService<IOptions<DataAccessOptions>>(),
-                serviceProvider.GetService<IApplicationAuditStore>(),
-                serviceProvider.GetService<IApplicationAuditContextAccessor>(),
-                serviceProvider.GetService<IApplicationAuditValuePolicy>(),
-                serviceProvider.GetRequiredService<IApplicationMutationManifestBuilder>(),
-                serviceProvider.GetRequiredService<IApplicationMutationManifestHasher>()));
+        services.TryAddScoped<ContextIsolatedApplicationSaveChangesPipeline>();
         services.TryAddScoped<IApplicationSaveChangesPipeline>(serviceProvider =>
-            serviceProvider.GetRequiredService<ApplicationSaveChangesPipeline>());
-        services.TryAddScoped<IApplicationMutationAuditReceiptAccessor>(serviceProvider =>
-            serviceProvider.GetRequiredService<ApplicationSaveChangesPipeline>());
+            serviceProvider.GetRequiredService<ContextIsolatedApplicationSaveChangesPipeline>());
+        services.TryAddScoped<IApplicationMutationAuditReceiptRegistry>(serviceProvider =>
+            serviceProvider.GetRequiredService<ContextIsolatedApplicationSaveChangesPipeline>());
+        services.TryAddScoped<IApplicationMutationAuditReceiptAccessor, ApplicationDbContextMutationAuditReceiptAccessor>();
         services.TryAddScoped<ApplicationSaveChangesInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>(options => ConfigureProvider(

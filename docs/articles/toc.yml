@@ -76,6 +76,8 @@
       href: ef-core-save-pipeline.md
     - name: Audit Accountability Integration
       href: audit-accountability-integration.md
+    - name: DbContext Audit State Isolation
+      href: dbcontext-audit-state-isolation.md
     - name: Durable Audit-Completion Outbox
       href: audit-completion-outbox.md
     - name: Audit Reconciliation and Recovery

@@ -45,11 +45,17 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         IApplicationSaveChangesPipeline saveChangesPipeline = scope.ServiceProvider
             .GetRequiredService<IApplicationSaveChangesPipeline>();
 
+        IApplicationMutationAuditReceiptRegistry receiptRegistry = scope.ServiceProvider
+            .GetRequiredService<IApplicationMutationAuditReceiptRegistry>();
+
         ApplicationSaveChangesInterceptor saveChangesInterceptor = scope.ServiceProvider
             .GetRequiredService<ApplicationSaveChangesInterceptor>();
 
         using ApplicationDbContext context = scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
+
+        IApplicationMutationAuditReceiptAccessor receiptAccessor = scope.ServiceProvider
+            .GetRequiredService<IApplicationMutationAuditReceiptAccessor>();
 
         IDbContextFactory<ApplicationDbContext> dbContextFactory = scope.ServiceProvider
             .GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
@@ -58,7 +64,9 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
 
         Assert.Equal(SystemCurrentActorAccessor.ActorName, actorAccessor.CurrentActor);
         Assert.IsType<LocalApplicationAuditStore>(auditStore);
-        Assert.IsType<ApplicationSaveChangesPipeline>(saveChangesPipeline);
+        Assert.NotNull(saveChangesPipeline);
+        Assert.Same(saveChangesPipeline, receiptRegistry);
+        Assert.Null(receiptAccessor.LastCompletedReceipt);
         Assert.NotNull(saveChangesInterceptor);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", context.Database.ProviderName);
         Assert.Equal("Microsoft.EntityFrameworkCore.Sqlite", factoryContext.Database.ProviderName);
@@ -102,6 +110,8 @@ public sealed class InfrastructureDataAccessServiceExtensionsTests
         Assert.Null(serviceProvider.GetService<ICurrentActorAccessor>());
         Assert.Null(serviceProvider.GetService<IApplicationAuditStore>());
         Assert.Null(serviceProvider.GetService<IApplicationSaveChangesPipeline>());
+        Assert.Null(serviceProvider.GetService<IApplicationMutationAuditReceiptRegistry>());
+        Assert.Null(serviceProvider.GetService<IApplicationMutationAuditReceiptAccessor>());
         Assert.Null(serviceProvider.GetService<ApplicationSaveChangesInterceptor>());
         Assert.Null(serviceProvider.GetService<ApplicationDbContext>());
         Assert.Null(serviceProvider.GetService<IDbContextFactory<ApplicationDbContext>>());

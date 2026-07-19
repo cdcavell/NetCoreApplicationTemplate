@@ -78,6 +78,8 @@
       href: audit-accountability-integration.md
     - name: Durable Audit-Completion Outbox
       href: audit-completion-outbox.md
+    - name: Audit Reconciliation and Recovery
+      href: audit-reconciliation.md
 
 - name: GitHub Workflow
   href: github-workflow.md

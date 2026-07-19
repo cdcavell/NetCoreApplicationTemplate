@@ -16,7 +16,7 @@ public sealed class ApplicationAuditCompletionOutbox :
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ApplicationAuditCompletionOutboxOptions _options;
-    private readonly IReadOnlyDictionary<string, IApplicationAuditCompletionPublisher> _publishers;
+    private readonly Dictionary<string, IApplicationAuditCompletionPublisher> _publishers;
     private readonly TimeProvider _timeProvider;
 
     public ApplicationAuditCompletionOutbox(

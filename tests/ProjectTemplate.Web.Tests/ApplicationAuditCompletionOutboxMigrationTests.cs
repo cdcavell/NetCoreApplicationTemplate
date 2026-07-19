@@ -24,7 +24,7 @@ public sealed class ApplicationAuditCompletionOutboxMigrationTests
         Invoke(migration, "Down", downBuilder);
 
         Assert.Equal(5, upBuilder.Operations.Count);
-        Assert.Equal(1, downBuilder.Operations.Count);
+        Assert.Single(downBuilder.Operations);
     }
 
     [Fact]

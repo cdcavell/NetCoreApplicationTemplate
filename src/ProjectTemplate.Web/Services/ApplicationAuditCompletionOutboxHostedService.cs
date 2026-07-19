@@ -6,7 +6,7 @@ namespace ProjectTemplate.Web.Services;
 /// <summary>
 /// Dispatches durable audit-completion entries after their originating transaction commits.
 /// </summary>
-public sealed class ApplicationAuditCompletionOutboxHostedService(
+public sealed partial class ApplicationAuditCompletionOutboxHostedService(
     IServiceScopeFactory scopeFactory,
     IOptions<ApplicationAuditCompletionOutboxOptions> options,
     TimeProvider timeProvider,
@@ -21,6 +21,14 @@ public sealed class ApplicationAuditCompletionOutboxHostedService(
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<ApplicationAuditCompletionOutboxHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    [LoggerMessage(
+        EventId = 19100,
+        Level = LogLevel.Error,
+        Message = "The audit-completion outbox dispatch cycle failed and will be retried.")]
+    private static partial void LogDispatchCycleFailure(
+        ILogger logger,
+        Exception exception);
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,9 +53,7 @@ public sealed class ApplicationAuditCompletionOutboxHostedService(
             }
             catch (Exception exception)
             {
-                _logger.LogError(
-                    exception,
-                    "The audit-completion outbox dispatch cycle failed and will be retried.");
+                LogDispatchCycleFailure(_logger, exception);
             }
 
             await Task.Delay(_options.PollInterval, _timeProvider, stoppingToken)

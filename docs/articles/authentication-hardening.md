@@ -27,6 +27,28 @@ Before deployment, confirm:
 - Confirm login, callback, logout, and access-denied flows use the public origin.
 - Test security headers, HTTPS redirection, and callbacks behind the deployed proxy.
 
+## Authentication Cookie Secure Policy
+
+The local authentication cookie uses `CookieSecurePolicy.Always` by default. The cookie therefore receives the `Secure` attribute independently of the request scheme perceived by the application. Production deployments must serve authentication flows over HTTPS; a reverse-proxy or forwarded-header misconfiguration does not downgrade this cookie to a non-secure cookie.
+
+Local plain-HTTP authentication is available only through an explicit Development-only override:
+
+```json
+{
+  "ProjectTemplate": {
+    "Authentication": {
+      "Cookie": {
+        "AllowInsecureHttp": true
+      }
+    }
+  }
+}
+```
+
+Place this override only in local `appsettings.Development.json`, user secrets, or another Development-only configuration source. When enabled in Development, the cookie uses `CookieSecurePolicy.SameAsRequest`, so an HTTP request can receive the cookie without the `Secure` attribute.
+
+Startup validation rejects `ProjectTemplate:Authentication:Cookie:AllowInsecureHttp=true` in Testing, Staging, Production, or any environment other than Development. Do not use the override to compensate for TLS, proxy, forwarded-header, certificate, or callback configuration problems.
+
 ## Redirect, Callback, ACS, and Logout URLs
 
 - Register OIDC and OAuth redirect URIs exactly.

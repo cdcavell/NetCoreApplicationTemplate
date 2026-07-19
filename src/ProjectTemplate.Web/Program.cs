@@ -34,7 +34,7 @@ try
     builder.Services.AddApplicationRequestLogging(builder.Configuration);
     builder.Services.AddApplicationOpenTelemetry(builder.Configuration, builder.Environment);
     builder.Services.AddApplicationProblemDetails(builder.Environment);
-    builder.Services.AddApplicationAuthentication(builder.Configuration);
+    builder.Services.AddApplicationAuthentication(builder.Configuration, builder.Environment);
     builder.Services.AddApplicationAuthorization(builder.Configuration);
     builder.Services.AddApplicationDataAccess(builder.Configuration);
 

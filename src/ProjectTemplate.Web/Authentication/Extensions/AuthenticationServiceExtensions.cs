@@ -17,7 +17,8 @@ namespace ProjectTemplate.Web.Authentication.Extensions;
 public static class AuthenticationServiceExtensions
 {
     /// <summary>
-    /// Adds application authentication services based on configuration.
+    /// Adds application authentication services based on configuration using the secure cookie policy without an
+    /// environment-specific plain HTTP override.
     /// </summary>
     /// <param name="services">The service collection to add authentication services to.</param>
     /// <param name="configuration">The application configuration source.</param>
@@ -26,11 +27,27 @@ public static class AuthenticationServiceExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        return AddApplicationAuthentication(services, configuration, environment: null);
+    }
+
+    /// <summary>
+    /// Adds application authentication services based on configuration and the current hosting environment.
+    /// </summary>
+    /// <param name="services">The service collection to add authentication services to.</param>
+    /// <param name="configuration">The application configuration source.</param>
+    /// <param name="environment">The current hosting environment.</param>
+    /// <returns>The same <see cref="IServiceCollection"/> instance for chaining.</returns>
+    public static IServiceCollection AddApplicationAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment? environment)
+    {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.AddTransient<IClaimsTransformation, ApplicationClaimsTransformation>();
-        services.AddSingleton<IValidateOptions<ApplicationAuthenticationOptions>, ApplicationAuthenticationOptionsValidator>();
+        services.AddSingleton<IValidateOptions<ApplicationAuthenticationOptions>>(
+            new ApplicationAuthenticationOptionsValidator(environment));
 
         services
             .AddOptions<ApplicationAuthenticationOptions>()
@@ -80,7 +97,10 @@ public static class AuthenticationServiceExtensions
                 options.Cookie.Name = ".ProjectTemplate.Web.Authentication";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = applicationAuthenticationOptions.Cookie.AllowInsecureHttp &&
+                    environment?.IsDevelopment() == true
+                        ? CookieSecurePolicy.SameAsRequest
+                        : CookieSecurePolicy.Always;
             });
 
         ApplicationAuthenticationOptions applicationAuthenticationOptions = configuration

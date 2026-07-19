@@ -9,6 +9,9 @@ public sealed class ApplicationAuditReconciliationMetrics : IDisposable
 
     private readonly Meter _meter = new("ProjectTemplate.AuditReconciliation", "1.0.0");
     private ApplicationAuditReconciliationSummary _summary = DisabledSummary;
+    private long _pendingDeliveryCount;
+    private double _oldestPendingAgeSeconds;
+    private long _totalRetryCount;
 
     public ApplicationAuditReconciliationMetrics()
     {
@@ -26,6 +29,12 @@ public sealed class ApplicationAuditReconciliationMetrics : IDisposable
             () => _summary.StaleDeliveryCount);
         _meter.CreateObservableGauge("ncat.audit.reconciliation.dead_letters",
             () => _summary.DeadLetterCount);
+        _meter.CreateObservableGauge("ncat.audit.outbox.pending",
+            () => Interlocked.Read(ref _pendingDeliveryCount));
+        _meter.CreateObservableGauge("ncat.audit.outbox.oldest_pending_age_seconds",
+            () => Volatile.Read(ref _oldestPendingAgeSeconds));
+        _meter.CreateObservableGauge("ncat.audit.outbox.retry_count",
+            () => Interlocked.Read(ref _totalRetryCount));
     }
 
     public DateTime? LastRunUtc => _summary.LastRunUtc;
@@ -34,6 +43,14 @@ public sealed class ApplicationAuditReconciliationMetrics : IDisposable
     {
         ArgumentNullException.ThrowIfNull(summary);
         _summary = summary;
+    }
+
+    public void UpdateDelivery(ApplicationAuditCompletionOutboxHealth health)
+    {
+        ArgumentNullException.ThrowIfNull(health);
+        Interlocked.Exchange(ref _pendingDeliveryCount, health.BacklogCount);
+        Volatile.Write(ref _oldestPendingAgeSeconds, health.OldestPendingAge?.TotalSeconds ?? 0);
+        Interlocked.Exchange(ref _totalRetryCount, health.TotalRetryCount);
     }
 
     public void Dispose()

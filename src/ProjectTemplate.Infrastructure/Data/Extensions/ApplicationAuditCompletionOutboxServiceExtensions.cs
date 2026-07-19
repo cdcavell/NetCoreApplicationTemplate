@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using ProjectTemplate.Infrastructure.Data.Auditing;
 
 namespace ProjectTemplate.Infrastructure.Data.Extensions;
@@ -22,7 +23,7 @@ public static class ApplicationAuditCompletionOutboxServiceExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        var optionsBuilder = services
+        OptionsBuilder<ApplicationAuditCompletionOutboxOptions> optionsBuilder = services
             .AddOptions<ApplicationAuditCompletionOutboxOptions>()
             .Validate(options => !string.IsNullOrWhiteSpace(options.DefaultDestination),
                 "The default audit-completion destination must not be empty.")
@@ -49,7 +50,7 @@ public static class ApplicationAuditCompletionOutboxServiceExtensions
             optionsBuilder.Configure(configure);
         }
 
-        services.TryAddSingleton<TimeProvider>(TimeProvider.System);
+        services.TryAddSingleton(TimeProvider.System);
         services.TryAddScoped<ApplicationAuditCompletionOutbox>();
         services.TryAddScoped<IApplicationAuditCompletionOutbox>(serviceProvider =>
             serviceProvider.GetRequiredService<ApplicationAuditCompletionOutbox>());

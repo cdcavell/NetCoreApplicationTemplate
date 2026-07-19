@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectTemplate.Infrastructure.Data;
 using ProjectTemplate.Infrastructure.Data.Auditing;
+using ProjectTemplate.Infrastructure.Data.Entities;
 using ProjectTemplate.Infrastructure.Data.Options;
 
 namespace ProjectTemplate.Web.Tests;
@@ -49,8 +50,8 @@ public sealed class ApplicationAuditCompletionOutboxTests
         ApplicationAuditCompletionOutbox outbox = CreateOutbox(context, []);
         ApplicationMutationAuditReceipt receipt = CreateReceipt("duplicate-batch");
 
-        var first = await outbox.StageAsync(context, receipt, cancellationToken: TestContext.Current.CancellationToken);
-        var second = await outbox.StageAsync(context, receipt, cancellationToken: TestContext.Current.CancellationToken);
+        ApplicationAuditCompletionOutboxEntry? first = await outbox.StageAsync(context, receipt, cancellationToken: TestContext.Current.CancellationToken);
+        ApplicationAuditCompletionOutboxEntry? second = await outbox.StageAsync(context, receipt, cancellationToken: TestContext.Current.CancellationToken);
         _ = await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         Assert.NotNull(first);
@@ -149,7 +150,7 @@ public sealed class ApplicationAuditCompletionOutboxTests
             [publisher],
             options => options.Enabled = false);
 
-        var entry = await outbox.StageAsync(context, CreateReceipt("disabled-batch"),
+        ApplicationAuditCompletionOutboxEntry? entry = await outbox.StageAsync(context, CreateReceipt("disabled-batch"),
             cancellationToken: TestContext.Current.CancellationToken);
         ApplicationAuditCompletionDispatchSummary dispatch = await outbox.DispatchReadyAsync(
             TestContext.Current.CancellationToken);
@@ -188,7 +189,7 @@ public sealed class ApplicationAuditCompletionOutboxTests
 
     private static ApplicationDbContext CreateContext(SqliteConnection connection)
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlite(connection)
             .Options;
         var pipeline = new ApplicationSaveChangesPipeline(

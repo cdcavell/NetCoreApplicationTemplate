@@ -191,6 +191,8 @@ public sealed class ApplicationAuditCompletionOutbox :
                 case ApplicationAuditCompletionOutboxStatuses.DeadLettered:
                     deadLettered++;
                     break;
+                default:
+                    break;
             }
         }
 
@@ -392,17 +394,11 @@ public sealed class ApplicationAuditCompletionOutbox :
     private static string NormalizeDestination(string? destination)
     {
         string normalized = destination?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(normalized))
-        {
-            throw new InvalidOperationException("An audit-completion destination must be configured.");
-        }
-
-        if (normalized.Length > 128)
-        {
-            throw new InvalidOperationException("An audit-completion destination cannot exceed 128 characters.");
-        }
-
-        return normalized;
+        return string.IsNullOrWhiteSpace(normalized)
+            ? throw new InvalidOperationException("An audit-completion destination must be configured.")
+            : normalized.Length > 128
+            ? throw new InvalidOperationException("An audit-completion destination cannot exceed 128 characters.")
+            : normalized;
     }
 
     private static OutboxIdentity CreateIdentity(string destination, string mutationBatchId)
@@ -425,20 +421,18 @@ public sealed class ApplicationAuditCompletionOutbox :
         string mutationBatchId,
         string idempotencyKey)
     {
-        if (!existing.Destination.Equals(destination, StringComparison.OrdinalIgnoreCase) ||
+        return !existing.Destination.Equals(destination, StringComparison.OrdinalIgnoreCase) ||
             !existing.MutationBatchId.Equals(mutationBatchId, StringComparison.Ordinal) ||
-            !existing.IdempotencyKey.Equals(idempotencyKey, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException(
-                "The deterministic audit-completion outbox identity resolved to conflicting persisted data.");
-        }
-
-        return existing;
+            !existing.IdempotencyKey.Equals(idempotencyKey, StringComparison.Ordinal)
+            ? throw new InvalidOperationException(
+                "The deterministic audit-completion outbox identity resolved to conflicting persisted data.")
+            : existing;
     }
 
     private static ApplicationAuditCompletionMessage ToMessage(
-        ApplicationAuditCompletionOutboxEntry entry) =>
-        new(
+        ApplicationAuditCompletionOutboxEntry entry)
+    {
+        return new(
             entry.SchemaVersion,
             entry.Destination,
             entry.IdempotencyKey,
@@ -454,10 +448,12 @@ public sealed class ApplicationAuditCompletionOutbox :
             entry.DecisionAuditRecordId,
             entry.CorrelationId,
             entry.TraceId);
+    }
 
     private static ApplicationAuditCompletionOutboxItem ToItem(
-        ApplicationAuditCompletionOutboxEntry entry) =>
-        new(
+        ApplicationAuditCompletionOutboxEntry entry)
+    {
+        return new(
             entry.Id,
             entry.SchemaVersion,
             entry.Destination,
@@ -482,6 +478,7 @@ public sealed class ApplicationAuditCompletionOutbox :
             entry.DeliveredUtc,
             entry.LastErrorCode,
             entry.LastErrorMessage);
+    }
 
     private static string? SanitizeError(string? value, int maximumLength)
     {
@@ -490,16 +487,18 @@ public sealed class ApplicationAuditCompletionOutbox :
             return null;
         }
 
-        string sanitized = new(value
+        string sanitized = new([.. value
             .Trim()
-            .Select(character => char.IsControl(character) ? ' ' : character)
-            .ToArray());
+            .Select(character => char.IsControl(character) ? ' ' : character)]);
         return sanitized.Length <= maximumLength
             ? sanitized
             : sanitized[..maximumLength];
     }
 
-    private DateTime UtcNow() => _timeProvider.GetUtcNow().UtcDateTime;
+    private DateTime UtcNow()
+    {
+        return _timeProvider.GetUtcNow().UtcDateTime;
+    }
 
     private sealed record OutboxIdentity(Guid Id, string IdempotencyKey);
 }

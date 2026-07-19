@@ -104,33 +104,41 @@ public sealed record ApplicationAuditCompletionPublishResult(
     string? ErrorMessage = null,
     TimeSpan? RetryAfter = null)
 {
-    public static ApplicationAuditCompletionPublishResult Success() =>
-        new(ApplicationAuditCompletionPublishDisposition.Delivered);
+    public static ApplicationAuditCompletionPublishResult Success()
+    {
+        return new(ApplicationAuditCompletionPublishDisposition.Delivered);
+    }
 
     public static ApplicationAuditCompletionPublishResult Retry(
         string? errorCode = null,
         string? errorMessage = null,
-        TimeSpan? retryAfter = null) =>
-        new(
+        TimeSpan? retryAfter = null)
+    {
+        return new(
             ApplicationAuditCompletionPublishDisposition.RetryableFailure,
             errorCode,
             errorMessage,
             retryAfter);
+    }
 
     public static ApplicationAuditCompletionPublishResult TerminalFailure(
         string? errorCode = null,
-        string? errorMessage = null) =>
-        new(ApplicationAuditCompletionPublishDisposition.Failed, errorCode, errorMessage);
+        string? errorMessage = null)
+    {
+        return new(ApplicationAuditCompletionPublishDisposition.Failed, errorCode, errorMessage);
+    }
 
     public static ApplicationAuditCompletionPublishResult Defer(
         string? errorCode = null,
         string? errorMessage = null,
-        TimeSpan? retryAfter = null) =>
-        new(
+        TimeSpan? retryAfter = null)
+    {
+        return new(
             ApplicationAuditCompletionPublishDisposition.Deferred,
             errorCode,
             errorMessage,
             retryAfter);
+    }
 }
 
 public sealed record ApplicationAuditCompletionMessage(

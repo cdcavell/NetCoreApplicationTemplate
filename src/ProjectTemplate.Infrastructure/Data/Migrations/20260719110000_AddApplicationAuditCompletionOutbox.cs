@@ -40,10 +40,7 @@ public partial class AddApplicationAuditCompletionOutbox : Migration
                 LastErrorMessage = table.Column<string>(type: "TEXT", maxLength: 512, nullable: true),
                 ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false)
             },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_ApplicationAuditCompletionOutbox", x => x.Id);
-            });
+            constraints: table => table.PrimaryKey("PK_ApplicationAuditCompletionOutbox", x => x.Id));
 
         migrationBuilder.CreateIndex(
             name: "IX_ApplicationAuditCompletionOutbox_CreatedUtc",
@@ -53,7 +50,7 @@ public partial class AddApplicationAuditCompletionOutbox : Migration
         migrationBuilder.CreateIndex(
             name: "IX_ApplicationAuditCompletionOutbox_Destination_MutationBatchId",
             table: "ApplicationAuditCompletionOutbox",
-            columns: new[] { "Destination", "MutationBatchId" },
+            columns: ["Destination", "MutationBatchId"],
             unique: true);
 
         migrationBuilder.CreateIndex(
@@ -65,7 +62,7 @@ public partial class AddApplicationAuditCompletionOutbox : Migration
         migrationBuilder.CreateIndex(
             name: "IX_ApplicationAuditCompletionOutbox_Status_NextAttemptUtc",
             table: "ApplicationAuditCompletionOutbox",
-            columns: new[] { "Status", "NextAttemptUtc" });
+            columns: ["Status", "NextAttemptUtc"]);
     }
 
     /// <inheritdoc />

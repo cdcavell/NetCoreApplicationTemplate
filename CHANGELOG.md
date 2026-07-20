@@ -4,6 +4,71 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning using the format `MAJOR.MINOR.PATCH`.
 
+## 2.4.0 - 2026-07-20
+
+### Added
+
+* Added a framework-neutral audit accountability context for propagating actor, request, operation, retry-attempt, decision, tenant, organization, correlation, and distributed-tracing identifiers into EF Core mutation audit records.
+* Added mutation batch identifiers and minimized mutation audit receipts so host applications can correlate persisted changes with external workflow, archive, SIEM, or governance records without copying audited entity values.
+* Added host-replaceable audit value protection supporting include, mask, hash, omit, and truncate dispositions before audit values are persisted or included in canonical manifests.
+* Added versioned, privacy-safe canonical mutation manifests with deterministic ordering, SHA-256 hashing, and independent retained-batch verification contracts.
+* Added opt-in audited transaction coordination for atomically persisting business mutations, NCAT audit records, generated-value completion, mutation receipts, and optional database-local completion handoffs.
+* Added support for joining existing EF Core transactions through savepoints while preserving explicit transaction ownership and rollback behavior.
+* Added an opt-in, provider-neutral durable audit-completion outbox with stable idempotency keys, bounded retries, deferred delivery, terminal failure, and dead-letter handling.
+* Added publisher adapter contracts and hosted dispatch support for delivering minimized mutation-completion receipts after the originating database transaction commits.
+* Added audit-reconciliation services that compare retained audit batches with completion records and detect missing relationships, count mismatches, canonical manifest failures, malformed correlation, duplicate completion, stalled delivery, terminal failure, and dead letters.
+* Added durable, minimized reconciliation findings with stable reason codes, severities, remediation states, and append-only remediation evidence.
+* Added audit-integrity health checks and provider-neutral metrics for reconciliation findings, manifest failures, missing completions, delivery backlog, pending age, retries, and dead letters.
+* Added forwarded-header trust startup diagnostics for deployments using forwarded client addresses with client-IP rate limiting.
+* Added an optional `ProjectTemplate:ForwardedHeaders:RequireExplicitProxyTrust` setting that fails startup outside Development when forwarded client-IP processing is enabled without a configured trusted proxy or network.
+* Added property-based tests for persistence string normalization and canonicalization invariants.
+* Added NuGet dependency lock files and expanded locked-restore coverage.
+* Added OpenSSF Scorecard, OpenSSF Best Practices, workflow-security, and dependency-scanning improvements.
+
+### Changed
+
+* Changed the default scaffold authorization posture so routed endpoints without authorization metadata require an authenticated user.
+* Added `ProjectTemplate:Authorization:RequireAuthenticatedUserByDefault` and coordinated the setting with template authentication options.
+* Changed `--authProvider none` into an explicit architectural opt-out that disables application authentication, cookie authentication, and the authenticated fallback authorization policy.
+* Standardized authentication and authorization terminology throughout repository, package, generated-consumer, and DocFX documentation.
+* Changed the local authentication cookie default from `CookieSecurePolicy.SameAsRequest` to `CookieSecurePolicy.Always`.
+* Added an explicit `ProjectTemplate:Authentication:Cookie:AllowInsecureHttp` override for local Development and reject that override in all other environments.
+* Isolated mutable SaveChanges audit state and completed mutation receipts by `ApplicationDbContext` instance.
+* Added `IApplicationMutationAuditReceiptRegistry` for explicit receipt lookup when multiple factory-created contexts exist in one dependency-injection scope.
+* Updated ASP.NET Core, Entity Framework Core, testing, observability, and supporting Microsoft package dependencies.
+* Strengthened GitHub Actions token permissions, immutable action pinning, runner monitoring, dependency review, CodeQL, OWASP Dependency-Check, and release-evidence workflows.
+* Expanded generated-template, migration, authorization, authentication, audit, Docker, and cross-platform smoke-test coverage.
+* Updated repository, package, template-packaging, citation, and Zenodo metadata for release `2.4.0`.
+
+### Fixed
+
+* Fixed audit-state leakage risk when multiple `ApplicationDbContext` instances are used within the same dependency-injection scope.
+* Fixed authentication cookies potentially lacking the `Secure` attribute when proxy or request-scheme configuration is incomplete.
+* Fixed newly introduced routed endpoints being unintentionally public when authorization metadata was omitted.
+* Fixed the risk of misleading client-IP logging and shared proxy rate-limit partitions by surfacing missing forwarded-header trust configuration.
+* Removed obsolete controller and empty test placeholders from the generated template source surface.
+* Corrected reviewed OWASP Dependency-Check cross-ecosystem false-positive handling while retaining narrowly scoped, time-bounded suppressions.
+
+### Security
+
+* Default generated applications now use a closed-by-default routed-endpoint authorization posture.
+* Intentionally public routed endpoints must be explicitly marked with `[AllowAnonymous]`, `.AllowAnonymous()`, or equivalent anonymous metadata.
+* Authentication cookies are secure by default independently of the application-perceived request scheme.
+* Forwarded client addresses continue to be accepted only from explicitly trusted proxies and networks; NCAT does not parse or trust arbitrary raw `X-Forwarded-For` values.
+* Audit completion, outbox, reconciliation, health, and metric surfaces retain only minimized identifiers, counts, hashes, state, timestamps, and bounded diagnostics rather than unrestricted audited values.
+* Canonical manifest hashes prove correspondence with a retained protected-value batch but do not claim immutable storage, actor authenticity, legal compliance, transaction durability, or exactly-once delivery.
+
+### Compatibility
+
+* This is a backward-compatible minor release within the stable `2.x` package line.
+* The public NuGet package ID remains `NetCoreApplicationTemplate`.
+* The template short name remains `netcoreapp-template`.
+* The internal template and template-group identities remain unchanged.
+* Existing projects generated from earlier releases are not modified automatically.
+* Audit transaction coordination, completion outbox, reconciliation workers, and strict forwarded-header trust validation remain opt-in.
+* Applications that do not enable the new audit capabilities retain the existing direct `SaveChanges` and `SaveChangesAsync` paths.
+* NCAT remains independent of AsiBackbone and does not require an external governance, archive, SIEM, or audit product.
+
 ## 2.3.1 - 2026-07-06
 
 ### Changed

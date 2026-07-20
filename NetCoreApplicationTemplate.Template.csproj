@@ -13,8 +13,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>PACKAGE-README.md</PackageReadmeFile>
     <PackageIcon>PACKAGE-ICON.png</PackageIcon>
-    <PackageReleaseNotes>Patch 2.3.1 release of the NetCoreApplicationTemplate dotnet new template. This release hardens centralized Problem Details exception classification by treating plain ArgumentException as an internal server fault while preserving BadHttpRequestException as the explicit request-level HTTP 400 path, with tests covering status, title, and production detail-hiding behavior.</PackageReleaseNotes>
-    <VersionPrefix>2.3.1</VersionPrefix>
+    <PackageReleaseNotes>Minor 2.4.0 release of the NetCoreApplicationTemplate dotnet new template. This release adds authenticated-by-default routed endpoints, secure authentication-cookie defaults, forwarded-header trust diagnostics, framework-neutral audit accountability context, privacy-safe canonical mutation manifests, opt-in audited transaction coordination, a durable audit-completion outbox, audit reconciliation, integrity health checks, and operational metrics while preserving the stable 2.x package and template identities.</PackageReleaseNotes>
+    <VersionPrefix>2.4.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PackageType>Template</PackageType>

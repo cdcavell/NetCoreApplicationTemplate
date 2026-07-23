@@ -16,9 +16,17 @@ spec:
         app.kubernetes.io/name: projecttemplate-web
         app.kubernetes.io/part-of: netcoreapplicationtemplate
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1654
+        runAsGroup: 1654
+        fsGroup: 1654
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: projecttemplate-web
-          image: ghcr.io/cdcavell/netcoreapplicationtemplate:latest
+          image: ghcr.io/cdcavell/netcoreapplicationtemplate:2.4.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -44,9 +52,19 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
             runAsNonRoot: true
           volumeMounts:
             - name: app-data
